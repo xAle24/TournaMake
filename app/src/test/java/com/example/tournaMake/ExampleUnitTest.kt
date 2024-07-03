@@ -1,4 +1,4 @@
-package com.example.testinstallazione
+package com.example.tournaMake
 
 import org.junit.Test
 

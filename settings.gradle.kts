@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TestInstallazione"
+rootProject.name = "tournaMake"
 include(":app")

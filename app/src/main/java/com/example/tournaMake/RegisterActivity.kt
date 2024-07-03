@@ -1,4 +1,4 @@
-package com.example.testinstallazione
+package com.example.tournaMake
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -16,13 +16,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import com.example.testinstallazione.ui.theme.TestInstallazioneTheme
+import com.example.tournaMake.ui.theme.TournaMakeTheme
 
-class LoginActivity : ComponentActivity() {
+class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            TestInstallazioneTheme {
+            TournaMakeTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(/*modifier = Modifier.fillMaxSize(),*/ color = MaterialTheme.colorScheme.background) {
                     Column(
@@ -32,6 +32,7 @@ class LoginActivity : ComponentActivity() {
                     ) {
                         var username by remember { mutableStateOf("") }
                         var password by remember { mutableStateOf("") }
+                        var email by remember { mutableStateOf("") }
 
                         OutlinedTextField(
                             value = username,
@@ -44,8 +45,13 @@ class LoginActivity : ComponentActivity() {
                             label = { Text("Password") },
                             visualTransformation = PasswordVisualTransformation()
                         )
-                        Button(onClick = { /* Handle Login */ }) {
-                            Text("Login")
+                        OutlinedTextField(
+                            value = email,
+                            onValueChange = { email = it },
+                            label = { Text("Email") }
+                        )
+                        Button(onClick = { /* Handle Registration */ }) {
+                            Text("Register")
                         }
                     }
                 }

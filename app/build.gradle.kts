@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.testinstallazione"
+    namespace = "com.example.tournaMake"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.testinstallazione"
+        applicationId = "com.example.tournaMake"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

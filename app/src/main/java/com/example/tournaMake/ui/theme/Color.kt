@@ -1,4 +1,4 @@
-package com.example.testinstallazione.ui.theme
+package com.example.tournaMake.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
