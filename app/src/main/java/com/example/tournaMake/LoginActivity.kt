@@ -1,5 +1,6 @@
 package com.example.tournaMake
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -46,12 +47,16 @@ class LoginActivity : ComponentActivity() {
                             label = { Text("Password") },
                             visualTransformation = PasswordVisualTransformation()
                         )
-                        Button(onClick = { /* Handle Login */ }) {
+                        Button(onClick = { navigateToMenu() }) {
                             Text("Login")
                         }
                     }
                 }
             }
         }
+    }
+    private fun navigateToMenu() {
+        val intent = Intent(this, MenuActivity::class.java)
+        startActivity(intent)
     }
 }
