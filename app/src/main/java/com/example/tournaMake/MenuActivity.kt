@@ -53,7 +53,7 @@ class MenuActivity : ComponentActivity() {
                             }
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(onClick = { navigateToSetting() }) {
-                                Text("Setting")
+                                Text("Settings")
                             }
                         }
                     }
