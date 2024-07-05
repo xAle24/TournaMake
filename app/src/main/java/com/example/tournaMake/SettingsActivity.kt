@@ -4,87 +4,38 @@ import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import com.example.tournaMake.ui.theme.Theme
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.tournaMake.data.models.ThemeEnum
+import com.example.tournaMake.ui.screens.settings.SettingsScreen
+import com.example.tournaMake.ui.screens.settings.SettingsViewModel
 import com.example.tournaMake.ui.theme.TournaMakeTheme
-import com.example.tournaMake.ui.theme.LocalBackgroundImageId
-import com.example.tournaMake.ui.theme.getBackgroundImageId
 
 class SettingsActivity : ComponentActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            //val themeViewModel = viewModel<SettingsViewModel>()
-            var selectedTheme by remember { mutableStateOf(Theme.System) }
+            // See SettingsViewModel.kt
+            val settingsViewModel = viewModels<SettingsViewModel>()
+            // The following line converts the StateFlow contained in the ViewModel
+            // to a State object. State objects can trigger recompositions, while
+            // StateFlow objects can't. The 'withLifecycle' part ensures this state
+            // is destroyed when we leave this Activity.
+            val state = settingsViewModel.value.state.collectAsStateWithLifecycle()
+
             TournaMakeTheme(
-                darkTheme = when (selectedTheme) {
-                    Theme.Light -> false
-                    Theme.Dark -> true
-                    Theme.System -> isSystemInDarkTheme()
+                darkTheme = when (state.value.theme) {
+                    ThemeEnum.Light -> false
+                    ThemeEnum.Dark -> true
+                    ThemeEnum.System -> isSystemInDarkTheme()
                 }
             ) {
-                val backgroundImageId = getBackgroundImageId( // defined in ThemeUtilities.kt
-                    darkMode = selectedTheme == Theme.Dark || (selectedTheme == Theme.System && isSystemInDarkModeCustom())
+                SettingsScreen( // see SettingsScreen.kt in package ui.screens.settings
+                    state = state.value,
+                    changeTheme = settingsViewModel.value::changeTheme,
+                    isSystemInDarkModeCustom = this::isSystemInDarkModeCustom
                 )
-                /* CompositionLocalProvider is a Composable (so it has the usual structure
-                * Composable (params) { content }
-                * ), which is used every time we want the background image according to the
-                * current theme of the app. */
-                CompositionLocalProvider(LocalBackgroundImageId provides backgroundImageId) {
-                    // Encapsulating the buttons in a Box, that fills the whole background
-                    // and can therefore be coloured as wanted.
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.background)
-                            .wrapContentSize(Alignment.TopCenter)
-                    ) {
-                        Image(
-                            painter = painterResource(id = backgroundImageId),
-                            contentDescription = "Background Image",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                        Column(
-                            modifier = Modifier.fillMaxSize()
-                                .wrapContentSize(Alignment.Center)
-                        ) {
-                            Button(
-                                onClick = {
-                                    selectedTheme = when (selectedTheme) {
-                                        Theme.Light -> Theme.Dark
-                                        Theme.Dark -> Theme.Light
-                                        Theme.System -> if (isSystemInDarkModeCustom()) Theme.Light else Theme.Dark
-                                    }
-                                }
-                            ) {
-                                // Button Content
-                                Text(text = "Toggle Theme")
-                            }
-                        }
-                    }
-                }
             }
         }
     }

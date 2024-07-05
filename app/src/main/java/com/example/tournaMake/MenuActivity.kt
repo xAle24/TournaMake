@@ -27,7 +27,6 @@ class MenuActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TournaMakeTheme {
-                // A surface container using the 'light_background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     Box(
                         modifier = Modifier
