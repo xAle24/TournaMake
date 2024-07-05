@@ -1,5 +1,6 @@
 package com.example.tournaMake
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,7 +34,7 @@ class SettingsActivity : ComponentActivity() {
                         selectedTheme = when (selectedTheme) {
                             Theme.Light -> Theme.Dark
                             Theme.Dark -> Theme.Light
-                            Theme.System -> Theme.Dark
+                            Theme.System -> if (isSystemInDarkModeCustom()) Theme.Light else Theme.Dark
                         }
                     }
                 ) {
@@ -41,6 +42,21 @@ class SettingsActivity : ComponentActivity() {
                     Text(text = "Toggle Theme")
                 }
             }
+        }
+    }
+
+    /**
+     * Code taken from here: https://stackoverflow.com/questions/44170028/android-how-to-detect-if-night-mode-is-on-when-using-appcompatdelegate-mode-ni
+     * This function must stay in a class that extends ComponentActivity, otherwise the configuration
+     * and context are not available.
+     * */
+    fun isSystemInDarkModeCustom() : Boolean {
+        val nightModeFlags: Int = resources.configuration.uiMode.and(Configuration.UI_MODE_NIGHT_MASK)
+        return when (nightModeFlags) {
+            Configuration.UI_MODE_NIGHT_YES -> true
+            Configuration.UI_MODE_NIGHT_NO -> false
+            Configuration.UI_MODE_NIGHT_UNDEFINED -> false
+            else -> false
         }
     }
 }
