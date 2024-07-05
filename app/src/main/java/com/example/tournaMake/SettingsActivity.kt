@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,18 +20,25 @@ class SettingsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent{
             //val themeViewModel = viewModel<SettingsViewModel>()
-            var themeState by remember { mutableStateOf(Theme.System) }
+            var selectedTheme by remember { mutableStateOf(Theme.System) }
             TournaMakeTheme(
-                darkTheme = when (themeState) {
+                darkTheme = when (selectedTheme) {
                     Theme.Light -> false
                     Theme.Dark -> true
                     Theme.System -> isSystemInDarkTheme()
                 }
             ) {
-                Button(onClick = {
-                    //SettingsViewModel.changeTheme(themeState)
-                }) {
-                    Text(text = "Toggle Dark Mode")
+                Button(
+                    onClick = {
+                        selectedTheme = when (selectedTheme) {
+                            Theme.Light -> Theme.Dark
+                            Theme.Dark -> Theme.Light
+                            Theme.System -> Theme.Dark
+                        }
+                    }
+                ) {
+                    // Button Content
+                    Text(text = "Toggle Theme")
                 }
             }
         }

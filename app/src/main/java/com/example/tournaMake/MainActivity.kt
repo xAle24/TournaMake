@@ -5,7 +5,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,14 +33,14 @@ class MainActivity : ComponentActivity() {
         appDatabase = AppDatabase.getDatabase(this)
         setContent {
             TournaMakeTheme {
-                // A surface container using the 'background' color from the theme
+                // A surface container using the 'light_background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.background),
+                            painter = painterResource(id = R.drawable.light_background),
                             modifier = Modifier.fillMaxSize(),
                             contentDescription = "Background Image",
                             contentScale = ContentScale.Crop

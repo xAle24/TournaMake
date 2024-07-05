@@ -26,7 +26,7 @@ class LoginActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TournaMakeTheme {
-                // A surface container using the 'background' color from the theme
+                // A surface container using the 'light_background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     Column(
                         modifier = Modifier.fillMaxSize(),

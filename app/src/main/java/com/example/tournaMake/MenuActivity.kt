@@ -27,14 +27,14 @@ class MenuActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TournaMakeTheme {
-                // A surface container using the 'background' color from the theme
+                // A surface container using the 'light_background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.background),
+                            painter = painterResource(id = R.drawable.light_background),
                             modifier = Modifier.fillMaxSize(),
                             contentDescription = "Background Image",
                             contentScale = ContentScale.Crop
