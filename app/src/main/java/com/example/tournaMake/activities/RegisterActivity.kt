@@ -1,4 +1,4 @@
-package com.example.tournaMake
+package com.example.tournaMake.activities
 
 import android.content.res.Configuration
 import android.os.Bundle
@@ -44,7 +44,6 @@ class RegisterActivity : ComponentActivity() {
             val state = themeViewModel.value.state.collectAsStateWithLifecycle()
             RegistrationScreen(
                 state = state.value,
-                isSystemInDarkModeCustom = this::isSystemInDarkModeCustom,
                 handleRegistration = this::handleRegistration // TODO: verify if this still works
             )
         }
@@ -58,22 +57,6 @@ class RegisterActivity : ComponentActivity() {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-        }
-    }
-
-    /**
-     * Code taken from here: https://stackoverflow.com/questions/44170028/android-how-to-detect-if-night-mode-is-on-when-using-appcompatdelegate-mode-ni
-     * This function must stay in a class that extends ComponentActivity, otherwise the configuration
-     * and context are not available.
-     * */
-    private fun isSystemInDarkModeCustom(): Boolean {
-        val nightModeFlags: Int =
-            resources.configuration.uiMode.and(Configuration.UI_MODE_NIGHT_MASK)
-        return when (nightModeFlags) {
-            Configuration.UI_MODE_NIGHT_YES -> true
-            Configuration.UI_MODE_NIGHT_NO -> false
-            Configuration.UI_MODE_NIGHT_UNDEFINED -> false
-            else -> false
         }
     }
 }

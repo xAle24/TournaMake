@@ -20,12 +20,10 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 @Composable
 fun RegistrationScreen(
     state: ThemeState,
-    isSystemInDarkModeCustom: () -> Boolean,
     handleRegistration: (String, String, String) -> Unit
 ) {
     BasicScreenWithTheme(
         state = state,
-        isSystemInDarkModeCustom = isSystemInDarkModeCustom
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

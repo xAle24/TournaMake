@@ -17,12 +17,10 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 @Composable
 fun MenuScreen(
     state: ThemeState,
-    isSystemInDarkModeCustom: () -> Boolean,
     navigateToSettings: () -> Unit
 ) {
     BasicScreenWithTheme(
         state = state,
-        isSystemInDarkModeCustom = isSystemInDarkModeCustom
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

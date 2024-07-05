@@ -1,36 +1,16 @@
-package com.example.tournaMake
+package com.example.tournaMake.activities
 
-import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.tournaMake.data.models.ThemeEnum
-import com.example.tournaMake.data.models.ThemeViewModel
-import com.example.tournaMake.ui.screens.login.LoginScreen
 import com.example.tournaMake.ui.screens.settings.SettingsScreen
-import com.example.tournaMake.ui.theme.TournaMakeTheme
+import com.example.tournaMake.data.models.ThemeViewModel
 
-class LoginActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
+class SettingsActivity : ComponentActivity() {
+    public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             // See ThemeViewModel.kt
@@ -40,17 +20,12 @@ class LoginActivity : ComponentActivity() {
             // StateFlow objects can't. The 'withLifecycle' part ensures this state
             // is destroyed when we leave this Activity.
             val state = themeViewModel.value.state.collectAsStateWithLifecycle()
-            LoginScreen(
+            SettingsScreen( // see SettingsScreen.kt in package ui.screens.settings
                 state = state.value,
-                isSystemInDarkModeCustom = this::isSystemInDarkModeCustom,
-                navigateToMenu = this::navigateToMenu
+                changeTheme = themeViewModel.value::changeTheme,
+                isSystemInDarkModeCustom = this::isSystemInDarkModeCustom
             )
         }
-    }
-
-    private fun navigateToMenu() {
-        val intent = Intent(this, MenuActivity::class.java)
-        startActivity(intent)
     }
 
     /**

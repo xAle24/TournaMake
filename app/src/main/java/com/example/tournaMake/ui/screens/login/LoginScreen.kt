@@ -26,12 +26,10 @@ import com.example.tournaMake.ui.theme.getBackgroundImageId
 @Composable
 fun LoginScreen(
     state: ThemeState, // The state of the UI (dark, light or system)
-    isSystemInDarkModeCustom: () -> Boolean, // see SettingsActivity.kt
     navigateToMenu: () -> Unit
 ) {
     BasicScreenWithTheme(
         state = state,
-        isSystemInDarkModeCustom = isSystemInDarkModeCustom
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

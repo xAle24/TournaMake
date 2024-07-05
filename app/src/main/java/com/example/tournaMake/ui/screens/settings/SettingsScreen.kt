@@ -31,8 +31,7 @@ fun SettingsScreen(
     isSystemInDarkModeCustom: () -> Boolean // see SettingsActivity.kt
 ) {
     BasicScreenWithTheme(
-        state = state,
-        isSystemInDarkModeCustom = isSystemInDarkModeCustom
+        state = state
     ) {
         Column(
             modifier = Modifier

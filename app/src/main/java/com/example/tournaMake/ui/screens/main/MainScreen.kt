@@ -17,24 +17,22 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 @Composable
 fun MainScreen(
     state: ThemeState,
-    isSystemInDarkModeCustom: () -> Boolean,
     navigateToRegistration: () -> Unit,
     navigateToLogin: () -> Unit
 ) {
     BasicScreenWithTheme(
         state = state,
-        isSystemInDarkModeCustom = isSystemInDarkModeCustom
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(onClick = { navigateToLogin() }) {
+            Button(onClick = navigateToLogin) {
                 Text("Login")
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { navigateToRegistration() }) {
+            Button(onClick = navigateToRegistration) {
                 Text("Register")
             }
         }
