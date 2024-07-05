@@ -1,7 +1,6 @@
-package com.example.tournaMake.ui.screens.settings
+package com.example.tournaMake.data.models
 
 import androidx.lifecycle.ViewModel
-import com.example.tournaMake.data.models.ThemeEnum
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -10,7 +9,7 @@ data class ThemeState(val theme: ThemeEnum)
 /**
  * Create an instance of this ViewModel everywhere you need to see the current application theme.
  * */
-class SettingsViewModel : ViewModel() {
+class ThemeViewModel : ViewModel() {
     /*
     * Every StateFlow is an Observable that can cause recompositions on all the Components
     * observing it, each time its value changes.

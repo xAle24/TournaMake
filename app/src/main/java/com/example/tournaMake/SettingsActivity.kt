@@ -5,38 +5,26 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.ui.screens.settings.SettingsScreen
-import com.example.tournaMake.ui.screens.settings.SettingsViewModel
-import com.example.tournaMake.ui.theme.TournaMakeTheme
+import com.example.tournaMake.data.models.ThemeViewModel
 
 class SettingsActivity : ComponentActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            // See SettingsViewModel.kt
-            val settingsViewModel = viewModels<SettingsViewModel>()
+            // See ThemeViewModel.kt
+            val themeViewModel = viewModels<ThemeViewModel>()
             // The following line converts the StateFlow contained in the ViewModel
             // to a State object. State objects can trigger recompositions, while
             // StateFlow objects can't. The 'withLifecycle' part ensures this state
             // is destroyed when we leave this Activity.
-            val state = settingsViewModel.value.state.collectAsStateWithLifecycle()
-
-            TournaMakeTheme(
-                darkTheme = when (state.value.theme) {
-                    ThemeEnum.Light -> false
-                    ThemeEnum.Dark -> true
-                    ThemeEnum.System -> isSystemInDarkTheme()
-                }
-            ) {
-                SettingsScreen( // see SettingsScreen.kt in package ui.screens.settings
-                    state = state.value,
-                    changeTheme = settingsViewModel.value::changeTheme,
-                    isSystemInDarkModeCustom = this::isSystemInDarkModeCustom
-                )
-            }
+            val state = themeViewModel.value.state.collectAsStateWithLifecycle()
+            SettingsScreen( // see SettingsScreen.kt in package ui.screens.settings
+                state = state.value,
+                changeTheme = themeViewModel.value::changeTheme,
+                isSystemInDarkModeCustom = this::isSystemInDarkModeCustom
+            )
         }
     }
 
