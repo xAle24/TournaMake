@@ -1,6 +1,5 @@
 package com.example.tournaMake.ui.screens.common
 
-import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -14,10 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
-import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.ui.theme.LocalBackgroundImageId
 import com.example.tournaMake.ui.theme.TournaMakeTheme
 import com.example.tournaMake.ui.theme.getBackgroundImageId

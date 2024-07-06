@@ -1,7 +1,6 @@
 package com.example.tournaMake.activities
 
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -23,9 +22,24 @@ class MenuActivity : ComponentActivity() {
             val state = themeViewModel.value.state.collectAsStateWithLifecycle()
             MenuScreen(
                 state = state.value,
-                navigateToSettings = this::navigateToSettings
+                navigateToTournament= this::navigateToTournament,
+                navigateToProfile = this::navigateToProfile,
+                navigateToSettings = this::navigateToSettings,
+                navigateToFavorites = this::navigateToFavorites
             )
         }
+    }
+    private fun navigateToTournament() {
+        val intent = Intent(this, TournamentActivity::class.java)
+        startActivity(intent)
+    }
+    private fun navigateToFavorites() {
+        val intent = Intent(this, FavoritesActivity::class.java)
+        startActivity(intent)
+    }
+    private fun navigateToProfile() {
+        val intent = Intent(this, ProfileActivity::class.java)
+        startActivity(intent)
     }
     private fun navigateToSettings() {
         val intent = Intent(this, SettingsActivity::class.java)
