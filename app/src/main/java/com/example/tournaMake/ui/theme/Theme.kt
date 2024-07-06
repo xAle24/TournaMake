@@ -17,7 +17,7 @@ import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
         primary = DarkPurple,
-        onPrimary = MediumPurple,
+        onPrimary = Green,
         secondary = Black,
         tertiary = LightPurple
 )
@@ -35,10 +35,15 @@ fun TournaMakeTheme(
         content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        /*
+        * Note: uncommenting this dynamic color case will cause the DynamicColorSchemes
+        * to be used. These are defined by the system, and they try to replicate the overall
+        * style of the user's system.
+        * */
+        /*dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
+        }*/
 
         darkTheme -> DarkColorScheme
         else -> LightColorScheme

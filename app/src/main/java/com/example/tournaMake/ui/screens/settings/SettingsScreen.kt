@@ -51,7 +51,7 @@ fun SettingsScreen(
                     .height(60.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.tertiary
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
                 // Button Content
