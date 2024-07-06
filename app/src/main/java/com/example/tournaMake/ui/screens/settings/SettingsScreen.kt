@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
@@ -46,7 +49,8 @@ fun SettingsScreen(
                         ThemeEnum.System -> if (isSystemInDarkModeCustom()) ThemeEnum.Light else ThemeEnum.Dark
                     }
                     changeTheme(newTheme) // callback passed as parameter to this function
-                }
+                },
+                modifier = Modifier.fillMaxWidth(0.8f).height(60.dp)
             ) {
                 // Button Content
                 Text(text = "Toggle Theme")
