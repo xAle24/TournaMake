@@ -29,6 +29,7 @@ import com.example.tournaMake.ui.screens.registration.RegistrationScreen
 import com.example.tournaMake.ui.theme.TournaMakeTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 class RegisterActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = AppDatabase.getDatabase(this)
@@ -36,12 +37,12 @@ class RegisterActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             // See ThemeViewModel.kt
-            val themeViewModel = viewModels<ThemeViewModel>()
+            val themeViewModel = koinViewModel<ThemeViewModel>()
             // The following line converts the StateFlow contained in the ViewModel
             // to a State object. State objects can trigger recompositions, while
             // StateFlow objects can't. The 'withLifecycle' part ensures this state
             // is destroyed when we leave this Activity.
-            val state = themeViewModel.value.state.collectAsStateWithLifecycle()
+            val state = themeViewModel.state.collectAsStateWithLifecycle()
             RegistrationScreen(
                 state = state.value,
                 handleRegistration = this::handleRegistration // TODO: verify if this still works

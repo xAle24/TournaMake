@@ -13,6 +13,7 @@ import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.ui.screens.main.MainScreen
 import com.example.tournaMake.ui.theme.TournaMakeTheme
+import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = null
@@ -22,12 +23,12 @@ class MainActivity : ComponentActivity() {
         appDatabase = AppDatabase.getDatabase(this)
         setContent {
             // See ThemeViewModel.kt
-            val themeViewModel = viewModels<ThemeViewModel>()
+            val themeViewModel = koinViewModel<ThemeViewModel>()
             // The following line converts the StateFlow contained in the ViewModel
             // to a State object. State objects can trigger recompositions, while
             // StateFlow objects can't. The 'withLifecycle' part ensures this state
             // is destroyed when we leave this Activity.
-            val state = themeViewModel.value.state.collectAsStateWithLifecycle()
+            val state = themeViewModel.state.collectAsStateWithLifecycle()
             MainScreen(
                 state = state.value,
                 navigateToRegistration = this::navigateToRegistration,
