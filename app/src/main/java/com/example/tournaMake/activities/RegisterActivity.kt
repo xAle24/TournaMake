@@ -1,5 +1,6 @@
 package com.example.tournaMake.activities
 
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -55,6 +56,8 @@ class RegisterActivity : ComponentActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 appDatabase?.mainProfileDao()?.insert(mainProfile)
+                val intent = Intent(this, RegistrationPhotoActivity::class.java)
+                startActivity(intent)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
