@@ -29,6 +29,7 @@ import com.example.tournaMake.R
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
+import kotlin.reflect.KSuspendFunction3
 
 @Composable
 fun RegistrationScreen(

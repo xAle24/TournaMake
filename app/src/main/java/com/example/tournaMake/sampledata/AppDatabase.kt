@@ -21,7 +21,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun tournamentDao(): TournamentDao
     abstract fun tournamentTypeDao(): TournamentTypeDao
 
-    companion object {
+    /*companion object {
         @Volatile
         private var instance: AppDatabase? = null
         fun getDatabase(ctx: Context) = instance ?: synchronized(this) {
@@ -32,5 +32,5 @@ abstract class AppDatabase : RoomDatabase() {
             ).build()
             instance
         }
-    }
+    }*/
 }

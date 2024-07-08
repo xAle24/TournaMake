@@ -16,11 +16,9 @@ import com.example.tournaMake.ui.theme.TournaMakeTheme
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
-    private var appDatabase: AppDatabase? = null
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        appDatabase = AppDatabase.getDatabase(this)
         setContent {
             // See ThemeViewModel.kt
             val themeViewModel = koinViewModel<ThemeViewModel>()

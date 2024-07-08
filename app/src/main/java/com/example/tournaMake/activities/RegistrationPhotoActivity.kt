@@ -7,14 +7,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.tournaMake.data.models.ThemeViewModel
+import com.example.tournaMake.ui.screens.registration.RegistrationPhotoScreen
+import org.koin.androidx.compose.koinViewModel
 
 class RegistrationPhotoActivity : ComponentActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val themeViewModel = viewModels<ThemeViewModel>()
-            val state = themeViewModel.value.state.collectAsStateWithLifecycle()
-            RegistrationPhotoActivity(
+            val themeViewModel = koinViewModel<ThemeViewModel>()
+            val state = themeViewModel.state.collectAsStateWithLifecycle()
+            RegistrationPhotoScreen(
                 state = state.value,
                 loadPhoto = this::loadPhoto,
                 back = this::back,
