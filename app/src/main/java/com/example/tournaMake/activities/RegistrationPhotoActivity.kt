@@ -41,7 +41,7 @@ class RegistrationPhotoActivity : ComponentActivity() {
                 onResult = { uri ->
                     selectedImageURI = uri
                     if (uri != null) {
-                        uploadPhotoToDatabase(uri, loggedEmail.value.toString())
+                        uploadPhotoToDatabase(uri, loggedEmail.value.loggedProfileEmail)
                     }
                 }
             )
@@ -58,6 +58,7 @@ class RegistrationPhotoActivity : ComponentActivity() {
 
     private fun uploadPhotoToDatabase(uri: Uri, loggedEmail: String) {
         //TODO: save photo inside db
+        // TODO: understand why this function receives an empty object
         Log.d("DEV", "Got logged email: $loggedEmail")
     }
 

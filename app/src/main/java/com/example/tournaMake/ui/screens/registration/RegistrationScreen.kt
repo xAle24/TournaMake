@@ -1,5 +1,6 @@
 package com.example.tournaMake.ui.screens.registration
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,7 +35,8 @@ import kotlin.reflect.KSuspendFunction3
 @Composable
 fun RegistrationScreen(
     state: ThemeState,
-    handleRegistration: (String, String, String) -> Unit
+    handleRegistration: (String, String, String) -> Unit,
+    setLoggedEmail: (String) -> Unit
 ) {
     BasicScreenWithTheme(
         state = state,
@@ -48,11 +50,14 @@ fun RegistrationScreen(
             var password by remember { mutableStateOf("") }
             var email by remember { mutableStateOf("") }
             var rememberMe by remember { mutableStateOf(false) }
-            val imageId = if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
+            val imageId =
+                if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
             Image(
                 painter = painterResource(id = imageId),
                 contentDescription = "Appropriate theme image",
-                modifier = Modifier.fillMaxWidth(0.8f).fillMaxHeight(0.2f)
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .fillMaxHeight(0.2f)
             )
             OutlinedTextField(
                 value = username,
@@ -102,7 +107,14 @@ fun RegistrationScreen(
                 Text("Remember me")
             }
             Spacer(modifier = Modifier.height(20.dp))
-            Button(onClick = { handleRegistration(username, password, email) }, modifier = Modifier.fillMaxWidth(0.8f).height(60.dp)) {
+            Button(onClick = {
+                handleRegistration(username, password, email)
+                /* SETTING THE "GLOBAL" VARIABLE LOGGED EMAIL! */
+                Log.d("DEV", "In RegistrationScreen.kt, email = $email")
+                setLoggedEmail(email)
+            }, modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(60.dp)) {
                 Text("Register")
             }
         }

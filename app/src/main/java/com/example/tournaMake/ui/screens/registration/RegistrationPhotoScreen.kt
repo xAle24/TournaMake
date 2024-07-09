@@ -41,11 +41,11 @@ fun RegistrationPhotoScreen(
     state: ThemeState,
     back: () -> Unit,
     loadMenu: () -> Unit,
-    selectedImage: Uri?, // TODO: I'll probably need to create a getter in the activity and set this Uri as a field, since I need to call the launcher from here
+    selectedImage: Uri?,
     photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>
 ) {
     val configuration = LocalConfiguration.current // used to find screen size
-    val screenHeight = configuration.screenHeightDp
+    // val screenHeight = configuration.screenHeightDp
     val screenWidth = configuration.screenWidthDp
 
     BasicScreenWithTheme(state = state) {

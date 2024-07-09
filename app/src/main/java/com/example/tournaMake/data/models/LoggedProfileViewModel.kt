@@ -16,7 +16,7 @@ class LoggedProfileViewModel(private val repository: LoggedProfileRepository) : 
     val loggedEmail = repository.email.map { LoggedProfileState(it.toString()) }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
-        initialValue = ""
+        initialValue = LoggedProfileState("")
     )
 
     fun setEmail(email: String) = viewModelScope.launch {
