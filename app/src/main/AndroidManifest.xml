@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Permission to access the gallery to upload pictures -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <application
         android:name=".TournaMakeApplication"
         android:allowBackup="true"

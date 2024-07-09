@@ -42,7 +42,7 @@ class RegisterActivity : ComponentActivity() {
         val mainProfile = MainProfile(email, username, password, "", 0, 0f, 0f)
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                Log.d(null, "Ci sono")
+                Log.d("DEV", "Ci sono")
                 appDatabase?.mainProfileDao()?.insert(mainProfile)
                 //val intent = Intent(this, RegistrationPhotoActivity::class.java)
                 //startActivity(intent)

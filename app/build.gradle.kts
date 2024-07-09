@@ -75,4 +75,6 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     // For dependency injection (giving access to objects to classes that require it)
     implementation("io.insert-koin:koin-androidx-compose:3.5.3")
+    // For managing image uris in a simple way
+    implementation("io.coil-kt:coil-compose:2.6.0")
 }
