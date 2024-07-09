@@ -111,6 +111,8 @@ fun RegistrationScreen(
                 handleRegistration(username, password, email)
                 /* SETTING THE "GLOBAL" VARIABLE LOGGED EMAIL! */
                 Log.d("DEV", "In RegistrationScreen.kt, email = $email")
+
+                // TODO: the logged email should be saved to preferences only if the user selected Remember me
                 setLoggedEmail(email)
             }, modifier = Modifier
                 .fillMaxWidth(0.8f)

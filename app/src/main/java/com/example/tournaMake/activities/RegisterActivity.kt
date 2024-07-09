@@ -33,11 +33,10 @@ class RegisterActivity : ComponentActivity() {
             // is destroyed when we leave this Activity.
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val loggedProfileViewModel = koinViewModel<LoggedProfileViewModel>()
-            val loggedEmail = loggedProfileViewModel.loggedEmail.collectAsStateWithLifecycle()
             RegistrationScreen(
                 state = state.value,
                 handleRegistration = this::handleRegistration,
-                setLoggedEmail = loggedProfileViewModel::setEmail
+                setLoggedEmail = loggedProfileViewModel::setAndSaveEmail
             )
         }
     }

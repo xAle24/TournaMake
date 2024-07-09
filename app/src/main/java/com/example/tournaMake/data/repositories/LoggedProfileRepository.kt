@@ -19,6 +19,9 @@ class LoggedProfileRepository(private val dataStore: DataStore<Preferences>) {
     * */
     val email = dataStore.data.map { data -> data[LOGGED_EMAIL] }
 
+    /**
+     * This function should be called only if the user wants the app to remember their credentials.
+     * */
     suspend fun setEmail(email: String) =
         dataStore.edit { it[LOGGED_EMAIL] = email }
 }

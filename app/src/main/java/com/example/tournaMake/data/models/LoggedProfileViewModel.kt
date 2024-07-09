@@ -19,7 +19,9 @@ class LoggedProfileViewModel(private val repository: LoggedProfileRepository) : 
         initialValue = LoggedProfileState("")
     )
 
-    fun setEmail(email: String) = viewModelScope.launch {
+    fun setAndSaveEmail(email: String) = viewModelScope.launch {
         repository.setEmail(email)
     }
+
+    // TODO: add way to store email without saving it to shared preferences
 }
