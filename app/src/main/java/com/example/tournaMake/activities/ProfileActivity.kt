@@ -6,9 +6,11 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.LoggedProfileViewModel
+import com.example.tournaMake.data.models.ProfileViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.MainProfile
@@ -34,19 +36,32 @@ class ProfileActivity : ComponentActivity() {
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val loggedProfileViewModel = koinViewModel<LoggedProfileViewModel>()
             val loggedEmail = loggedProfileViewModel.loggedEmail.collectAsStateWithLifecycle()
-            val profile = getProfile(loggedEmail.value.loggedProfileEmail)
+            val profileViewModel = koinViewModel<ProfileViewModel>()
+
+            val profileObserver = Observer<MainProfile?> { profile ->
+                Log.d("DEV", "In profile observer profile = ${profile?.email}")
+                // TODO: add rest of the profile code
+            }
+
+            profileViewModel.profileLiveData.observe(this, profileObserver)
+
+            fetchAndUpdateProfile(loggedEmail.value.loggedProfileEmail, profileViewModel)
+
+            //val profile
             ProfileScreen(
                 state = state.value,
-                profile
+                profileViewModel.profileLiveData.value
             )
         }
     }
 
-    private fun getProfile(email: String): MainProfile? {
+    private fun fetchAndUpdateProfile(email: String, profileViewModel: ProfileViewModel): MainProfile? {
         var myProfile: MainProfile? = null
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 myProfile = appDatabase?.mainProfileDao()?.getProfileByEmail(email)
+                Log.d("DEV", "In getProfile() coroutine, myProfile.email = ${myProfile?.email}")
+                profileViewModel.changeProfileFromCoroutine(myProfile)
             } catch (e: Exception) {
                 e.printStackTrace()
             }

@@ -46,5 +46,4 @@ class LoggedProfileViewModel(private val repository: LoggedProfileRepository) : 
     */
     private val _loggedEmailTemp = MutableStateFlow(LoggedProfileState(""))
     val loggedEmailTemp = _loggedEmailTemp.asStateFlow()
-
 }
