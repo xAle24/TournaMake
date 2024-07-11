@@ -57,8 +57,6 @@ class RegistrationPhotoActivity : ComponentActivity() {
     }
 
     private fun uploadPhotoToDatabase(uri: Uri, loggedEmail: String) {
-        //TODO: save photo inside db
-        // TODO: understand why this function receives an empty object
         Log.d("DEV", "Got logged email: $loggedEmail")
     }
 

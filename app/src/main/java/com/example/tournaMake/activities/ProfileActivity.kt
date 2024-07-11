@@ -20,6 +20,7 @@ import org.koin.androidx.compose.koinViewModel
 
 class ProfileActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = get<AppDatabase>()
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +41,7 @@ class ProfileActivity : ComponentActivity() {
             )
         }
     }
+
     private fun getProfile(email: String): MainProfile? {
         var myProfile: MainProfile? = null
         lifecycleScope.launch(Dispatchers.IO) {

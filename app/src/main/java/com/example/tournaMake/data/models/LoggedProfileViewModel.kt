@@ -2,10 +2,14 @@ package com.example.tournaMake.data.models
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tournaMake.data.repositories.LoggedProfileRepository
 import com.example.tournaMake.sampledata.MainProfile
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,6 +32,7 @@ class LoggedProfileViewModel(private val repository: LoggedProfileRepository) : 
     fun setAndSaveEmail(email: String) = viewModelScope.launch {
         repository.setEmail(email)
     }
+
     /*
     Use loggedEmailTemp if the user does not want the application to remember their
     credentials when closed.*
@@ -42,8 +47,4 @@ class LoggedProfileViewModel(private val repository: LoggedProfileRepository) : 
     private val _loggedEmailTemp = MutableStateFlow(LoggedProfileState(""))
     val loggedEmailTemp = _loggedEmailTemp.asStateFlow()
 
-    fun setEmailWithoutSaving(email: String) {
-        _loggedEmailTemp.value = LoggedProfileState(email)
-    }
-    // TODO: add way to store email without saving it to shared preferences
 }
