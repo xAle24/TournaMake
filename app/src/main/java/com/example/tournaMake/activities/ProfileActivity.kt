@@ -37,36 +37,36 @@ class ProfileActivity : ComponentActivity() {
             val loggedProfileViewModel = koinViewModel<LoggedProfileViewModel>()
             val loggedEmail = loggedProfileViewModel.loggedEmail.collectAsStateWithLifecycle()
             val profileViewModel = koinViewModel<ProfileViewModel>()
-
             val profileObserver = Observer<MainProfile?> { profile ->
                 Log.d("DEV", "In profile observer profile = ${profile?.email}")
                 // TODO: add rest of the profile code
             }
-
             profileViewModel.profileLiveData.observe(this, profileObserver)
-
             fetchAndUpdateProfile(loggedEmail.value.loggedProfileEmail, profileViewModel)
-
             //val profile
             ProfileScreen(
                 state = state.value,
+                /*
+                * TODO: consider passing the Observer as a parameter instead of the MainProfile
+                *  (forse è una cattiva idea, ma magari si può avere il codice dell'observer
+                *  sott'occhio al momento di costruire il ProfileScreen).
+                * */
                 profileViewModel.profileLiveData.value
             )
         }
     }
 
-    private fun fetchAndUpdateProfile(email: String, profileViewModel: ProfileViewModel): MainProfile? {
-        var myProfile: MainProfile? = null
+    private fun fetchAndUpdateProfile(email: String, profileViewModel: ProfileViewModel) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                myProfile = appDatabase?.mainProfileDao()?.getProfileByEmail(email)
+                val myProfile = appDatabase?.mainProfileDao()?.getProfileByEmail(email)
                 Log.d("DEV", "In getProfile() coroutine, myProfile.email = ${myProfile?.email}")
+                // Now update the data in the view model, to trigger the onchange method of the attached
+                // observer
                 profileViewModel.changeProfileFromCoroutine(myProfile)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-        myProfile?.let { Log.d("DEV", it.email) }
-        return myProfile
     }
 }
