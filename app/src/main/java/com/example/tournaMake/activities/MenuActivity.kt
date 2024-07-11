@@ -23,9 +23,10 @@ class MenuActivity : ComponentActivity() {
             MenuScreen(
                 state = state.value,
                 navigateToTournament= this::navigateToTournament,
-                navigateToProfile = this::navigateToListProfile,
+                navigateToListProfile = this::navigateToListProfile,
                 navigateToSettings = this::navigateToSettings,
-                navigateToFavorites = this::navigateToFavorites
+                navigateToFavorites = this::navigateToFavorites,
+                navigateToProfile = this::navigateToProfile
             )
         }
     }
@@ -43,6 +44,10 @@ class MenuActivity : ComponentActivity() {
     }
     private fun navigateToSettings() {
         val intent = Intent(this, SettingsActivity::class.java)
+        startActivity(intent)
+    }
+    private fun navigateToProfile() {
+        val intent = Intent(this, ProfileActivity::class.java)
         startActivity(intent)
     }
 }

@@ -16,7 +16,7 @@ import org.koin.androidx.compose.koinViewModel
 
 class ProfileListActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = get<AppDatabase>()
-    private lateinit var guestList: List<String>
+    private var guestList: List<String> = getGuestProfile()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -27,10 +27,10 @@ class ProfileListActivity : ComponentActivity() {
             // StateFlow objects can't. The 'withLifecycle' part ensures this state
             // is destroyed when we leave this Activity.
             val state = themeViewModel.state.collectAsStateWithLifecycle()
-            guestList = getGuestProfile()
             ProfileListScreen(
                 state = state.value,
-                guestList
+                guestList,
+                backButton = this::backButton
             )
         }
     }
@@ -45,5 +45,9 @@ class ProfileListActivity : ComponentActivity() {
             }
         }
         return guestProfiles.map { it.username }
+    }
+
+    private fun backButton() {
+        finish()
     }
 }

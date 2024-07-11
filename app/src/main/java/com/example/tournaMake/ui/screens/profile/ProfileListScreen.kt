@@ -1,8 +1,10 @@
 package com.example.tournaMake.ui.screens.profile
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,6 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -25,7 +28,11 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileListScreen(state: ThemeState, databaseList: List<String>) {
+fun ProfileListScreen(
+    state: ThemeState,
+    databaseList: List<String>,
+    backButton: () -> Unit
+) {
     BasicScreenWithTheme(state = state) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -33,24 +40,26 @@ fun ProfileListScreen(state: ThemeState, databaseList: List<String>) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TopAppBar(
-                title = { Text(text = "Profile Guest Screen") },
-                actions = {
-                    IconButton(onClick = { /* Do something when button is clicked */ }) {
+                navigationIcon = {
+                    IconButton(onClick = { backButton() }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = null)
                     }
-                }
+                },
+                title = { Text(text = "Guest profile list") }
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = { /* Do something when button is clicked */ }, modifier = Modifier.fillMaxWidth(0.9f).height(80.dp)) {
                 Text("My profile")
             }
             Spacer(modifier = Modifier.height(16.dp))
-            LazyColumn {
+            LazyColumn(
+                modifier = Modifier.fillMaxHeight(1f).background(MaterialTheme.colorScheme.secondary)
+            ) {
                 items(databaseList) { item ->
+                    Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = { /* Do something when button is clicked */ }, modifier = Modifier.fillMaxWidth(0.8f).height(60.dp)) {
                         Text(item)
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }

@@ -25,9 +25,10 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 fun MenuScreen(
     state: ThemeState,
     navigateToSettings: () -> Unit,
-    navigateToProfile: () -> Unit,
+    navigateToListProfile: () -> Unit,
     navigateToTournament: () -> Unit,
-    navigateToFavorites: () -> Unit
+    navigateToFavorites: () -> Unit,
+    navigateToProfile: () -> Unit
 ) {
     BasicScreenWithTheme(
         state = state,
@@ -46,8 +47,8 @@ fun MenuScreen(
                 Button(onClick = { /* Handle left button click */ }) {
                     Text("Logout")
                 }
-                Button(onClick = { /* Handle right button click */ }) {
-                    Text("Right Button")
+                Button(onClick = { navigateToProfile() }) {
+                    Text("My Profile")
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -64,7 +65,7 @@ fun MenuScreen(
                 Text("Favorites")
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { navigateToProfile() }, modifier = Modifier.fillMaxWidth(0.8f).height(60.dp)) {
+            Button(onClick = { navigateToListProfile() }, modifier = Modifier.fillMaxWidth(0.8f).height(60.dp)) {
                 Text("Profile")
             }
             Spacer(modifier = Modifier.height(16.dp))
