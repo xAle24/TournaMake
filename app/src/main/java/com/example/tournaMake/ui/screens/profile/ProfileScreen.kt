@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -34,7 +35,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.example.tournaMake.R
+import com.example.tournaMake.data.models.ProfileViewModel
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
@@ -42,10 +46,18 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(state: ThemeState, profile: MainProfile?) {
-    if (profile != null) {
-        Log.d("DEV", profile.email)
-    }
+fun ProfileScreen(
+    state: ThemeState,
+    //profile: MainProfile?,
+    profileLiveData: LiveData<MainProfile?>
+) {
+    /*
+    * This extension function was imported with:
+    * implementation ("androidx.compose.runtime:runtime-livedata:1.6.8")
+    * */
+    val profile = profileLiveData.observeAsState()
+    Log.d("DEV", "In ProfileScreen.kt, profile email = ${profile.value?.email}")
+
     BasicScreenWithTheme(
         state = state
     ) {
@@ -84,9 +96,8 @@ fun ProfileScreen(state: ThemeState, profile: MainProfile?) {
                                 modifier = Modifier.fillMaxWidth(0.4f).fillMaxHeight(0.2f)
                             )
                             Column {
-                                if (profile != null) {
-                                    Text(profile.username, style = androidx.compose.ui.text.TextStyle(fontSize = 50.sp))
-                                }
+                                // TODO: revise this code, it's a bit ugly
+                                Text(if (profile.value != null) profile.value!!.username else "Loading...", style = androidx.compose.ui.text.TextStyle(fontSize = 50.sp))
                                 Text("No location", style = androidx.compose.ui.text.TextStyle(fontSize = 40.sp))
                             }
                         }

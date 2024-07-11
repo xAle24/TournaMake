@@ -77,4 +77,6 @@ dependencies {
     implementation("io.insert-koin:koin-androidx-compose:3.5.3")
     // For managing image uris in a simple way
     implementation("io.coil-kt:coil-compose:2.6.0")
+    // Used to convert LiveData to state
+    implementation ("androidx.compose.runtime:runtime-livedata:1.6.8")
 }

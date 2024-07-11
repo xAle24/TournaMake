@@ -51,11 +51,11 @@ class ProfileActivity : ComponentActivity() {
                 *  (forse è una cattiva idea, ma magari si può avere il codice dell'observer
                 *  sott'occhio al momento di costruire il ProfileScreen).
                 * */
-                profileViewModel.profileLiveData.value
+                //profileViewModel.profileLiveData.value
+                profileLiveData = profileViewModel.profileLiveData
             )
         }
     }
-
     private fun fetchAndUpdateProfile(email: String, profileViewModel: ProfileViewModel) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
