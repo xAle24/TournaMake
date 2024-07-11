@@ -43,6 +43,9 @@ import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 
+/**
+ * The screen seen when clicking on a specific profile.
+ * */
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
