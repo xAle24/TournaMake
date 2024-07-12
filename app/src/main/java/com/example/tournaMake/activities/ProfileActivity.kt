@@ -82,7 +82,7 @@ class ProfileActivity : ComponentActivity() {
         startActivity(intent)
     }
     private fun navigateToWeekActivity() {
-        val intent = Intent(this, LastWeekActivity::class.java)
+        val intent = Intent(this, PlayerActActivity::class.java)
         startActivity(intent)
     }
 }

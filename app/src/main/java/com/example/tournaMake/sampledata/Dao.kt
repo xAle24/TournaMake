@@ -46,6 +46,13 @@ interface MatchDao {
     @Query("SELECT * FROM `MATCH`")
     fun getAll(): List<Match>
 
+    @Query("SELECT MATCH.*\n" +
+            "FROM MATCH\n" +
+            "INNER JOIN MATCH_SCORE_MAIN\n" +
+            "ON MATCH.matchID = MATCH_SCORE_MAIN.matchID\n" +
+            "WHERE MATCH_SCORE_MAIN.email = :email")
+    fun getMyMatch(email: String): List<Match>
+
     @Insert
     fun insertAll(vararg matches: Match)
 

@@ -77,7 +77,7 @@ fun ProfileScreen(
                         Icon(Icons.Filled.ArrowBack, contentDescription = null)
                     }
                 },
-                title = { Text(text = "Guest profile list") }
+                title = { Text(text = "My Profile") }
             )
             Spacer(modifier = Modifier.height(24.dp))
             // Tabs for "Profile Info" and "Player Games"
@@ -122,7 +122,7 @@ fun ProfileScreen(
                             Button(
                                 onClick = { navigateToLastWeek() },
                                 modifier = Modifier.fillMaxWidth(0.4f).fillMaxHeight(0.2f).border(width = 2.dp, color = MaterialTheme.colorScheme.secondary)
-                            ) { Text("Last week activity", style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp)) }
+                            ) { Text("Last played match", style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp)) }
                         }
                     }
                 }
