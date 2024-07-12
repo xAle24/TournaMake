@@ -20,9 +20,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 
@@ -30,9 +32,11 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 @Composable
 fun ProfileListScreen(
     state: ThemeState,
-    databaseList: List<String>,
+    profileListLiveData: LiveData<List<String>>,
     backButton: () -> Unit
 ) {
+    val profileNamesList = profileListLiveData.observeAsState()
+
     BasicScreenWithTheme(state = state) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -48,17 +52,30 @@ fun ProfileListScreen(
                 title = { Text(text = "Guest profile list") }
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { /* Do something when button is clicked */ }, modifier = Modifier.fillMaxWidth(0.9f).height(80.dp)) {
+            Button(
+                onClick = { /* Do something when button is clicked */ }, modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .height(80.dp)
+            ) {
                 Text("My profile")
             }
             Spacer(modifier = Modifier.height(16.dp))
             LazyColumn(
-                modifier = Modifier.fillMaxHeight(1f).background(MaterialTheme.colorScheme.secondary)
+                modifier = Modifier
+                    .fillMaxHeight(1f)
+                    .background(MaterialTheme.colorScheme.secondary)
             ) {
-                items(databaseList) { item ->
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { /* Do something when button is clicked */ }, modifier = Modifier.fillMaxWidth(0.8f).height(60.dp)) {
-                        Text(item)
+                if (profileNamesList.value != null) {
+                    items(profileNamesList.value!!) { item ->
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = { /* Do something when button is clicked */ },
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f)
+                                .height(60.dp)
+                        ) {
+                            Text(item)
+                        }
                     }
                 }
             }

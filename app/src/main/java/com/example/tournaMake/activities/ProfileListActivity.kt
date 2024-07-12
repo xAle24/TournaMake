@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.example.tournaMake.data.models.ProfileListViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.GuestProfile
@@ -27,9 +28,11 @@ class ProfileListActivity : ComponentActivity() {
             // StateFlow objects can't. The 'withLifecycle' part ensures this state
             // is destroyed when we leave this Activity.
             val state = themeViewModel.state.collectAsStateWithLifecycle()
+            // View Model of profile list
+            val profileListViewModel = koinViewModel<ProfileListViewModel>()
             ProfileListScreen(
                 state = state.value,
-                guestList,
+                profileListViewModel.profileNamesListLiveData,
                 backButton = this::backButton
             )
         }
