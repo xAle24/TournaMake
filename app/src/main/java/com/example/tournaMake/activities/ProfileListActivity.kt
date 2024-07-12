@@ -1,6 +1,7 @@
 package com.example.tournaMake.activities
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -17,7 +18,6 @@ import org.koin.androidx.compose.koinViewModel
 
 class ProfileListActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = get<AppDatabase>()
-    private var guestList: List<String> = getGuestProfile()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -30,6 +30,8 @@ class ProfileListActivity : ComponentActivity() {
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             // View Model of profile list
             val profileListViewModel = koinViewModel<ProfileListViewModel>()
+            fetchAndUpdateGuestProfile(profileListViewModel)
+
             ProfileListScreen(
                 state = state.value,
                 profileListViewModel.profileNamesListLiveData,
@@ -38,16 +40,17 @@ class ProfileListActivity : ComponentActivity() {
         }
     }
 
-    private fun getGuestProfile(): List<String> {
+    private fun fetchAndUpdateGuestProfile(profileListViewModel: ProfileListViewModel) {
         var guestProfiles: List<GuestProfile> = emptyList()
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 guestProfiles = appDatabase?.guestProfileDao()?.getAll() ?: emptyList()
+                Log.d("DEV", "In fetchAndUpdateGuestProfile() in ProfileListActivity, guestProfiles = ${guestProfiles.forEach{ profile -> profile.username}}")
+                profileListViewModel.changeProfileNamesList(guestProfiles.map { it.username })
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-        return guestProfiles.map { it.username }
     }
 
     private fun backButton() {
