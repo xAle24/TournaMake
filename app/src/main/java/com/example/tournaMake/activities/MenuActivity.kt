@@ -26,7 +26,8 @@ class MenuActivity : ComponentActivity() {
                 navigateToListProfile = this::navigateToListProfile,
                 navigateToSettings = this::navigateToSettings,
                 navigateToFavorites = this::navigateToFavorites,
-                navigateToProfile = this::navigateToProfile
+                navigateToProfile = this::navigateToProfile,
+                navigateToMatchesList = this::navigateToMatchesList
             )
         }
     }
@@ -48,6 +49,11 @@ class MenuActivity : ComponentActivity() {
     }
     private fun navigateToProfile() {
         val intent = Intent(this, ProfileActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun navigateToMatchesList() {
+        val intent = Intent(this, MatchListActivity::class.java)
         startActivity(intent)
     }
 }

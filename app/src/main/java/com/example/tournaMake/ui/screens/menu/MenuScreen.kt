@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,7 +30,8 @@ fun MenuScreen(
     navigateToListProfile: () -> Unit,
     navigateToTournament: () -> Unit,
     navigateToFavorites: () -> Unit,
-    navigateToProfile: () -> Unit
+    navigateToProfile: () -> Unit,
+    navigateToMatchesList: () -> Unit
 ) {
     BasicScreenWithTheme(
         state = state,
@@ -55,28 +58,54 @@ fun MenuScreen(
             Image(
                 painter = painterResource(id = imageLogoId),
                 contentDescription = "Appropriate logo image",
-                modifier = Modifier.fillMaxWidth(0.8f).fillMaxHeight(0.2f)
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .fillMaxHeight(0.2f)
             )
-            Button(onClick = { navigateToTournament() }, modifier = Modifier.fillMaxWidth(0.8f).height(60.dp)) {
+            Button(onClick = { navigateToTournament() }, modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(60.dp)) {
                 Text("Start")
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { navigateToFavorites() }, modifier = Modifier.fillMaxWidth(0.8f).height(60.dp)) {
+            Button(onClick = { navigateToFavorites() }, modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(60.dp)) {
                 Text("Favorites")
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { navigateToListProfile() }, modifier = Modifier.fillMaxWidth(0.8f).height(60.dp)) {
+            Button(onClick = { navigateToListProfile() }, modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(60.dp)) {
                 Text("Profile")
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { navigateToSettings() }, modifier = Modifier.fillMaxWidth(0.8f).height(60.dp)) {
+            Button(onClick = { navigateToSettings() }, modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(60.dp)) {
                 Text("Settings")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(onClick = { navigateToMatchesList() }, modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(60.dp)) {
+                Icon(
+                    painter = painterResource(id = R.drawable.d20_dark),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(40.dp)
+                        .height(40.dp)
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                Text("Matches")
             }
             Spacer(modifier = Modifier.height(16.dp))
             Image(
                 painter = painterResource(id = imageKnightId),
                 contentDescription = "Appropriate theme image",
-                modifier = Modifier.fillMaxWidth(0.8f).fillMaxHeight(0.5f)
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .fillMaxHeight(0.5f)
             )
         }
     }

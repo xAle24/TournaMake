@@ -70,7 +70,7 @@ data class Match(
     @ColumnInfo(name = "duration") val duration: Int,
     @ColumnInfo(name = "status") val status: Int,
     @ColumnInfo(name = "gameID") val gameID: String,
-    @ColumnInfo(name = "tournamentID") val tournamentID: String
+    @ColumnInfo(name = "tournamentID") val tournamentID: String //TODO: make nullable, by writing String?
 )
 
 @Entity(tableName = "MATCH_SCORE_GUEST",
