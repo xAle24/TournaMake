@@ -1,5 +1,6 @@
 package com.example.tournaMake.activities
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -52,7 +53,10 @@ class ProfileActivity : ComponentActivity() {
                 *  sott'occhio al momento di costruire il ProfileScreen).
                 * */
                 //profileViewModel.profileLiveData.value
-                profileLiveData = profileViewModel.profileLiveData
+                profileLiveData = profileViewModel.profileLiveData,
+                backButton = this::backButton,
+                navigateToChart = this::navigateToChart,
+                navigateToLastWeek = this::navigateToWeekActivity
             )
         }
     }
@@ -68,5 +72,17 @@ class ProfileActivity : ComponentActivity() {
                 e.printStackTrace()
             }
         }
+    }
+    private fun backButton() {
+        finish()
+    }
+
+    private fun navigateToChart() {
+        val intent = Intent(this, GamesChartActivity::class.java)
+        startActivity(intent)
+    }
+    private fun navigateToWeekActivity() {
+        val intent = Intent(this, PlayerActActivity::class.java)
+        startActivity(intent)
     }
 }

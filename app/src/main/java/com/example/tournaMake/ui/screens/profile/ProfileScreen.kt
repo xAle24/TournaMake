@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,9 +37,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import com.example.tournaMake.R
-import com.example.tournaMake.data.models.ProfileViewModel
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
@@ -52,7 +51,10 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 fun ProfileScreen(
     state: ThemeState,
     //profile: MainProfile?,
-    profileLiveData: LiveData<MainProfile?>
+    profileLiveData: LiveData<MainProfile?>,
+    backButton: () -> Unit,
+    navigateToChart : () -> Unit,
+    navigateToLastWeek: () -> Unit
 ) {
     /*
     * This extension function was imported with:
@@ -70,12 +72,12 @@ fun ProfileScreen(
         ) {
             // Back button at the top
             TopAppBar(
-                title = { Text(text = "Profile Screen") },
-                actions = {
-                    IconButton(onClick = { /* Do something when button is clicked */ }) {
+                navigationIcon = {
+                    IconButton(onClick = { backButton() }) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = null)
                     }
-                }
+                },
+                title = { Text(text = "My Profile") }
             )
             Spacer(modifier = Modifier.height(24.dp))
             // Tabs for "Profile Info" and "Player Games"
@@ -94,7 +96,7 @@ fun ProfileScreen(
                     ) {
                         Row {
                             Image(
-                                painter = painterResource(id = R.drawable.dark_knight),
+                                painter = painterResource(id = R.drawable.no_profile_picture_icon), //TODO: aggiungere foto profilo
                                 contentDescription = "Avatar",
                                 modifier = Modifier.fillMaxWidth(0.4f).fillMaxHeight(0.2f)
                             )
@@ -107,24 +109,26 @@ fun ProfileScreen(
                         Row {
                             Box(
                                 modifier = Modifier.fillMaxWidth(0.4f).fillMaxHeight(0.2f).border(width = 2.dp, color = MaterialTheme.colorScheme.secondary)
-                            ) { Text("0 Won Tournaments", style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp)) }
+                            ) { Text(if (profile.value != null) (profile.value!!.wonTournamentsNumber.toString() + " won tournaments") else "Loading...", style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp)) }
                             Box(
                                 modifier = Modifier.fillMaxWidth(0.4f).fillMaxHeight(0.2f).border(width = 2.dp, color = MaterialTheme.colorScheme.secondary)
                             ) { Text("10 Played Tournaments", style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp)) }
-                        }
+                        } //TODO: aggiungere al db il numero di tornei giocati
                         Row {
-                            Box(
+                            Button(
+                                onClick = { navigateToChart() },
                                 modifier = Modifier.fillMaxWidth(0.4f).fillMaxHeight(0.2f).border(width = 2.dp, color = MaterialTheme.colorScheme.secondary)
-                            ) { Text("0 Won", style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp)) }
-                            Box(
+                            ) { Text("Games played chart", style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp)) }
+                            Button(
+                                onClick = { navigateToLastWeek() },
                                 modifier = Modifier.fillMaxWidth(0.4f).fillMaxHeight(0.2f).border(width = 2.dp, color = MaterialTheme.colorScheme.secondary)
-                            ) { Text("0 Won", style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp)) }
+                            ) { Text("Last played match", style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp)) }
                         }
                     }
                 }
                 1 -> {
                     // Statistics
-
+                    //TODO: added the history of the played matches
                 }
             }
         }

@@ -35,6 +35,8 @@
         <activity android:name=".activities.RegistrationPhotoActivity" />
         <activity android:name=".activities.ProfileListActivity" />
         <activity android:name=".activities.MatchListActivity" />
+        <activity android:name=".activities.GamesChartActivity" />
+        <activity android:name=".activities.PlayerActActivity" />
     </application>
 
 </manifest>
