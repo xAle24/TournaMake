@@ -69,7 +69,7 @@ class GamesChartActivity : ComponentActivity(){
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val myGames = appDatabase?.gameDao()?.getPlayedGames(email) ?: emptyList()
-                Log.d("DEV", "In getProfile() coroutine, myProfile.email = $myGames")
+                Log.d("DEV", "In fetchAndUpdateGraph() coroutine, myGamesList[0].name = ${myGames[0].name}")
                 // Now update the data in the view model, to trigger the onchange method of the attached
                 // observer
                 graphViewModel.changeGamesList(myGames)

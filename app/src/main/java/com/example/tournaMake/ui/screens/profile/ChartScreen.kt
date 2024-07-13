@@ -1,9 +1,13 @@
 package com.example.tournaMake.ui.screens.profile
 
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,8 +42,13 @@ fun ChartScreen(
     val gamesData by gamesLiveData.observeAsState()
     val list = gamesData?.toList() ?: emptyList()
 
-    val items = listOf(
+    val items = if (list.isNotEmpty()) listOf(
         list[0].name to listOf(list[0].times_played.toFloat(), 8810.34f, 30000.57f),
+        "Strawberry Mall" to listOf(8261.68f, 8810.34f, 30000.57f),
+        "Lime Av." to listOf(1500.87f, 2765.58f, 33245.81f),
+        "Apple Rd." to listOf(5444.87f, 233.58f, 67544.81f)
+    ) else listOf(
+        "stocazzo" to listOf(300f, 200f, 100f),
         "Strawberry Mall" to listOf(8261.68f, 8810.34f, 30000.57f),
         "Lime Av." to listOf(1500.87f, 2765.58f, 33245.81f),
         "Apple Rd." to listOf(5444.87f, 233.58f, 67544.81f)
@@ -48,7 +57,7 @@ fun ChartScreen(
     val dataSet = MultiChartDataSet(
         items = items,
         prefix = "$",
-        categories = listOf(list[0].name, "Feb", "Mar"),
+        categories = /*if (list.isNotEmpty()) listOf(list[0].name, "Feb", "Mar") else*/ listOf("erer", "Feb", "Mar"),
         title = "Games"
     )
     BasicScreenWithTheme(
@@ -56,7 +65,8 @@ fun ChartScreen(
     ) {
         Column(
             verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
             // Back button at the top
             TopAppBar(
@@ -71,12 +81,13 @@ fun ChartScreen(
             BarChartView( //old graph with single bar, (è più giusto al nostro contesto)
                 dataSet = ChartDataSet(
                 items = listOf(
-                    list[0].times_played.toFloat()
+                    if (list.isNotEmpty()) list[0].times_played.toFloat() else 1.15f,
+                    50f
                 ),
                     title = "Games"
                 )
             )
-            //StackedBarChartView(dataSet = dataSet)
+            StackedBarChartView(dataSet = dataSet)
         }
     }
 }
