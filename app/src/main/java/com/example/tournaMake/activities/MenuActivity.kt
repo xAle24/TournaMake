@@ -26,7 +26,6 @@ class MenuActivity : ComponentActivity() {
                 navigateToListProfile = this::navigateToListProfile,
                 navigateToSettings = this::navigateToSettings,
                 navigateToGamesList = this::navigateToGamesList,
-                navigateToProfile = this::navigateToProfile,
                 navigateToMatchesList = this::navigateToMatchesList
             )
         }
@@ -45,10 +44,6 @@ class MenuActivity : ComponentActivity() {
     }
     private fun navigateToSettings() {
         val intent = Intent(this, SettingsActivity::class.java)
-        startActivity(intent)
-    }
-    private fun navigateToProfile() {
-        val intent = Intent(this, ProfileActivity::class.java)
         startActivity(intent)
     }
 
