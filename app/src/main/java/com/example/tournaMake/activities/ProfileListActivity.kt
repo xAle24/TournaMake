@@ -1,5 +1,6 @@
 package com.example.tournaMake.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -35,13 +36,14 @@ class ProfileListActivity : ComponentActivity() {
             ProfileListScreen(
                 state = state.value,
                 profileListViewModel.profileNamesListLiveData,
-                backButton = this::backButton
+                backButton = this::finish,
+                navigateToProfile = this::navigateToProfile
             )
         }
     }
 
     private fun fetchAndUpdateGuestProfile(profileListViewModel: ProfileListViewModel) {
-        var guestProfiles: List<GuestProfile> = emptyList()
+        var guestProfiles: List<GuestProfile>
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 guestProfiles = appDatabase?.guestProfileDao()?.getAll() ?: emptyList()
@@ -53,7 +55,8 @@ class ProfileListActivity : ComponentActivity() {
         }
     }
 
-    private fun backButton() {
-        finish()
+    private fun navigateToProfile() {
+        val intent = Intent(this, ProfileActivity::class.java)
+        startActivity(intent)
     }
 }

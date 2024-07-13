@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,7 +33,8 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 fun ProfileListScreen(
     state: ThemeState,
     profileListLiveData: LiveData<List<String>>,
-    backButton: () -> Unit
+    backButton: () -> Unit,
+    navigateToProfile: () -> Unit
 ) {
     val profileNamesList = profileListLiveData.observeAsState()
 
@@ -46,14 +47,14 @@ fun ProfileListScreen(
             TopAppBar(
                 navigationIcon = {
                     IconButton(onClick = { backButton() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
                 title = { Text(text = "Guest profile list") }
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { /* Do something when button is clicked */ }, modifier = Modifier
+                onClick = { navigateToProfile() }, modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .height(80.dp)
             ) {
