@@ -6,6 +6,8 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -28,7 +30,6 @@ import org.koin.androidx.compose.koinViewModel
 class GamesChartActivity : ComponentActivity(){
     private var appDatabase: AppDatabase? = get<AppDatabase>()
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -43,23 +44,20 @@ class GamesChartActivity : ComponentActivity(){
             val loggedEmail = loggedProfileViewModel.loggedEmail.collectAsStateWithLifecycle()
             val graphViewModel = koinViewModel<GraphViewModel>()
             val gameObserver = Observer<List<PlayedGame>?> { game ->
-                Log.d("DEV", "In profile observer profile = $game")//TODO remove
+                Log.d("DEV", "In game observer profile = $game")//TODO remove
             }
             val matchObserver = Observer<List<Match>?> { match ->
-                Log.d("DEV", "In profile observer profile = $match")//TODO remove
+                Log.d("DEV", "In match observer profile = $match")//TODO remove
             }
             graphViewModel.gamesListLiveData.observe(this, gameObserver)
             graphViewModel.matchListLiveData.observe(this, matchObserver)
+
+            // Maybe this val needs to be created here to trigger the recomposition of the whole activity
+            val gamesList by graphViewModel.gamesListLiveData.observeAsState()
+
             fetchAndUpdateGraph(loggedEmail.value.loggedProfileEmail, graphViewModel)
-            //val profile
             ChartScreen(
                 state = state.value,
-                /*
-                * TODO: consider passing the Observer as a parameter instead of the MainProfile
-                *  (forse è una cattiva idea, ma magari si può avere il codice dell'observer
-                *  sott'occhio al momento di costruire il ProfileScreen).
-                * */
-                //profileViewModel.profileLiveData.value
                 gamesLiveData = graphViewModel.gamesListLiveData,
                 backButton = this::backButton
             )
@@ -69,9 +67,7 @@ class GamesChartActivity : ComponentActivity(){
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val myGames = appDatabase?.gameDao()?.getPlayedGames(email) ?: emptyList()
-                Log.d("DEV", "In fetchAndUpdateGraph() coroutine, myGamesList[0].name = ${myGames[0].name}")
-                // Now update the data in the view model, to trigger the onchange method of the attached
-                // observer
+                Log.d("DEV", "In GamesChartActivity.kt, myGames = $myGames")
                 graphViewModel.changeGamesList(myGames)
             } catch (e: Exception) {
                 e.printStackTrace()

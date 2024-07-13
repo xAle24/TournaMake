@@ -17,7 +17,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -39,32 +42,33 @@ fun ChartScreen(
     gamesLiveData: LiveData<List<PlayedGame>>,
     backButton: () -> Unit
 ) {
-    val gamesData = gamesLiveData.observeAsState()
-    val list = gamesData.value?.toList() ?: emptyList()
-/*
-    val items = if (list.isNotEmpty()) listOf(
-        list[0].name to listOf(list[0].times_played.toFloat(), 8810.34f, 30000.57f),
-        "Strawberry Mall" to listOf(8261.68f, 8810.34f, 30000.57f),
-        "Lime Av." to listOf(1500.87f, 2765.58f, 33245.81f),
-        "Apple Rd." to listOf(5444.87f, 233.58f, 67544.81f)
-    ) else listOf(
-        "ghini" to listOf(300f, 200f, 100f),
-        "Strawberry Mall" to listOf(8261.68f, 8810.34f, 30000.57f),
-        "Lime Av." to listOf(1500.87f, 2765.58f, 33245.81f),
-        "Apple Rd." to listOf(5444.87f, 233.58f, 67544.81f)
-    )
-*/
-    val items = list
+    val gamesData = gamesLiveData.observeAsState(emptyList())
+    /*
+        val items = if (list.isNotEmpty()) listOf(
+            list[0].name to listOf(list[0].times_played.toFloat(), 8810.34f, 30000.57f),
+            "Strawberry Mall" to listOf(8261.68f, 8810.34f, 30000.57f),
+            "Lime Av." to listOf(1500.87f, 2765.58f, 33245.81f),
+            "Apple Rd." to listOf(5444.87f, 233.58f, 67544.81f)
+        ) else listOf(
+            "ghini" to listOf(300f, 200f, 100f),
+            "Strawberry Mall" to listOf(8261.68f, 8810.34f, 30000.57f),
+            "Lime Av." to listOf(1500.87f, 2765.58f, 33245.81f),
+            "Apple Rd." to listOf(5444.87f, 233.58f, 67544.81f)
+        )
+    */
+    val items = gamesData.value
         .map { playedGame -> playedGame.name to listOf(playedGame.times_played.toFloat()) }
         .toList()
     println("In Chart Screen, about to print list values. ")
     items.forEach { it -> println("Element: $it") }
-    val dataSet = MultiChartDataSet(
-        items = items.ifEmpty { listOf<Pair<String, List<Float>>>("No value" to listOf(0.0f)) },
-        prefix = "",
-        categories = listOf("Times Played"),
-        title = "Games"
-    )
+    val dataSet =
+        MultiChartDataSet(
+            items = items.ifEmpty { listOf<Pair<String, List<Float>>>("No value" to listOf(0.0f)) },
+            prefix = "",
+            categories = listOf("Times Played"),
+            title = "Games"
+        )
+
     BasicScreenWithTheme(
         state = state
     ) {
@@ -83,7 +87,7 @@ fun ChartScreen(
                 title = { Text(text = "My Profile") }
             )
             Spacer(modifier = Modifier.height(24.dp))
-            /*BarChartView( //old graph with single bar, (è più giusto al nostro contesto)
+            /*BarChartView( //old graph with single bar, (è più adatto al nostro contesto)
                 dataSet = ChartDataSet(
                 items = listOf(
                     if (list.isNotEmpty()) list[0].times_played.toFloat() else 1.15f,
@@ -92,7 +96,19 @@ fun ChartScreen(
                     title = "Games"
                 )
             )*/
-            StackedBarChartView(dataSet = dataSet)
+
+            key(dataSet) {
+                CustomBarChart(data = dataSet)
+            }
+            Spacer(modifier = Modifier.height(50.dp))
+            //Text("Games played: ${gamesData.value}")
         }
     }
+}
+
+@Composable
+fun CustomBarChart(
+    data: MultiChartDataSet
+) {
+    StackedBarChartView(dataSet = data)
 }
