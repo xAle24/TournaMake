@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,14 +18,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -55,25 +60,76 @@ import com.example.tournaMake.ui.theme.getThemeColors
 @Composable
 fun MatchListScreen(
     state: ThemeState,
-    matchesListLiveData: LiveData<List<Match>>
+    matchesListLiveData: LiveData<List<Match>>,
+    navigationFunction: () -> Unit
 ) {
     // Data being fetched from database
     val matchesList = matchesListLiveData.observeAsState(emptyList())
+    val colorConstants = getThemeColors(themeState = state)
 
     BasicScreenWithTheme(
         state = state
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxHeight()
-        ) {
-            items(matchesList.value) { item ->
-                // TODO: maybe this won't be necessary when it will be integrated with the database
-                var deleted by remember { mutableStateOf(false) }
-                if (!deleted) {
-                    MatchCard(match = item, onDelete = { deleted = true }, themeState = state)
+        Column {
+            CreateMatchButton(
+                navigationFunction,
+                colorConstants
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxHeight()
+            ) {
+                items(matchesList.value) { item ->
+                    // TODO: maybe this won't be necessary when it will be integrated with the database
+                    var deleted by remember { mutableStateOf(false) }
+                    if (!deleted) {
+                        MatchCard(match = item, onDelete = { deleted = true }, colorConstants = colorConstants)
+                    }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Modifier.align can usually be called only within a specific scope.
+ * This strange way to write composable functions allows to use align
+ * even in separated functions.
+ * Source:
+ * https://stackoverflow.com/questions/67208803/columnscope-modifier-as-a-parameter-of-a-composable
+ * */
+@Composable
+fun ColumnScope.CreateMatchButton(
+    onClick: () -> Unit,
+    colorConstants: ColorConstants
+) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .padding(0.dp, 40.dp, 0.dp, 4.dp)
+            .clip(RoundedCornerShape(30.dp))
+            .background(colorConstants.getButtonBackground()),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent
+        ),
+        shape = RoundedCornerShape(30.dp),
+        border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.d20),
+                contentDescription = "Create Match",
+                modifier = Modifier.size(50.dp),
+            )
+            Spacer(Modifier.width(5.dp))
+            Text(
+                "Create Match",
+                fontSize = 45.sp,
+                color = MaterialTheme.colorScheme.onPrimary
+            )
         }
     }
 }
@@ -83,10 +139,9 @@ fun MatchListScreen(
 fun MatchCard(
     match: Match,
     onDelete: () -> Unit,
-    themeState: ThemeState
+    colorConstants: ColorConstants
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val colorConstants = getThemeColors(themeState = themeState) // see ui/theme/ColorConstants.kt
     Card(
         onClick = { expanded = !expanded },
         shape = RoundedCornerShape(8.dp),

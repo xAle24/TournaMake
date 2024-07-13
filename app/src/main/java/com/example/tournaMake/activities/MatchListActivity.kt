@@ -1,5 +1,6 @@
 package com.example.tournaMake.activities
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -24,7 +25,11 @@ class MatchListActivity : ComponentActivity() {
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val matchListViewModel = koinViewModel<MatchListViewModel>()
             fetchAndUpdateMatches(matchListViewModel, database)
-            MatchListScreen(state = state.value, matchesListLiveData = matchListViewModel.matchesListLiveData)
+            MatchListScreen(
+                state = state.value,
+                matchesListLiveData = matchListViewModel.matchesListLiveData,
+                navigationFunction = this::navigateToMatchCreation
+            )
         }
     }
 
@@ -37,5 +42,10 @@ class MatchListActivity : ComponentActivity() {
                 e.printStackTrace()
             }
         }
+    }
+
+    private fun navigateToMatchCreation() {
+        val intent = Intent(this, MatchCreationActivity::class.java)
+        startActivity(intent)
     }
 }
