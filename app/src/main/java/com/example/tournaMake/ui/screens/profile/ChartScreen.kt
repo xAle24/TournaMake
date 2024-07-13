@@ -39,25 +39,30 @@ fun ChartScreen(
     gamesLiveData: LiveData<List<PlayedGame>>,
     backButton: () -> Unit
 ) {
-    val gamesData by gamesLiveData.observeAsState()
-    val list = gamesData?.toList() ?: emptyList()
-
+    val gamesData = gamesLiveData.observeAsState()
+    val list = gamesData.value?.toList() ?: emptyList()
+/*
     val items = if (list.isNotEmpty()) listOf(
         list[0].name to listOf(list[0].times_played.toFloat(), 8810.34f, 30000.57f),
         "Strawberry Mall" to listOf(8261.68f, 8810.34f, 30000.57f),
         "Lime Av." to listOf(1500.87f, 2765.58f, 33245.81f),
         "Apple Rd." to listOf(5444.87f, 233.58f, 67544.81f)
     ) else listOf(
-        "stocazzo" to listOf(300f, 200f, 100f),
+        "ghini" to listOf(300f, 200f, 100f),
         "Strawberry Mall" to listOf(8261.68f, 8810.34f, 30000.57f),
         "Lime Av." to listOf(1500.87f, 2765.58f, 33245.81f),
         "Apple Rd." to listOf(5444.87f, 233.58f, 67544.81f)
     )
-
+*/
+    val items = list
+        .map { playedGame -> playedGame.name to listOf(playedGame.times_played.toFloat()) }
+        .toList()
+    println("In Chart Screen, about to print list values. ")
+    items.forEach { it -> println("Element: $it") }
     val dataSet = MultiChartDataSet(
-        items = items,
-        prefix = "$",
-        categories = /*if (list.isNotEmpty()) listOf(list[0].name, "Feb", "Mar") else*/ listOf("erer", "Feb", "Mar"),
+        items = items.ifEmpty { listOf<Pair<String, List<Float>>>("No value" to listOf(0.0f)) },
+        prefix = "",
+        categories = listOf("Times Played"),
         title = "Games"
     )
     BasicScreenWithTheme(
@@ -78,7 +83,7 @@ fun ChartScreen(
                 title = { Text(text = "My Profile") }
             )
             Spacer(modifier = Modifier.height(24.dp))
-            BarChartView( //old graph with single bar, (è più giusto al nostro contesto)
+            /*BarChartView( //old graph with single bar, (è più giusto al nostro contesto)
                 dataSet = ChartDataSet(
                 items = listOf(
                     if (list.isNotEmpty()) list[0].times_played.toFloat() else 1.15f,
@@ -86,7 +91,7 @@ fun ChartScreen(
                 ),
                     title = "Games"
                 )
-            )
+            )*/
             StackedBarChartView(dataSet = dataSet)
         }
     }

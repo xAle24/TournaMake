@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
+import com.example.tournaMake.data.models.GamesListViewModel
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.sampledata.Game
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
@@ -45,7 +46,8 @@ fun GamesListScreen(
     state: ThemeState,
     gamesListLiveData: LiveData<List<Game>>,
     addGame: KFunction1<Game, Unit>,
-    backButton: () -> Unit
+    backButton: () -> Unit,
+    recreationFunction: () -> Unit
 ) {
     val gameList = gamesListLiveData.observeAsState()
     var showDialog by remember { mutableStateOf(false) }
@@ -148,6 +150,7 @@ fun GamesListScreen(
                             )
                             addGame(game)
                             showDialog = false
+                            recreationFunction() // to update the UI... ugly but we can't do otherwise
                         }) {
                             Text("Confirm")
                         }

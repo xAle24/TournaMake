@@ -70,7 +70,7 @@ data class Match(
     @ColumnInfo(name = "duration") val duration: Int,
     @ColumnInfo(name = "status") val status: Int,
     @ColumnInfo(name = "gameID") val gameID: String,
-    @ColumnInfo(name = "tournamentID") val tournamentID: String //TODO: make nullable, by writing String?
+    @ColumnInfo(name = "tournamentID") val tournamentID: String?
 )
 
 @Entity(tableName = "MATCH_SCORE_GUEST",
@@ -96,9 +96,10 @@ data class MatchScoreGuest(
         ForeignKey(entity = Match::class,
             parentColumns = ["matchID"],
             childColumns = ["matchID"])
-    ])
+    ],
+    primaryKeys = ["email", "matchID"])
 data class MatchScoreMain(
-    @PrimaryKey @ColumnInfo(name = "email") val email: String,
+    @ColumnInfo(name = "email") val email: String,
     @ColumnInfo(name = "matchID") val matchID: String,
     @ColumnInfo(name = "score") val score: Int
 )

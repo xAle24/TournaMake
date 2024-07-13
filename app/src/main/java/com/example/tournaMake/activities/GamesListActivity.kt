@@ -35,7 +35,8 @@ class GamesListActivity : ComponentActivity() {
                 state = state.value,
                 gamesListViewModel.gamesListLiveData,
                 addGame = this::addGame,
-                backButton = this::backButton
+                backButton = this::backButton,
+                recreationFunction = this::recreate
             )
         }
     }
