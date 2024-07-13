@@ -25,7 +25,7 @@ class MenuActivity : ComponentActivity() {
                 navigateToTournament= this::navigateToTournament,
                 navigateToListProfile = this::navigateToListProfile,
                 navigateToSettings = this::navigateToSettings,
-                navigateToFavorites = this::navigateToFavorites,
+                navigateToGamesList = this::navigateToGamesList,
                 navigateToProfile = this::navigateToProfile,
                 navigateToMatchesList = this::navigateToMatchesList
             )
@@ -35,8 +35,8 @@ class MenuActivity : ComponentActivity() {
         val intent = Intent(this, TournamentActivity::class.java)
         startActivity(intent)
     }
-    private fun navigateToFavorites() {
-        val intent = Intent(this, FavoritesActivity::class.java)
+    private fun navigateToGamesList() {
+        val intent = Intent(this, GamesListActivity::class.java)
         startActivity(intent)
     }
     private fun navigateToListProfile() {

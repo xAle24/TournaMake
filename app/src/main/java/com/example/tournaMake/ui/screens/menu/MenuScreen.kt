@@ -29,7 +29,7 @@ fun MenuScreen(
     navigateToSettings: () -> Unit,
     navigateToListProfile: () -> Unit,
     navigateToTournament: () -> Unit,
-    navigateToFavorites: () -> Unit,
+    navigateToGamesList: () -> Unit,
     navigateToProfile: () -> Unit,
     navigateToMatchesList: () -> Unit
 ) {
@@ -68,10 +68,10 @@ fun MenuScreen(
                 Text("Start")
             }
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = { navigateToFavorites() }, modifier = Modifier
+            Button(onClick = { navigateToGamesList() }, modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(60.dp)) {
-                Text("Favorites")
+                Text("Game list")
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button(onClick = { navigateToListProfile() }, modifier = Modifier
