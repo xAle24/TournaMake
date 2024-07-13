@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -71,10 +73,25 @@ fun MatchListScreen(
         state = state
     ) {
         Column {
-            CreateMatchButton(
-                navigationFunction,
-                colorConstants
-            )
+            Row(
+                modifier = Modifier
+                    //.background(Color.Black)
+                    .fillMaxWidth()
+                    .padding(5.dp),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CreateMatchButton(
+                    navigationFunction,
+                    colorConstants,
+                    Modifier.align(Alignment.CenterVertically)
+                )
+                FilterButton(
+                    colorConstants,
+                    Modifier
+                        .align(Alignment.CenterVertically)
+                )
+            }
             LazyColumn(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -91,45 +108,69 @@ fun MatchListScreen(
     }
 }
 
-/**
- * Modifier.align can usually be called only within a specific scope.
- * This strange way to write composable functions allows to use align
- * even in separated functions.
- * Source:
- * https://stackoverflow.com/questions/67208803/columnscope-modifier-as-a-parameter-of-a-composable
- * */
 @Composable
-fun ColumnScope.CreateMatchButton(
+fun CreateMatchButton(
     onClick: () -> Unit,
-    colorConstants: ColorConstants
+    colorConstants: ColorConstants,
+    modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onClick,
-        modifier = Modifier
-            .align(Alignment.CenterHorizontally)
+        modifier = modifier
             .padding(0.dp, 40.dp, 0.dp, 4.dp)
             .clip(RoundedCornerShape(30.dp))
+            .height(60.dp)
+            .fillMaxWidth(0.6f)
             .background(colorConstants.getButtonBackground()),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent
         ),
-        shape = RoundedCornerShape(30.dp),
         border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
     ) {
         Row(
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.d20),
                 contentDescription = "Create Match",
-                modifier = Modifier.size(50.dp),
+                modifier = Modifier.size(40.dp),
             )
             Spacer(Modifier.width(5.dp))
             Text(
                 "Create Match",
-                fontSize = 45.sp,
+                fontSize = 20.sp,
                 color = MaterialTheme.colorScheme.onPrimary
             )
+        }
+    }
+}
+
+@Composable
+fun FilterButton(
+    colorConstants: ColorConstants,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = { /* TODO: implement filters */},
+        modifier = modifier
+            .padding(0.dp, 40.dp, 0.dp, 4.dp)
+            .fillMaxWidth(0.55f)
+            .clip(RoundedCornerShape(30.dp))
+            .height(60.dp)
+            .background(colorConstants.getButtonBackground()),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Transparent
+        ),
+        border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+    ) {
+        Column {
+            Image(
+                painter = painterResource(id = R.drawable.filter),
+                contentDescription = "Filter",
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+            Text("Filter")
         }
     }
 }
