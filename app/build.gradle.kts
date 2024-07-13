@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.tournaMake"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -79,4 +79,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
     // Used to convert LiveData to state
     implementation ("androidx.compose.runtime:runtime-livedata:1.6.8")
+    //new library for charts
+    implementation("io.github.dautovicharis:charts:1.3.1")
+
 }

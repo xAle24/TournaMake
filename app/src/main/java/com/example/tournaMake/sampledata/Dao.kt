@@ -28,11 +28,28 @@ interface AchievementPlayerDao {
     @Delete
     fun delete(achievementPlayer: AchievementPlayer)
 }
+data class PlayedGame(val gameID: String,
+                      val name: String,
+                      val description : String,
+                      val duration: Int,
+                      val MinPlayer: Int,
+                      val maxPlayers: Int,
+                      val times_played: Int)
 
 @Dao
 interface GameDao {
     @Query("SELECT * FROM GAME")
     fun getAll(): List<Game>
+    @Query("""
+        SELECT GAME.*, COUNT(MATCH_TM.gameID) as times_played
+        FROM GAME
+        JOIN MATCH_TM ON GAME.gameID = MATCH_TM.gameID
+        JOIN MATCH_SCORE_MAIN ON MATCH_TM.matchID = MATCH_SCORE_MAIN.matchID
+        WHERE MATCH_SCORE_MAIN.email = :email
+        GROUP BY GAME.name
+    """)
+    fun getPlayedGames(email: String): List<PlayedGame>
+
 
     @Insert
     fun insertAll(vararg games: Game)
@@ -43,13 +60,13 @@ interface GameDao {
 
 @Dao
 interface MatchDao {
-    @Query("SELECT * FROM `MATCH`")
+    @Query("SELECT * FROM `MATCH_TM`")
     fun getAll(): List<Match>
 
-    @Query("SELECT MATCH.*\n" +
-            "FROM MATCH\n" +
+    @Query("SELECT MATCH_TM.*\n" +
+            "FROM MATCH_TM\n" +
             "INNER JOIN MATCH_SCORE_MAIN\n" +
-            "ON MATCH.matchID = MATCH_SCORE_MAIN.matchID\n" +
+            "ON MATCH_TM.matchID = MATCH_SCORE_MAIN.matchID\n" +
             "WHERE MATCH_SCORE_MAIN.email = :email")
     fun getMyMatch(email: String): List<Match>
 

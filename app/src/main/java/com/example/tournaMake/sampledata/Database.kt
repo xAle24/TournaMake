@@ -55,7 +55,7 @@ data class MainProfile(
     @ColumnInfo(name = "locationLongitude") val locationLongitude: Float
 )
 
-@Entity(tableName = "MATCH",
+@Entity(tableName = "MATCH_TM",
     foreignKeys = [
         ForeignKey(entity = Game::class,
             parentColumns = ["gameID"],

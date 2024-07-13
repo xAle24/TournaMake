@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import com.example.tournaMake.data.models.LoggedProfileViewModel
+import com.example.tournaMake.data.models.GraphViewModel
 import com.example.tournaMake.data.models.MatchListViewModel
 import com.example.tournaMake.data.models.ProfileListViewModel
 import com.example.tournaMake.data.models.ProfileViewModel
@@ -25,6 +26,7 @@ val appModule = module {
     viewModel { ProfileViewModel() }
     viewModel { ProfileListViewModel() }
     viewModel { MatchListViewModel() }
+    viewModel { GraphViewModel() }
     single {
         Room.databaseBuilder(
             get(),
