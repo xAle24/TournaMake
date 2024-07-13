@@ -97,6 +97,11 @@ fun ChartScreen(
                 )
             )*/
 
+            /*
+            * Use the key() function to tell Compose Runtime the value used to identify this
+            * part of the tree. Documentation:
+            * https://developer.android.com/develop/ui/compose/lifecycle#key
+            * */
             key(dataSet) {
                 CustomBarChart(data = dataSet)
             }
