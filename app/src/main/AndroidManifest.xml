@@ -30,7 +30,7 @@
         <activity android:name=".activities.MenuActivity" />
         <activity android:name=".activities.SettingsActivity" />
         <activity android:name=".activities.ProfileActivity" />
-        <activity android:name=".activities.TournamentActivity" />
+        <activity android:name=".activities.TournamentListActivity" />
         <activity android:name=".activities.GamesListActivity" />
         <activity android:name=".activities.RegistrationPhotoActivity" />
         <activity android:name=".activities.ProfileListActivity" />
@@ -38,6 +38,8 @@
         <activity android:name=".activities.GamesChartActivity" />
         <activity android:name=".activities.PlayerActActivity" />
         <activity android:name=".activities.MatchCreationActivity" />
+        <activity android:name=".activities.TournamentCreationActivity" />
+        <activity android:name=".activities.TournamentActivity" />
     </application>
 
 </manifest>
