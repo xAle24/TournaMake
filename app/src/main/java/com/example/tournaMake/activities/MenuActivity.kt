@@ -31,7 +31,7 @@ class MenuActivity : ComponentActivity() {
         }
     }
     private fun navigateToTournament() {
-        val intent = Intent(this, TournamentActivity::class.java)
+        val intent = Intent(this, TournamentListActivity::class.java)
         startActivity(intent)
     }
     private fun navigateToGamesList() {
