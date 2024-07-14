@@ -2,7 +2,6 @@ package com.example.tournaMake.ui.screens.common
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
@@ -20,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,7 +31,7 @@ import com.example.tournaMake.data.models.ThemeState
 private val barHeight: Dp = 60.dp
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnusedBoxWithConstraintsScope")
 @Composable
-fun BasicScreenWithScaffold(
+fun BasicScreenWithAppBars(
     state: ThemeState,
     backFunction: () -> Unit,
     content: @Composable () -> Unit
@@ -44,8 +42,6 @@ fun BasicScreenWithScaffold(
         if (state.theme == ThemeEnum.Dark) R.drawable.dark_topbarbackground else R.drawable.light_topbarbackground
     val bottomBarBackground =
         if (state.theme == ThemeEnum.Dark) R.drawable.dark_bottom_bar_background else R.drawable.light_bottom_bar_background
-    val imageLogoId =
-        if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
     BasicScreenWithTheme(state = state) {
         Box(
             modifier = Modifier.fillMaxSize()
@@ -164,7 +160,7 @@ fun TournaMakeBottomAppBar(
 @Preview
 @Composable
 fun PreviewBasicScreenWithScaffold() {
-    BasicScreenWithScaffold(state = ThemeState(ThemeEnum.Light), backFunction = { /*TODO*/ }) {
+    BasicScreenWithAppBars(state = ThemeState(ThemeEnum.Light), backFunction = { /*TODO*/ }) {
         Text("Ciao mamma")
     }
 }
