@@ -157,7 +157,7 @@ fun MenuButton(
                 .width(40.dp)
                 .height(40.dp)
         )
-        Spacer(modifier = Modifier.width(5.dp))
+        Spacer(modifier = Modifier.width(15.dp))
         Text(text)
     }
     Spacer(modifier = Modifier.height(16.dp))
