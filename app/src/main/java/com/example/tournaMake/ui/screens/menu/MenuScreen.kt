@@ -83,19 +83,19 @@ fun MenuScreen(
                 )
             }
             Row(
-                modifier = Modifier.fillMaxWidth(0.9f),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(0.95f),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 MenuButton(
                     "Logout", { /* Handle left button click */ }, R.drawable.backicon, state,
                     modifier = Modifier
-                        .fillMaxWidth(0.2f)
-                        .fillMaxHeight(0.1f)
+                        .fillMaxWidth(0.4f)
+                        .fillMaxHeight(0.05f)
                 )
                 MenuButton("", { showDialog.value = true }, R.drawable.bellnotification, state,
                     modifier = Modifier
-                        .fillMaxWidth(0.1f)
-                        .fillMaxHeight(0.1f)
+                        .fillMaxWidth(0.3f)
+                        .fillMaxHeight(0.05f)
                 )
             }
             Image(
