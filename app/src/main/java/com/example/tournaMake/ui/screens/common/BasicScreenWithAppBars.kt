@@ -29,12 +29,15 @@ import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
 
 private val barHeight: Dp = 60.dp
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnusedBoxWithConstraintsScope")
 @Composable
 fun BasicScreenWithAppBars(
     state: ThemeState,
     backFunction: () -> Unit,
-    content: @Composable () -> Unit
+    showTopBar: Boolean,
+    showBottomBar: Boolean,
+    content: @Composable () -> Unit,
 ) {
     val backButtonIcon =
         if (state.theme == ThemeEnum.Dark) R.drawable.dark_tournamake_triangle_no_outline else R.drawable.light_tournamake_triangle_no_outline
@@ -46,28 +49,34 @@ fun BasicScreenWithAppBars(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            // The top app bar with the custom background image
-            TournaMakeTopAppBar(
-                backButtonIcon = backButtonIcon,
-                topAppBarBackground = topAppBarBackground,
-                backFunction = backFunction
-            )
+            if (showTopBar) {
+                // The top app bar with the custom background image
+                TournaMakeTopAppBar(
+                    backButtonIcon = backButtonIcon,
+                    topAppBarBackground = topAppBarBackground,
+                    backFunction = backFunction
+                )
+            }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     //.background(Color.White)
-                    .padding(top = barHeight + 5.dp, bottom = barHeight + 5.dp) // Adjust top padding to match top app bar height
+                    .padding(
+                        top = barHeight + 5.dp,
+                        bottom = barHeight + 5.dp
+                    ) // Adjust top padding to match top app bar height
             ) {
                 // The custom content, passed as a parameter
                 content()
                 //Text("Prova bottom", modifier = Modifier.align(Alignment.BottomStart))
             }
-
-            // The bottom app bar with the custom background image
-            TournaMakeBottomAppBar(
-                backgroundImage = bottomBarBackground,
-                modifier = Modifier.align(Alignment.BottomCenter)
-            )
+            if (showBottomBar) {
+                // The bottom app bar with the custom background image
+                TournaMakeBottomAppBar(
+                    backgroundImage = bottomBarBackground,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
+            }
         }
     }
 }
@@ -109,7 +118,8 @@ fun TournaMakeTopAppBar(
             Row(
                 modifier = Modifier.fillMaxSize()
             ) {
-                IconButton( // The back button
+                IconButton(
+                    // The back button
                     onClick = backFunction,
                     modifier = Modifier
                         .size(70.dp)
@@ -160,7 +170,12 @@ fun TournaMakeBottomAppBar(
 @Preview
 @Composable
 fun PreviewBasicScreenWithScaffold() {
-    BasicScreenWithAppBars(state = ThemeState(ThemeEnum.Light), backFunction = { /*TODO*/ }) {
+    BasicScreenWithAppBars(
+        state = ThemeState(ThemeEnum.Light),
+        backFunction = { /*TODO*/ },
+        showTopBar = true,
+        showBottomBar = true
+    ) {
         Text("Ciao mamma")
     }
 }
