@@ -59,6 +59,11 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.theme.ColorConstants
 import com.example.tournaMake.ui.theme.getThemeColors
 
+/**
+ * TODO: add favourites
+ * TODO: add actual games names, not their UUID
+ * TODO: think of giving the user the chance to rename the individual matches
+ * */
 @Composable
 fun MatchListScreen(
     state: ThemeState,

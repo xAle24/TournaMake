@@ -54,7 +54,7 @@ fun MenuScreen(
         val topAppBarBackground =
             if (state.theme == ThemeEnum.Dark) R.drawable.dark_topbarbackground else R.drawable.light_topbarbackground
         val bottomBarBackground =
-            if (state.theme == ThemeEnum.Dark) R.drawable.dark_bottombarbackground else R.drawable.light_bottombarbackground
+            if (state.theme == ThemeEnum.Dark) R.drawable.dark_bottom_bar_background else R.drawable.light_bottom_bar_background
         val showDialog = remember { mutableStateOf(false) }
         if (showDialog.value) {
             ShowNotification(
