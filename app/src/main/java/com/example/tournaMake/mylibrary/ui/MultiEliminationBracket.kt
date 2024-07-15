@@ -43,7 +43,8 @@ fun MultiEliminationBracket(
         mutableStateOf(brackets.first())
     }
     //val pageIndex = remember { mutableIntStateOf(0) }
-    val pagerState = rememberPagerState(pageCount = { /*return@rememberPagerState pageIndex.intValue*/ 0})
+    val pageNumber = brackets.sumOf { list -> list.rounds.size }
+    val pagerState = rememberPagerState(pageCount = { return@rememberPagerState brackets[0].rounds.size })
     val coroutineScope = rememberCoroutineScope()
 
     Column {

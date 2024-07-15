@@ -4,6 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import com.example.tournaMake.mylibrary.ui.BracketColors
 
 /**
@@ -18,8 +19,8 @@ object BracketDefaults {
     fun bracketColors(): BracketColors {
         return BracketColors(
             tabColors = BracketColors.TabColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.primary,
+                containerColor = Color.Transparent,
+                contentColor = Color.Black,
             ),
             matchColors = BracketColors.MatchColors(
                 contentColor = MaterialTheme.colorScheme.onSurface,
@@ -27,8 +28,14 @@ object BracketDefaults {
                 dividerColor = MaterialTheme.colorScheme.outlineVariant,
             ),
             dropdownColors = BracketColors.DropdownColors(
-                textFieldColors = TextFieldDefaults.colors(),
-                menuItemColors = MenuDefaults.itemColors(),
+                textFieldColors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent
+                ),
+                menuItemColors = MenuDefaults.itemColors(
+                    textColor = Color.Transparent,
+
+                ),
             ),
         )
     }

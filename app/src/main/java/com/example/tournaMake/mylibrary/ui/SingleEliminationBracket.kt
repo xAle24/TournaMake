@@ -25,8 +25,7 @@ fun SingleEliminationBracket(
     modifier: Modifier = Modifier,
     colors: BracketColors = BracketDefaults.bracketColors(),
 ) {
-    //val pageIndex = remember { mutableIntStateOf(0) }
-    val pagerState = rememberPagerState { /*return@rememberPagerState pageIndex.intValue*/ 0 }
+    val pagerState = rememberPagerState { return@rememberPagerState bracket.rounds.size }
     val coroutineScope = rememberCoroutineScope()
 
     Bracket(
@@ -35,7 +34,6 @@ fun SingleEliminationBracket(
         pagerState = pagerState,
         onSelectedRoundChanged = { round ->
             coroutineScope.launch {
-                //pageIndex.intValue = bracket.rounds.indexOf(round)
                 pagerState.animateScrollToPage(bracket.rounds.indexOf(round))
             }
         },
