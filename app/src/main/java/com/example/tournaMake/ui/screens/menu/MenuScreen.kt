@@ -42,7 +42,8 @@ fun MenuScreen(
     navigateToListProfile: () -> Unit,
     navigateToTournament: () -> Unit,
     navigateToGamesList: () -> Unit,
-    navigateToMatchesList: () -> Unit
+    navigateToMatchesList: () -> Unit,
+    logout: () -> Unit
 ) {
     BasicScreenWithTheme(
         state = state,
@@ -87,7 +88,7 @@ fun MenuScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 MenuButton(
-                    "Logout", { /* Handle left button click */ }, R.drawable.backicon, state,
+                    "Logout", { logout() }, R.drawable.backicon, state,
                     modifier = Modifier
                         .fillMaxWidth(0.4f)
                         .fillMaxHeight(0.05f)

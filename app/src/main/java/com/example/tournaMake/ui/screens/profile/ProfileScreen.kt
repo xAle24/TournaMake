@@ -1,8 +1,6 @@
 package com.example.tournaMake.ui.screens.profile
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,7 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,7 +43,6 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 /**
  * The screen seen when clicking on a specific profile.
  * */
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
@@ -74,7 +71,7 @@ fun ProfileScreen(
             TopAppBar(
                 navigationIcon = {
                     IconButton(onClick = { backButton() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
                 title = { Text(text = "My Profile") }
@@ -86,7 +83,7 @@ fun ProfileScreen(
                 .fillMaxWidth(0.8f)
                 .fillMaxHeight(0.05f)) {
                 Text("Profile Info", Modifier.clickable { selectedTabIndex = 0 })
-                Text("Player Games", Modifier.clickable { selectedTabIndex = 1 })
+                Text("Achievements", Modifier.clickable { selectedTabIndex = 1 })
             }
             // Display content based on selected tab
             when (selectedTabIndex) {
