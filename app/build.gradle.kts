@@ -85,8 +85,14 @@ dependencies {
     //new library for charts
     implementation("io.github.dautovicharis:charts:1.3.1")
     // Library for compose tournaments
-    implementation("com.adammcneilly:composetournamentbracket:0.0.1")
+    // implementation("com.adammcneilly:composetournamentbracket:0.0.1")
     // to make tournament library work
     // https://mvnrepository.com/artifact/com.google.accompanist/accompanist-systemuicontroller
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
+    // Nav controller, still for the tournament dependency to work
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    // Pager, needed by the library, again
+    // https://mvnrepository.com/artifact/androidx.compose.foundation/foundation
+    //implementation("androidx.compose.foundation:foundation:1.6.8")
+    //implementation("androidx.compose.foundation:foundation:1.4.3")
 }

@@ -1,9 +1,9 @@
 package com.example.tournaMake.data.tournament
 
-import com.adammcneilly.tournament.bracket.displaymodels.BracketDisplayModel
-import com.adammcneilly.tournament.bracket.displaymodels.BracketMatchDisplayModel
-import com.adammcneilly.tournament.bracket.displaymodels.BracketRoundDisplayModel
-import com.adammcneilly.tournament.bracket.displaymodels.BracketTeamDisplayModel
+import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
+import com.example.tournaMake.mylibrary.displaymodels.BracketMatchDisplayModel
+import com.example.tournaMake.mylibrary.displaymodels.BracketRoundDisplayModel
+import com.example.tournaMake.mylibrary.displaymodels.BracketTeamDisplayModel
 
 object TestTournamentData {
     private val singleEliminationQuarterFinals = listOf(

@@ -3,25 +3,30 @@ package com.example.tournaMake.activities
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+//import com.example.tournaMake.mylibrary.ui.SingleEliminationBracket
 import com.example.tournaMake.data.models.ThemeViewModel
+import com.example.tournaMake.data.tournament.TestTournamentData
 import com.example.tournaMake.ui.screens.tournament.TournamentScreen
+import com.example.tournaMake.ui.screens.tournament.TournamentView
 import org.koin.androidx.compose.koinViewModel
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+
 class TournamentActivity : ComponentActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        configureEdgeToEdgeWindow()
+
         setContent {
             val themeViewModel = koinViewModel<ThemeViewModel>()
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             TournamentScreen(
                 state = state.value
             )
+            //SingleEliminationBracket(bracket = TestTournamentData.singleEliminationBracket)
         }
     }
 
@@ -38,20 +43,5 @@ class TournamentActivity : ComponentActivity(){
      */
     private fun configureEdgeToEdgeWindow() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
-    }
-
-    @Composable
-    private fun ConfigureTransparentSystemBars() {
-        val systemUiController = rememberSystemUiController()
-        val useDarkIcons = !isSystemInDarkTheme()
-
-        DisposableEffect(systemUiController, useDarkIcons) {
-            systemUiController.setSystemBarsColor(
-                color = Color.Transparent,
-                darkIcons = useDarkIcons,
-            )
-
-            onDispose { }
-        }
     }
 }
