@@ -48,12 +48,14 @@ import com.example.tournaMake.R
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
+import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.theme.getThemeColors
 
 @Composable
 fun MatchCreationScreen(
     state: ThemeState,
     backFunction: () -> Unit,
+    navigateToMatch: () -> Unit
 ) {
     val imageLogoId =
         if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
@@ -83,15 +85,19 @@ fun MatchCreationScreen(
                     BottomTeamScreenButton(
                         state = state,
                         modifier = Modifier
-                            .width(150.dp)
+                            .width(150.dp),
                         //.fillMaxWidth(0.3f)
+                        text = "Add Team"
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     BottomTeamScreenButton(
                         state = state,
                         modifier = Modifier
-                            .width(100.dp)
+                            .width(100.dp),
                         //.fillMaxWidth(0.3f)
+                        iconEnabled = false,
+                        text = "Create Match",
+                        onClick = navigateToMatch
                     )
                 }
             }
@@ -103,7 +109,9 @@ fun MatchCreationScreen(
 fun BottomTeamScreenButton(
     modifier: Modifier = Modifier,
     state: ThemeState,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    iconEnabled: Boolean = true,
+    text: String
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -113,16 +121,18 @@ fun BottomTeamScreenButton(
             .clip(RoundedCornerShape(6.dp))
             .background(getThemeColors(themeState = state).getButtonBackground())
     ) {
-        Icon(
-            Icons.Filled.Add,
-            null,
-            tint = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier
-                .width(25.dp)
-        )
+        if (iconEnabled) {
+            Icon(
+                Icons.Filled.Add,
+                null,
+                tint = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier
+                    .width(25.dp)
+            )
+        }
         //Spacer(modifier = Modifier.width(10.dp))
         Text(
-            "Add Team",
+            text,
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier
                 .padding(10.dp)
@@ -212,6 +222,7 @@ fun SelectionMenu() {
 fun PreviewMatchCreationScreen() {
     MatchCreationScreen(
         state = ThemeState(ThemeEnum.Light),
-        backFunction = {}
+        backFunction = {},
+        {}
     )
 }

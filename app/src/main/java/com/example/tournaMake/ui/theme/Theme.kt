@@ -17,26 +17,28 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
-        primary = Color(31, 4, 65),
-        secondary = Color(128, 14, 198),
-        tertiary = Color(59, 11, 119),
-        surface = Color(136, 239, 127),
-        onPrimary = Color.White
+    primary = Color(31, 4, 65),
+    secondary = Color(128, 14, 198),
+    tertiary = Color(59, 11, 119),
+    surface = Color(136, 239, 127),
+    onPrimary = Color.White,
+    outline = Color(33, 197, 220)
 )
 
 private val LightColorScheme = lightColorScheme(
-        primary = Color(195, 167, 15),
-        secondary = Color(251, 200, 21),
-        tertiary = Color(252, 219, 179),
-        surface = Color(234, 137, 23),
-        onPrimary = Color(64, 30, 6),
+    primary = Color(195, 167, 15),
+    secondary = Color(251, 200, 21),
+    tertiary = Color(252, 219, 179),
+    surface = Color(234, 137, 23),
+    onPrimary = Color(64, 30, 6),
+    outline = Color(252, 216, 161)
 )
 
 @Composable
 fun TournaMakeTheme(
-        darkTheme: Boolean = isSystemInDarkTheme(),
-        dynamicColor: Boolean = true,
-        content: @Composable () -> Unit
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
+    content: @Composable () -> Unit
 ) {
     val colorScheme = when {
         /*
@@ -62,8 +64,8 @@ fun TournaMakeTheme(
     }
 
     MaterialTheme(
-            colorScheme = colorScheme,
-            typography = Typography,
-            content = content
+        colorScheme = colorScheme,
+        typography = Typography,
+        content = content
     )
 }

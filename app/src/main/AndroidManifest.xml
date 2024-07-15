@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Permission to access the gallery to upload pictures -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
     <application
         android:name=".TournaMakeApplication"
         android:allowBackup="true"
@@ -40,6 +40,7 @@
         <activity android:name=".activities.MatchCreationActivity" />
         <activity android:name=".activities.TournamentCreationActivity" />
         <activity android:name=".activities.TournamentActivity" />
+        <activity android:name=".activities.MatchActivity" />
     </application>
 
 </manifest>

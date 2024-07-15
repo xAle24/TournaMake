@@ -48,6 +48,7 @@ import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainProfile
+import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.theme.ColorConstants
 import com.example.tournaMake.ui.theme.getThemeColors
 
@@ -132,22 +133,6 @@ val testTeam2 = TeamImpl(
     ),
     teamName = "The Noobs"
 )
-
-@Composable
-fun RectangleContainer(
-    modifier: Modifier,
-    content: @Composable () -> Unit
-) {
-    val screenWidth = LocalConfiguration.current.screenWidthDp
-    Column(
-        modifier = modifier
-            .fillMaxHeight()
-            .width((0.9f * screenWidth).dp)
-            //.verticalScroll(rememberScrollState())
-    ) {
-        content()
-    }
-}
 
 @Composable
 fun TeamContainer(
