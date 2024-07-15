@@ -46,7 +46,7 @@ fun TournamentView() {
     ConfigureTransparentSystemBars()
 
     Surface(
-        color = MaterialTheme.colorScheme.background,
+        color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f), // the background behind the whole bracket system
         modifier = Modifier
             .systemBarsPadding(),
     ) {

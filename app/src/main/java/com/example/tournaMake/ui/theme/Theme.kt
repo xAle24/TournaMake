@@ -29,7 +29,8 @@ private val LightColorScheme = lightColorScheme(
     primary = Color(195, 167, 15),
     secondary = Color(251, 200, 21),
     tertiary = Color(252, 219, 179),
-    surface = Color(234, 137, 23),
+    //surface = Color(234, 137, 23),
+    surface = Color(242, 215, 92),
     onPrimary = Color(64, 30, 6),
     outline = Color(252, 216, 161)
 )

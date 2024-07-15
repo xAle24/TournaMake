@@ -19,23 +19,20 @@ object BracketDefaults {
     fun bracketColors(): BracketColors {
         return BracketColors(
             tabColors = BracketColors.TabColors(
-                containerColor = Color.Transparent,
+                containerColor = MaterialTheme.colorScheme.secondary,
                 contentColor = Color.Black,
             ),
             matchColors = BracketColors.MatchColors(
                 contentColor = MaterialTheme.colorScheme.onSurface,
-                borderColor = MaterialTheme.colorScheme.outline,
-                dividerColor = MaterialTheme.colorScheme.outlineVariant,
+                borderColor = MaterialTheme.colorScheme.primary,
+                dividerColor = MaterialTheme.colorScheme.primary,
             ),
             dropdownColors = BracketColors.DropdownColors(
                 textFieldColors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedContainerColor = Color.Transparent
+                    unfocusedContainerColor = MaterialTheme.colorScheme.onTertiary,
+                    focusedContainerColor = MaterialTheme.colorScheme.onTertiary
                 ),
-                menuItemColors = MenuDefaults.itemColors(
-                    textColor = Color.Transparent,
-
-                ),
+                menuItemColors = MenuDefaults.itemColors(),
             ),
         )
     }

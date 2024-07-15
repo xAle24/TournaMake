@@ -1,12 +1,15 @@
 package com.example.tournaMake.mylibrary.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
 import com.example.tournaMake.mylibrary.displaymodels.BracketRoundDisplayModel
 import com.example.tournaMake.mylibrary.ui.BracketColors
@@ -29,6 +32,7 @@ internal fun Bracket(
 ) {
     Surface(
         modifier = modifier,
+        color = Color.Transparent // color behind the match elements
     ) {
         Column(
             modifier = Modifier
