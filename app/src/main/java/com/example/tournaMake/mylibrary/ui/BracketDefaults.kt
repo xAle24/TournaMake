@@ -23,14 +23,14 @@ object BracketDefaults {
                 contentColor = Color.Black,
             ),
             matchColors = BracketColors.MatchColors(
-                contentColor = MaterialTheme.colorScheme.onSurface,
+                contentColor = MaterialTheme.colorScheme.onTertiary, // writings in the text fields of the matches
                 borderColor = MaterialTheme.colorScheme.primary,
                 dividerColor = MaterialTheme.colorScheme.primary,
             ),
             dropdownColors = BracketColors.DropdownColors(
                 textFieldColors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.onTertiary,
-                    focusedContainerColor = MaterialTheme.colorScheme.onTertiary
+                    unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
+                    focusedContainerColor = MaterialTheme.colorScheme.secondary
                 ),
                 menuItemColors = MenuDefaults.itemColors(),
             ),

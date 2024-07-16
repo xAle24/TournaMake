@@ -22,7 +22,8 @@ private val DarkColorScheme = darkColorScheme(
     tertiary = Color(59, 11, 119),
     surface = Color(136, 239, 127),
     onPrimary = Color.White,
-    outline = Color(33, 197, 220)
+    outline = Color(33, 197, 220),
+    onTertiary = Color.Black
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -32,7 +33,8 @@ private val LightColorScheme = lightColorScheme(
     //surface = Color(234, 137, 23),
     surface = Color(242, 215, 92),
     onPrimary = Color(64, 30, 6),
-    outline = Color(252, 216, 161)
+    outline = Color(252, 216, 161),
+    onTertiary = Color.Black
 )
 
 @Composable
