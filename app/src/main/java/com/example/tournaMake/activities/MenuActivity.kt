@@ -26,7 +26,8 @@ class MenuActivity : ComponentActivity() {
                 navigateToListProfile = this::navigateToListProfile,
                 navigateToSettings = this::navigateToSettings,
                 navigateToGamesList = this::navigateToGamesList,
-                navigateToMatchesList = this::navigateToMatchesList
+                navigateToMatchesList = this::navigateToMatchesList,
+                logout = this::logout
             )
         }
     }
@@ -46,9 +47,17 @@ class MenuActivity : ComponentActivity() {
         val intent = Intent(this, SettingsActivity::class.java)
         startActivity(intent)
     }
-
     private fun navigateToMatchesList() {
         val intent = Intent(this, MatchListActivity::class.java)
         startActivity(intent)
     }
+    private fun logout() {
+        val intent = Intent(
+            this,
+            MainActivity::class.java
+        )
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivity(intent)
+    }
+
 }
