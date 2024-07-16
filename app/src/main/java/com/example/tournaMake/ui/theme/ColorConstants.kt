@@ -10,6 +10,8 @@ import com.example.tournaMake.data.models.ThemeState
 sealed interface ColorConstants {
     fun getButtonBackground(): Brush
     fun getTextGradient(): Brush
+
+    fun getNormalTextColor(): Color
 }
 data class LightModeColors(
     private val buttonColorStops: List<Color> = listOf(
@@ -32,6 +34,10 @@ data class LightModeColors(
     override fun getTextGradient(): Brush {
         return this.tournamakeTextGradient
     }
+
+    override fun getNormalTextColor(): Color {
+        return Color.Black
+    }
 }
 
 data class DarkModeColors(
@@ -53,6 +59,10 @@ data class DarkModeColors(
 
     override fun getTextGradient(): Brush {
         return this.tournamakeTextGradient
+    }
+
+    override fun getNormalTextColor(): Color {
+        return Color.White
     }
 }
 

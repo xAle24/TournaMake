@@ -1,12 +1,10 @@
 package com.example.tournaMake.activities
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -24,7 +22,6 @@ import org.koin.androidx.compose.koinViewModel
 class ProfileActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = get<AppDatabase>()
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -56,7 +53,7 @@ class ProfileActivity : ComponentActivity() {
                 profileLiveData = profileViewModel.profileLiveData,
                 backButton = this::backButton,
                 navigateToChart = this::navigateToChart,
-                navigateToLastWeek = this::navigateToWeekActivity
+                navigateToPlayerActivity = this::navigateToPlayerActivity
             )
         }
     }
@@ -81,7 +78,7 @@ class ProfileActivity : ComponentActivity() {
         val intent = Intent(this, GamesChartActivity::class.java)
         startActivity(intent)
     }
-    private fun navigateToWeekActivity() {
+    private fun navigateToPlayerActivity() {
         val intent = Intent(this, PlayerActActivity::class.java)
         startActivity(intent)
     }
