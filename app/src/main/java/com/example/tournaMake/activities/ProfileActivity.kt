@@ -1,10 +1,17 @@
 package com.example.tournaMake.activities
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -42,6 +49,24 @@ class ProfileActivity : ComponentActivity() {
             profileViewModel.profileLiveData.observe(this, profileObserver)
             fetchAndUpdateProfile(loggedEmail.value.loggedProfileEmail, profileViewModel)
             //val profile
+
+            // Adding management of profile photo
+            /* Code taken from:
+            * https://www.youtube.com/watch?v=uHX5NB6wHao
+            * */
+            var selectedImageURI by remember {
+                mutableStateOf<Uri?>(null)
+            }
+            val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.PickVisualMedia(),
+                onResult = { uri ->
+                    if (uri != null) {
+                        selectedImageURI = uri
+                        uploadPhotoToDatabase(uri, loggedEmail.value.loggedProfileEmail)
+                    }
+                }
+            )
+
             ProfileScreen(
                 state = state.value,
                 /*
@@ -53,9 +78,16 @@ class ProfileActivity : ComponentActivity() {
                 profileLiveData = profileViewModel.profileLiveData,
                 backButton = this::backButton,
                 navigateToChart = this::navigateToChart,
-                navigateToPlayerActivity = this::navigateToPlayerActivity
+                navigateToPlayerActivity = this::navigateToPlayerActivity,
+                selectedImage = selectedImageURI,
+                photoPickerLauncher = singlePhotoPickerLauncher
             )
         }
+    }
+
+    private fun uploadPhotoToDatabase(uri: Uri, loggedEmail: String) {
+        Log.d("DEV", "Got logged email: $loggedEmail")
+        // TODO: add database uri uploading
     }
     private fun fetchAndUpdateProfile(email: String, profileViewModel: ProfileViewModel) {
         lifecycleScope.launch(Dispatchers.IO) {

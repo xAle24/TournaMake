@@ -1,6 +1,10 @@
 package com.example.tournaMake.ui.screens.profile
 
+import android.net.Uri
 import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -34,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -42,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import coil.compose.AsyncImage
 import com.example.tournaMake.R
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
@@ -67,7 +74,9 @@ fun ProfileScreen(
     profileLiveData: LiveData<MainProfile?>,
     backButton: () -> Unit,
     navigateToChart: () -> Unit,
-    navigateToPlayerActivity: () -> Unit
+    navigateToPlayerActivity: () -> Unit,
+    selectedImage: Uri?,
+    photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>
 ) {
     /*
     * This extension function was imported with:
@@ -130,14 +139,36 @@ fun ProfileScreen(
                                 .fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.no_profile_picture_icon), //TODO: aggiungere foto profilo
-                                contentDescription = "Avatar",
-                                modifier = Modifier
-                                    .padding(4.dp)
-                                    .fillMaxWidth(0.4f)
-                                    .fillMaxHeight(0.2f)
-                            )
+                            if (selectedImage == null) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.no_profile_picture_icon), //TODO: aggiungere foto profilo
+                                    contentDescription = "Avatar",
+                                    modifier = Modifier
+                                        .padding(4.dp)
+                                        .width(150.dp)
+                                        .height(150.dp)
+                                        .clickable {
+                                            photoPickerLauncher.launch(
+                                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                            )
+                                        }
+                                )
+                            } else {
+                                AsyncImage(
+                                    model = selectedImage,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .padding(4.dp)
+                                        .width(150.dp)
+                                        .height(150.dp)
+                                        .clickable {
+                                            photoPickerLauncher.launch(
+                                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                            )
+                                        },
+                                    contentScale = ContentScale.FillBounds
+                                )
+                            }
                             Column(
                                 modifier = Modifier
                                     .padding(start = 10.dp)
@@ -150,7 +181,7 @@ fun ProfileScreen(
                             }
                         }
                         Grid(
-                            wonTournamentsNumber =  profile.value?.wonTournamentsNumber ?: 0,
+                            wonTournamentsNumber = profile.value?.wonTournamentsNumber ?: 0,
                             playedTournamentsNumber = /*profile.value.playedTournamentsNumber ?: 0*/ 0,
                             onChartClick = navigateToChart,
                             onActivityClick = navigateToPlayerActivity,
@@ -319,7 +350,7 @@ fun MyGridPreview() {
     )
 }
 
-@Preview
+/*@Preview
 @Composable
 fun ProfileScreenPreview() {
     ProfileScreen(
@@ -335,8 +366,9 @@ fun ProfileScreenPreview() {
                 locationLongitude = 0.0f
             )
         ),
-        backButton = { /*TODO*/ },
-        navigateToChart = { /*TODO*/ }) {
-    }
-}
+        backButton = { *//*TODO*//* },
+        navigateToChart = { *//*TODO*//* },
+
+    )
+}*/
 

@@ -39,8 +39,8 @@ class RegistrationPhotoActivity : ComponentActivity() {
             val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.PickVisualMedia(),
                 onResult = { uri ->
-                    selectedImageURI = uri
                     if (uri != null) {
+                        selectedImageURI = uri
                         uploadPhotoToDatabase(uri, loggedEmail.value.loggedProfileEmail)
                     }
                 }
@@ -58,6 +58,7 @@ class RegistrationPhotoActivity : ComponentActivity() {
 
     private fun uploadPhotoToDatabase(uri: Uri, loggedEmail: String) {
         Log.d("DEV", "Got logged email: $loggedEmail")
+        // TODO: add database uri uploading
     }
 
     private fun back() {
