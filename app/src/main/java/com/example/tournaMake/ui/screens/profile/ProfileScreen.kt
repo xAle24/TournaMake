@@ -191,12 +191,14 @@ fun Grid(
                 score = "$wonTournamentsNumber",
                 backgroundColor = MaterialTheme.colorScheme.secondary,
                 borderColor = MaterialTheme.colorScheme.tertiary,
+                state = state
             )
             ProfileCard(
                 text = "Played Tournaments",
                 score = "$playedTournamentsNumber",
                 backgroundColor = MaterialTheme.colorScheme.secondary,
                 borderColor = MaterialTheme.colorScheme.tertiary,
+                state = state
             )
         }
         Row(
@@ -228,6 +230,7 @@ fun ProfileCard(
     score: String?,
     backgroundColor: Color?,
     borderColor: Color?,
+    state: ThemeState
 ) {
     Card(
         modifier = Modifier
@@ -250,13 +253,15 @@ fun ProfileCard(
                     modifier = Modifier
                         .fillMaxWidth(),
                     style = MaterialTheme.typography.headlineMedium,
+                    color = getThemeColors(themeState = state).getNormalTextColor()
                 )
             }
             Text(
                 text = text,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                color = getThemeColors(themeState = state).getNormalTextColor()
             )
         }
     }

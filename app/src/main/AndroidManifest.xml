@@ -25,8 +25,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.LoginActivity" />
-        <activity android:name=".activities.RegisterActivity" />
+        <activity
+            android:name=".activities.LoginActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".activities.RegisterActivity"
+            android:windowSoftInputMode="adjustResize" /> <!-- Used to avoid hiding the input fields when keyboard pops up-->
         <activity android:name=".activities.MenuActivity" />
         <activity android:name=".activities.SettingsActivity" />
         <activity android:name=".activities.ProfileActivity" />

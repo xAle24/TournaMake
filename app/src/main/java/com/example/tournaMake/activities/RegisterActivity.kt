@@ -3,6 +3,7 @@ package com.example.tournaMake.activities
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -24,6 +25,7 @@ class RegisterActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = get<AppDatabase>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         setContent {
             // See ThemeViewModel.kt
             val themeViewModel = koinViewModel<ThemeViewModel>()
