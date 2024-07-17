@@ -95,4 +95,5 @@ dependencies {
     // https://mvnrepository.com/artifact/androidx.compose.foundation/foundation
     //implementation("androidx.compose.foundation:foundation:1.6.8")
     //implementation("androidx.compose.foundation:foundation:1.4.3")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:<latest-version>")
 }

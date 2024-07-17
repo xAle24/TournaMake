@@ -116,4 +116,5 @@ class ProfileActivity : ComponentActivity() {
         val intent = Intent(this, PlayerActActivity::class.java)
         startActivity(intent)
     }
+
 }
