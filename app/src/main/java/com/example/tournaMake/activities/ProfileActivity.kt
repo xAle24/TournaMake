@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.LoggedProfileViewModel
 import com.example.tournaMake.data.models.ProfileViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
+import com.example.tournaMake.data.repositories.ProfileImageRepository
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.profile.ProfileScreen
@@ -28,6 +29,7 @@ import org.koin.androidx.compose.koinViewModel
 
 class ProfileActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = get<AppDatabase>()
+    private val profileImageUriRepository: ProfileImageRepository = get<ProfileImageRepository>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

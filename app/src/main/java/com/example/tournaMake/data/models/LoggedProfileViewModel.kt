@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 // This email refers to a MainProfile
 data class LoggedProfileState(val loggedProfileEmail: String)
 
-class LoggedProfileViewModel(private val repository: LoggedProfileRepository) : ViewModel() {
+class LoggedProfileViewModel(private val repository: LoggedProfileRepository): ViewModel() {
     val loggedEmail = repository.email.map { LoggedProfileState(it.toString()) }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),

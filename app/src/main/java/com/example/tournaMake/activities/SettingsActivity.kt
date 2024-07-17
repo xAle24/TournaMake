@@ -35,9 +35,7 @@ class SettingsActivity : ComponentActivity() {
      * and context are not available.
      * */
     private fun isSystemInDarkModeCustom(): Boolean {
-        val nightModeFlags: Int =
-            resources.configuration.uiMode.and(Configuration.UI_MODE_NIGHT_MASK)
-        return when (nightModeFlags) {
+        return when (resources.configuration.uiMode.and(Configuration.UI_MODE_NIGHT_MASK)) {
             Configuration.UI_MODE_NIGHT_YES -> true
             Configuration.UI_MODE_NIGHT_NO -> false
             Configuration.UI_MODE_NIGHT_UNDEFINED -> false

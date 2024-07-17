@@ -7,11 +7,13 @@ import com.example.tournaMake.data.models.GamesListViewModel
 import com.example.tournaMake.data.models.LoggedProfileViewModel
 import com.example.tournaMake.data.models.GraphViewModel
 import com.example.tournaMake.data.models.MatchListViewModel
+import com.example.tournaMake.data.models.ProfileImageViewModel
 import com.example.tournaMake.data.models.ProfileListViewModel
 import com.example.tournaMake.data.models.ProfileViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.models.TournamentListViewModel
 import com.example.tournaMake.data.repositories.LoggedProfileRepository
+import com.example.tournaMake.data.repositories.ProfileImageRepository
 import com.example.tournaMake.data.repositories.ThemeRepository
 import com.example.tournaMake.sampledata.AppDatabase
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -21,7 +23,7 @@ val Context.dataStore
         by preferencesDataStore("theme")
 val appModule = module {
     single { get<Context>().dataStore }
-    single { ThemeRepository(get()) }
+    single { ThemeRepository(get()) } // basically the call to get() means "get your parameters from the stuff koin has saved here"
     viewModel { ThemeViewModel(get()) }
     single { LoggedProfileRepository(get()) }
     viewModel { LoggedProfileViewModel(get()) }
@@ -31,6 +33,8 @@ val appModule = module {
     viewModel { GraphViewModel() }
     viewModel { GamesListViewModel() }
     viewModel { TournamentListViewModel() }
+    single { ProfileImageRepository(get()) }
+    viewModel { ProfileImageViewModel(get()) }
     single {
         Room.databaseBuilder(
             get(),
