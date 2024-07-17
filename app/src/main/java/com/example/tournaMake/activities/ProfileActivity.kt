@@ -1,8 +1,11 @@
 package com.example.tournaMake.activities
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -19,6 +22,12 @@ import com.example.tournaMake.data.models.LoggedProfileViewModel
 import com.example.tournaMake.data.models.ProfileViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.repositories.ProfileImageRepository
+import com.example.tournaMake.filemanager.AppDirectoryNames
+import com.example.tournaMake.filemanager.PROFILE_PICTURE_NAME
+import com.example.tournaMake.filemanager.createDirectory
+import com.example.tournaMake.filemanager.doesDirectoryExist
+import com.example.tournaMake.filemanager.loadImageUriFromDirectory
+import com.example.tournaMake.filemanager.saveImageToDirectory
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.profile.ProfileScreen
@@ -26,6 +35,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
+import java.io.InputStream
+import java.lang.IllegalStateException
 
 class ProfileActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = get<AppDatabase>()
@@ -64,8 +75,21 @@ class ProfileActivity : ComponentActivity() {
                 onResult = { uri ->
                     if (uri != null) {
                         selectedImageURI = uri
-                        uploadPhotoToDatabase(uri, loggedEmail.value.loggedProfileEmail)
+                        storePhotoInInternalStorage(uri)
+                        val uriForInternallySavedFile = loadImageUriFromDirectory(
+                            AppDirectoryNames().profileImageDirectoryName,
+                            PROFILE_PICTURE_NAME,
+                            baseContext
+                        )
+                        if (uriForInternallySavedFile != null) {
+                            /* What I want to save in the database is the new uri, not
+                            * the one provided by the profile screen. */
+                            uploadPhotoToDatabase(uri, loggedEmail.value.loggedProfileEmail)
+                        } else {
+                            throw IllegalStateException("The uri received in ProfileActivity.kt is null and can't be saved in the db.")
+                        }
                     }
+                    Log.d("DEV", "In onResult function in ProfileActivity.kt: everything went fine!")
                 }
             )
 
@@ -91,6 +115,24 @@ class ProfileActivity : ComponentActivity() {
         Log.d("DEV", "Got logged email: $loggedEmail")
         // TODO: add database uri uploading
     }
+
+    private fun storePhotoInInternalStorage(uri: Uri) {
+        val context = baseContext
+        val appDirectoryNames = AppDirectoryNames()
+        if (!doesDirectoryExist(appDirectoryNames.profileImageDirectoryName, context)) {
+            createDirectory(appDirectoryNames.profileImageDirectoryName, context)
+        }
+        val inputStream = contentResolver.openInputStream(uri)
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+        inputStream?.close()
+        saveImageToDirectory(
+            bitmap = bitmap,
+            context = context,
+            dirName = appDirectoryNames.profileImageDirectoryName, // defined in filemanager/FileUtils.kt
+            fileName = PROFILE_PICTURE_NAME // defined in filemanager/FileUtils.kt
+        )
+    }
+
     private fun fetchAndUpdateProfile(email: String, profileViewModel: ProfileViewModel) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {

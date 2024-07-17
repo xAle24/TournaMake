@@ -9,6 +9,8 @@ import java.io.FileOutputStream
 import java.nio.file.NoSuchFileException
 import kotlin.reflect.full.memberProperties
 
+const val PROFILE_PICTURE_NAME = "main_user_profile_picture"
+
 /*
 * A data class used to store the names of the directories containing the files
 * produced by the application. It is used to encourage centralisation
@@ -19,14 +21,14 @@ data class AppDirectoryNames(
     val profileImageDirectoryName: String = "tournamake_profile_image"
 )
 
-fun doesDirectoryExist(dirName: AppDirectoryNames, context: Context): Boolean {
-    val path = "${context.filesDir.path}/${dirName.profileImageDirectoryName}"
+fun doesDirectoryExist(dirName: String, context: Context): Boolean {
+    val path = "${context.filesDir.path}/${dirName}"
     val dir = File(path)
     return dir.isDirectory && dir.exists()
 }
 
-fun createDirectory(dirName: AppDirectoryNames, context: Context) {
-    val path = "${context.filesDir.path}/${dirName.profileImageDirectoryName}"
+fun createDirectory(dirName: String, context: Context) {
+    val path = "${context.filesDir.path}/${dirName}"
     if (!doesDirectoryExist(dirName, context)) {
         val dir = File(path)
         if (dir.mkdir()) {
@@ -37,8 +39,8 @@ fun createDirectory(dirName: AppDirectoryNames, context: Context) {
     }
 }
 
-fun saveImageToDirectory(bitmap: Bitmap, context: Context, dirName: AppDirectoryNames, fileName: String): Boolean {
-    val path = "${context.filesDir.path}/${dirName.profileImageDirectoryName}/$fileName"
+fun saveImageToDirectory(bitmap: Bitmap, context: Context, dirName: String, fileName: String): Boolean {
+    val path = "${context.filesDir.path}/${dirName}/$fileName"
     val outputStream = FileOutputStream(path) // creates an OutputStream to write the specified path
     if (!bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)) {
         Log.d("DEV", "Something wrong occurred while trying to save an image to path $path.")
@@ -47,8 +49,8 @@ fun saveImageToDirectory(bitmap: Bitmap, context: Context, dirName: AppDirectory
     return true
 }
 
-fun getImageFromDirectory(dirName: AppDirectoryNames, imageName: String, context: Context): Uri? {
-    val path = "${context.filesDir.path}/${dirName.profileImageDirectoryName}/$imageName"
+fun loadImageUriFromDirectory(dirName: String, imageName: String, context: Context): Uri? {
+    val path = "${context.filesDir.path}/${dirName}/$imageName"
     val file = File(path)
     if (!file.exists()) {
         Log.d("DEV", "File ${file.path} does not exist.")
@@ -81,4 +83,9 @@ fun searchDirectoriesForFile(fileName: String, context: Context): String? {
     Log.d("DEV", "The strange reflection function in FileUtils.kt found that the directory" +
             "containing $fileName is $dirName.")
     return if (dirName != null) "${context.filesDir.path}/$dirName/$fileName" else null
+}
+
+fun doesDirectoryContainFile(dirName: String, fileName: String, context: Context): Boolean {
+    val path = "${context.filesDir.path}/$dirName/$fileName"
+    return File(path).exists()
 }
