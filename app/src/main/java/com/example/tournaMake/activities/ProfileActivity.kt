@@ -28,6 +28,8 @@ import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.repositories.ProfileImageRepository
 import com.example.tournaMake.filemanager.AppDirectoryNames
 import com.example.tournaMake.filemanager.PROFILE_PICTURE_NAME
+import com.example.tournaMake.filemanager.ProfileImageHelper
+import com.example.tournaMake.filemanager.ProfileImageHelperImpl
 import com.example.tournaMake.filemanager.createDirectory
 import com.example.tournaMake.filemanager.doesDirectoryContainFile
 import com.example.tournaMake.filemanager.doesDirectoryExist
@@ -47,7 +49,7 @@ import java.nio.file.NoSuchFileException
 
 class ProfileActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = get<AppDatabase>()
-    private val profileImageUriRepository: ProfileImageRepository = get<ProfileImageRepository>()
+    private val profilePictureHelper: ProfileImageHelper = ProfileImageHelperImpl()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,15 +68,6 @@ class ProfileActivity : ComponentActivity() {
                 Log.d("DEV", "In profile observer profile = ${profile?.email}")
             }
             profileViewModel.profileLiveData.observe(this, profileObserver)
-            /**
-             * TODO: ALIN LEGGI QUI
-             * Creare 2 metodi accessibili alla classe screen:
-             * 1) un metodo che, se scopre che l'email è già stata caricata nella variabile logged email,
-             * fa direttamente il salvataggio della foto nella cartella interna, usando l'email come parametro
-             * 2) un altro metodo asincrono che sfrutta un observer, il quale aspetta che l'email sia stata
-             * caricata prima di avviare il salvataggio nella cartella interna.
-             * Questa activity in qualche modo deve consentire allo screen di vedere lo stato della logged Email.
-             * */
             // Adding management of profile photo
             /* Code taken from:
             * https://www.youtube.com/watch?v=uHX5NB6wHao
@@ -99,24 +92,28 @@ class ProfileActivity : ComponentActivity() {
                 contract = ActivityResultContracts.PickVisualMedia(),
                 onResult = { uri ->
                     if (uri != null && loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
-                        val uriForInternallySavedFile = storeProfilePictureImmediately(
-                            uri, loggedEmail.value.loggedProfileEmail
+                        val uriForInternallySavedFile = profilePictureHelper.storeProfilePictureImmediately(
+                            profileImageUri = uri,
+                            email = loggedEmail.value.loggedProfileEmail,
+                            contentResolver = contentResolver,
+                            context = baseContext,
+                            databaseUpdaterCallback = this::uploadPhotoToDatabase
                         )
-                        if (uriForInternallySavedFile != null) {
-                            /* What I want to save in the database is the new uri, not
-                            * the one provided by the profile screen. */
-                            selectedImageURI = uriForInternallySavedFile
-                            recreate()
-                        } else {
-                            throw IllegalStateException("The uri received in ProfileActivity.kt is null and can't be saved in the db.")
-                        }
+                        selectedImageURI = uriForInternallySavedFile
+                        recreate() // I'm sorry but without this line I don't see changes take effect
                     } else if (uri != null && loggedEmail.value.loggedProfileEmail.isEmpty()) {
-                        waitForEmailThenStoreProfilePicture(
-                            loggedProfileViewModel.loggedEmail,
-                            uri,
-                        ) { resultUri ->
-                            selectedImageURI = resultUri
-                        }
+                        profilePictureHelper.waitForEmailThenStoreProfilePicture(
+                            loggedEmailStateFlow = loggedProfileViewModel.loggedEmail,
+                            profileImageUri = uri,
+                            context = baseContext,
+                            databaseUpdaterCallback = this::uploadPhotoToDatabase,
+                            lifecycleCoroutineScope = lifecycleScope,
+                            lifecycleOwner = this,
+                            stateChangerCallback = { resultUri ->
+                                selectedImageURI = resultUri
+                            },
+                            contentResolver = contentResolver
+                        )
                     }
                     Log.d(
                         "DEV", "In onResult function in ProfileActivity.kt: everything went fine!"
@@ -139,82 +136,9 @@ class ProfileActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * If I understood correctly, this function collects the firs emission of the
-     * state flow. This happens each time the loggedEmailStateFlow changes and the lifecycle
-     * of the activity is in the STARTED state.
-     * Code taken from the official documentation at:
-     * https://developer.android.com/kotlin/flow/stateflow-and-sharedflow
-     * */
-    private fun waitForEmailThenStoreProfilePicture(
-        loggedEmailStateFlow: StateFlow<LoggedProfileState>,
-        profileImageUri: Uri,
-        thenUpdateMutableStateOfUri: (Uri?) -> Unit
-    ) {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                loggedEmailStateFlow.collect { loggedProfileState ->
-                    storePhotoInInternalStorage(
-                        profileImageUri, loggedProfileState.loggedProfileEmail
-                    )
-                    uploadPhotoToDatabase(profileImageUri, loggedProfileState.loggedProfileEmail)
-                    // Now that the picture is uploaded, we can retrieve its location as uri
-                    val uriForInternallySavedFile = loadImageUriFromDirectory(
-                        AppDirectoryNames.profileImageDirectoryName,
-                        PROFILE_PICTURE_NAME,
-                        baseContext,
-                        loggedEmailStateFlow.value.loggedProfileEmail
-                    )
-                    Log.d(
-                        "DEV",
-                        "In coroutine inside waitForEmailThenStoreProfilePicture() " +
-                                "in ProfileActivity.kt,uriForInternallySavedFile is " +
-                                "$uriForInternallySavedFile"
-                    )
-                    thenUpdateMutableStateOfUri(uriForInternallySavedFile)
-                }
-            }
-        }
-    }
-
-    /**
-     * If the email is already present, it can be used directly to create the user's specific
-     * folder. This method is needed because an already present email cannot be waited for
-     * with the previous method [waitForEmailThenStoreProfilePicture], otherwise the waiting
-     * coroutine would probably be stuck forever.
-     * */
-    private fun storeProfilePictureImmediately(profileImageUri: Uri, loggedEmail: String): Uri? {
-        storePhotoInInternalStorage(profileImageUri, loggedEmail)
-        uploadPhotoToDatabase(profileImageUri, loggedEmail)
-        return loadImageUriFromDirectory(
-            AppDirectoryNames.profileImageDirectoryName,
-            PROFILE_PICTURE_NAME,
-            baseContext,
-            loggedEmail
-        )
-    }
-
     private fun uploadPhotoToDatabase(uri: Uri, loggedEmail: String) {
         Log.d("DEV", "Got logged email: $loggedEmail")
         // TODO: add database uri uploading
-    }
-
-    private fun storePhotoInInternalStorage(uri: Uri, email: String?) {
-        val context = baseContext
-        if (!doesDirectoryExist(AppDirectoryNames.profileImageDirectoryName, context, email)) {
-            createDirectory(AppDirectoryNames.profileImageDirectoryName, context, email)
-            Log.d("DEV", "storePhotoInInternalStorage - Created directory!")
-        }
-        val inputStream = contentResolver.openInputStream(uri)
-        val bitmap = BitmapFactory.decodeStream(inputStream)
-        inputStream?.close()
-        saveImageToDirectory(
-            bitmap = bitmap,
-            context = context,
-            dirName = AppDirectoryNames.profileImageDirectoryName, // defined in filemanager/FileUtils.kt
-            imageName = PROFILE_PICTURE_NAME, // defined in filemanager/FileUtils.kt
-            email = email
-        )
     }
 
     /**
