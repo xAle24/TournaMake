@@ -3,12 +3,11 @@ package com.example.tournaMake.activities
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.example.tournaMake.data.models.LoggedProfileViewModel
+import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.MainProfile
@@ -34,16 +33,24 @@ class RegisterActivity : ComponentActivity() {
             // StateFlow objects can't. The 'withLifecycle' part ensures this state
             // is destroyed when we leave this Activity.
             val state = themeViewModel.state.collectAsStateWithLifecycle()
-            val loggedProfileViewModel = koinViewModel<LoggedProfileViewModel>()
+            val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
             RegistrationScreen(
                 state = state.value,
-                handleRegistration = this::handleRegistration,
-                setLoggedEmail = loggedProfileViewModel::setAndSaveEmail
+                setTemporaryLoggedEmail = authenticationViewModel::setAndSaveEmailTemporarily,
+                handleRegistration = { username, password, email, rememberMe ->
+                    handleRegistration(
+                        username = username,
+                        password = password,
+                        email = email,
+                        rememberMe = rememberMe,
+                        viewModel = authenticationViewModel
+                    )
+                }
             )
         }
     }
 
-    private fun handleRegistration(username: String, password: String, email: String) {
+    private fun handleRegistration(username: String, password: String, email: String, rememberMe: Boolean, viewModel: AuthenticationViewModel) {
         val mainProfile = MainProfile(email, username, password, "", 0, 0f, 0f)
         lifecycleScope.launch(Dispatchers.IO) {
             try {

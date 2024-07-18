@@ -29,10 +29,10 @@ data class Team(
 data class Game(
     @ColumnInfo(name = "gameID") val gameID: String,
     @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "favorites") val favorites: String,
+    @ColumnInfo(name = "favorites") val favorites: Boolean,
     @ColumnInfo(name = "description") val description: String,
     @ColumnInfo(name = "duration") val duration: Int,
-    @ColumnInfo(name = "MinPlayer") val minPlayer: Int,
+    @ColumnInfo(name = "minPlayers") val minPlayers: Int,
     @ColumnInfo(name = "maxPlayers") val maxPlayers: Int
 )
 

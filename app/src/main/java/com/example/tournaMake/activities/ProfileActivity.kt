@@ -1,7 +1,6 @@
 package com.example.tournaMake.activities
 
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -9,43 +8,29 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.core.net.toFile
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import com.example.tournaMake.data.models.LoggedProfileState
-import com.example.tournaMake.data.models.LoggedProfileViewModel
+import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.ProfileViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
-import com.example.tournaMake.data.repositories.ProfileImageRepository
 import com.example.tournaMake.filemanager.AppDirectoryNames
 import com.example.tournaMake.filemanager.PROFILE_PICTURE_NAME
 import com.example.tournaMake.filemanager.ProfileImageHelper
 import com.example.tournaMake.filemanager.ProfileImageHelperImpl
-import com.example.tournaMake.filemanager.createDirectory
 import com.example.tournaMake.filemanager.doesDirectoryContainFile
-import com.example.tournaMake.filemanager.doesDirectoryExist
 import com.example.tournaMake.filemanager.loadImageUriFromDirectory
-import com.example.tournaMake.filemanager.saveImageToDirectory
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.profile.ProfileScreen
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
-import java.io.File
-import java.lang.IllegalStateException
-import java.nio.file.NoSuchFileException
 
 class ProfileActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = get<AppDatabase>()
@@ -61,8 +46,8 @@ class ProfileActivity : ComponentActivity() {
             // StateFlow objects can't. The 'withLifecycle' part ensures this state
             // is destroyed when we leave this Activity.
             val state = themeViewModel.state.collectAsStateWithLifecycle()
-            val loggedProfileViewModel = koinViewModel<LoggedProfileViewModel>()
-            val loggedEmail = loggedProfileViewModel.loggedEmail.collectAsStateWithLifecycle()
+            val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
+            val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
             val profileViewModel = koinViewModel<ProfileViewModel>()
             val profileObserver = Observer<MainProfile?> { profile ->
                 Log.d("DEV", "In profile observer profile = ${profile?.email}")
@@ -104,7 +89,7 @@ class ProfileActivity : ComponentActivity() {
                     recreate() // I'm sorry but without this line I don't see changes take effect
                 } else if (uri != null && loggedEmail.value.loggedProfileEmail.isEmpty()) {
                     profilePictureHelper.waitForEmailThenStoreProfilePicture(
-                        loggedEmailStateFlow = loggedProfileViewModel.loggedEmail,
+                        loggedEmailStateFlow = authenticationViewModel.loggedEmail,
                         profileImageUri = uri,
                         context = baseContext,
                         databaseUpdaterCallback = this::uploadPhotoToDatabase,

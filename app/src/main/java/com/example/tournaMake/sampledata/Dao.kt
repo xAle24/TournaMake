@@ -41,7 +41,7 @@ interface GameDao {
     @Query("SELECT * FROM GAME")
     fun getAll(): List<Game>
     @Query("""
-        SELECT GAME.*, COUNT(MATCH_TM.gameID) as times_played
+        SELECT GAME.*, COUNT(MATCH_TM.gameID) as timesPlayed
         FROM GAME
         JOIN MATCH_TM ON GAME.gameID = MATCH_TM.gameID
         JOIN MAIN_TEAM_SCORE ON MATCH_TM.matchID = MAIN_TEAM_SCORE.teamID

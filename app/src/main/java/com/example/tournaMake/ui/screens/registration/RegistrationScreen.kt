@@ -30,13 +30,12 @@ import com.example.tournaMake.R
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
-import kotlin.reflect.KSuspendFunction3
 
 @Composable
 fun RegistrationScreen(
     state: ThemeState,
-    handleRegistration: (String, String, String) -> Unit,
-    setLoggedEmail: (String) -> Unit
+    handleRegistration: (String, String, String, Boolean) -> Unit,
+    setTemporaryLoggedEmail: (String) -> Unit,
 ) {
     BasicScreenWithTheme(
         state = state,
@@ -108,12 +107,10 @@ fun RegistrationScreen(
             }
             Spacer(modifier = Modifier.height(20.dp))
             Button(onClick = {
-                handleRegistration(username, password, email)
+                handleRegistration(username, password, email, rememberMe)
                 /* SETTING THE "GLOBAL" VARIABLE LOGGED EMAIL! */
                 Log.d("DEV", "In RegistrationScreen.kt, email = $email")
-
-                // TODO: the logged email should be saved to preferences only if the user selected Remember me
-                setLoggedEmail(email)
+                setTemporaryLoggedEmail(email)
             }, modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(60.dp)) {

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
  * This class will be used to store to shared preferences the username and the password
  * of the last main profile user that logged in and opted to be remembered.
  * */
-class LoggedProfileRepository(private val dataStore: DataStore<Preferences>) {
+class AuthenticationRepository(private val dataStore: DataStore<Preferences>) {
     companion object {
         private val LOGGED_EMAIL = stringPreferencesKey("logged_email")
         private val USER_PASSWORD = stringPreferencesKey("password")
@@ -31,6 +31,9 @@ class LoggedProfileRepository(private val dataStore: DataStore<Preferences>) {
     suspend fun setEmail(email: String) =
         dataStore.edit { it[LOGGED_EMAIL] = email }
 
+    /**
+     * This function should be called only if the user wants the app to remember their credentials.
+     * */
     suspend fun setPassword(password: String) {
         dataStore.edit { it[USER_PASSWORD] = password }
     }

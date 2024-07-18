@@ -57,7 +57,7 @@ fun ChartScreen(
         )
     */
     val items = gamesData.value
-        .map { playedGame -> playedGame.name to listOf(playedGame.times_played.toFloat()) }
+        .map { playedGame -> playedGame.name to listOf(playedGame.timesPlayed.toFloat()) }
         .toList()
     println("In Chart Screen, about to print list values. ")
     items.forEach { it -> println("Element: $it") }

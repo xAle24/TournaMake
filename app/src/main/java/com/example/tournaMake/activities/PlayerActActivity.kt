@@ -7,7 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.example.tournaMake.data.models.LoggedProfileViewModel
+import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.MatchListViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.AppDatabase
@@ -27,8 +27,8 @@ class PlayerActActivity : ComponentActivity(){
         setContent {
             val themeViewModel = koinViewModel<ThemeViewModel>()
             val state = themeViewModel.state.collectAsStateWithLifecycle()
-            val loggedProfileViewModel = koinViewModel<LoggedProfileViewModel>()
-            val loggedEmail = loggedProfileViewModel.loggedEmail.collectAsStateWithLifecycle()
+            val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
+            val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
             val matchListViewModel = koinViewModel<MatchListViewModel>()
             val matchObserver = Observer<List<Match>?> { match ->
                 Log.d("DEV", "In profile observer profile = $match")

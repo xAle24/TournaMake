@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
@@ -23,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.tournaMake.R
@@ -76,7 +78,8 @@ fun LoginScreen(
                     focusedContainerColor = Color.White,
                     focusedIndicatorColor = Color.White,
                     unfocusedIndicatorColor = Color.White
-                )
+                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
             Spacer(modifier = Modifier.height(20.dp))
             Row(
@@ -90,7 +93,15 @@ fun LoginScreen(
                 Text("Remember me")
             }
             Spacer(modifier = Modifier.height(20.dp))
-            Button(onClick = { navigateToMenu() }, modifier = Modifier.fillMaxWidth(0.8f).height(60.dp)) {
+            Button(
+                onClick = {
+
+                    navigateToMenu()
+                },
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(60.dp)
+            ) {
                 Text("Login")
             }
         }
