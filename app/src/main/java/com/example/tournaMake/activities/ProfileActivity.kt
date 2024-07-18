@@ -11,6 +11,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -63,11 +64,8 @@ class ProfileActivity : ComponentActivity() {
             val profileViewModel = koinViewModel<ProfileViewModel>()
             val profileObserver = Observer<MainProfile?> { profile ->
                 Log.d("DEV", "In profile observer profile = ${profile?.email}")
-                // TODO: add rest of the profile code
             }
             profileViewModel.profileLiveData.observe(this, profileObserver)
-            //val profile
-
             /**
              * TODO: ALIN LEGGI QUI
              * Creare 2 metodi accessibili alla classe screen:
@@ -97,46 +95,40 @@ class ProfileActivity : ComponentActivity() {
                     ) else null
                 )
             }
-            val singlePhotoPickerLauncher =
-                rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
-                    onResult = { uri ->
-                        if (uri != null && loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
-                            val uriForInternallySavedFile = storeProfilePictureImmediately(
-                                uri,
-                                loggedEmail.value.loggedProfileEmail
-                            )
-                            if (uriForInternallySavedFile != null) {/* What I want to save in the database is the new uri, not
-                            * the one provided by the profile screen. */
-                                selectedImageURI = uriForInternallySavedFile
-                            } else {
-                                throw IllegalStateException("The uri received in ProfileActivity.kt is null and can't be saved in the db.")
-                            }
-                        } else if (uri != null && loggedEmail.value.loggedProfileEmail.isEmpty()) {
-                            waitForEmailThenStoreProfilePicture(
-                                loggedProfileViewModel.loggedEmail,
-                                uri,
-                            ) { resultUri ->
-                                selectedImageURI = resultUri
-                            }
-                        }
-                        Log.d(
-                            "DEV",
-                            "In onResult function in ProfileActivity.kt: everything went fine!"
+            val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.PickVisualMedia(),
+                onResult = { uri ->
+                    if (uri != null && loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
+                        val uriForInternallySavedFile = storeProfilePictureImmediately(
+                            uri, loggedEmail.value.loggedProfileEmail
                         )
-                    })
+                        if (uriForInternallySavedFile != null) {
+                            /* What I want to save in the database is the new uri, not
+                            * the one provided by the profile screen. */
+                            selectedImageURI = uriForInternallySavedFile
+                            recreate()
+                        } else {
+                            throw IllegalStateException("The uri received in ProfileActivity.kt is null and can't be saved in the db.")
+                        }
+                    } else if (uri != null && loggedEmail.value.loggedProfileEmail.isEmpty()) {
+                        waitForEmailThenStoreProfilePicture(
+                            loggedProfileViewModel.loggedEmail,
+                            uri,
+                        ) { resultUri ->
+                            selectedImageURI = resultUri
+                        }
+                    }
+                    Log.d(
+                        "DEV", "In onResult function in ProfileActivity.kt: everything went fine!"
+                    )
+                })
             fetchAndUpdateProfile(
-                loggedEmail.value.loggedProfileEmail,
-                profileViewModel
-            ) { it ->
+                loggedEmail.value.loggedProfileEmail, profileViewModel
+            ) {
                 selectedImageURI = it // callback for when the profile data come
             }
             ProfileScreen(
-                state = state.value,/*
-                * TODO: consider passing the Observer as a parameter instead of the MainProfile
-                *  (forse è una cattiva idea, ma magari si può avere il codice dell'observer
-                *  sott'occhio al momento di costruire il ProfileScreen).
-                * */
-                //profileViewModel.profileLiveData.value
+                state = state.value,
                 profileLiveData = profileViewModel.profileLiveData,
                 backButton = this::backButton,
                 navigateToChart = this::navigateToChart,
@@ -163,8 +155,7 @@ class ProfileActivity : ComponentActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 loggedEmailStateFlow.collect { loggedProfileState ->
                     storePhotoInInternalStorage(
-                        profileImageUri,
-                        loggedProfileState.loggedProfileEmail
+                        profileImageUri, loggedProfileState.loggedProfileEmail
                     )
                     uploadPhotoToDatabase(profileImageUri, loggedProfileState.loggedProfileEmail)
                     // Now that the picture is uploaded, we can retrieve its location as uri
@@ -176,7 +167,9 @@ class ProfileActivity : ComponentActivity() {
                     )
                     Log.d(
                         "DEV",
-                        "In coroutine inside waitForEmailThenStoreProfilePicture() in ProfileActivity.kt," + "uriForInternallySavedFile is $uriForInternallySavedFile"
+                        "In coroutine inside waitForEmailThenStoreProfilePicture() " +
+                                "in ProfileActivity.kt,uriForInternallySavedFile is " +
+                                "$uriForInternallySavedFile"
                     )
                     thenUpdateMutableStateOfUri(uriForInternallySavedFile)
                 }
@@ -184,6 +177,12 @@ class ProfileActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * If the email is already present, it can be used directly to create the user's specific
+     * folder. This method is needed because an already present email cannot be waited for
+     * with the previous method [waitForEmailThenStoreProfilePicture], otherwise the waiting
+     * coroutine would probably be stuck forever.
+     * */
     private fun storeProfilePictureImmediately(profileImageUri: Uri, loggedEmail: String): Uri? {
         storePhotoInInternalStorage(profileImageUri, loggedEmail)
         uploadPhotoToDatabase(profileImageUri, loggedEmail)
@@ -219,10 +218,12 @@ class ProfileActivity : ComponentActivity() {
         )
     }
 
+    /**
+     * Fetches data from database, mainly the profile email and location.
+     * TODO: add number of played tournaments
+     * */
     private fun fetchAndUpdateProfile(
-        email: String,
-        profileViewModel: ProfileViewModel,
-        thenUpdateImageUri: (Uri?) -> Unit
+        email: String, profileViewModel: ProfileViewModel, thenUpdateImageUri: (Uri?) -> Unit
     ) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -257,5 +258,4 @@ class ProfileActivity : ComponentActivity() {
         val intent = Intent(this, PlayerActActivity::class.java)
         startActivity(intent)
     }
-
 }

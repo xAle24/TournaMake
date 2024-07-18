@@ -1,5 +1,6 @@
 package com.example.tournaMake.ui.screens.profile
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -36,6 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +50,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,7 +58,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.example.tournaMake.R
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
@@ -139,36 +145,7 @@ fun ProfileScreen(
                                 .fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            if (selectedImage == null) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.no_profile_picture_icon), //TODO: aggiungere foto profilo
-                                    contentDescription = "Avatar",
-                                    modifier = Modifier
-                                        .padding(4.dp)
-                                        .width(150.dp)
-                                        .height(150.dp)
-                                        .clickable {
-                                            photoPickerLauncher.launch(
-                                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                            )
-                                        }
-                                )
-                            } else {
-                                AsyncImage(
-                                    model = selectedImage,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .padding(4.dp)
-                                        .width(150.dp)
-                                        .height(150.dp)
-                                        .clickable {
-                                            photoPickerLauncher.launch(
-                                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                            )
-                                        },
-                                    contentScale = ContentScale.FillBounds
-                                )
-                            }
+                            ProfileImage(selectedImage = selectedImage, photoPickerLauncher = photoPickerLauncher)
                             Column(
                                 modifier = Modifier
                                     .padding(start = 10.dp)
@@ -194,6 +171,45 @@ fun ProfileScreen(
                     // Achievements
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun ProfileImage(
+    selectedImage: Uri?,
+    photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>
+) {
+    key(selectedImage) {
+        if (selectedImage == null) {
+            Image(
+                painter = painterResource(id = R.drawable.no_profile_picture_icon), //TODO: aggiungere foto profilo
+                contentDescription = "Avatar",
+                modifier = Modifier
+                    .padding(4.dp)
+                    .width(150.dp)
+                    .height(150.dp)
+                    .clickable {
+                        photoPickerLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    }
+            )
+        } else {
+            AsyncImage(
+                model = createImageRequest(LocalContext.current, selectedImage),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(4.dp)
+                    .width(150.dp)
+                    .height(150.dp)
+                    .clickable {
+                        photoPickerLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    },
+                contentScale = ContentScale.FillBounds
+            )
         }
     }
 }
@@ -347,6 +363,19 @@ fun MyGridPreview() {
         onChartClick = {},
         onActivityClick = {}
     )
+}
+
+/**
+ * This is needed because oftentimes newUri is equal to the value saved in
+ * the "selectedImage" var in the setContent function of this activity,
+ * so the composables don't "feel the urge" to update the image.
+ * */
+fun createImageRequest(context: Context, uri: Uri): ImageRequest {
+    return ImageRequest.Builder(context)
+        .data(uri)
+        .diskCachePolicy(CachePolicy.DISABLED)
+        .memoryCachePolicy(CachePolicy.DISABLED)
+        .build()
 }
 
 /*@Preview
