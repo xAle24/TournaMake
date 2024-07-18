@@ -17,9 +17,15 @@ const val PROFILE_PICTURE_NAME = "main_user_profile_picture.jpeg"
 * of the directory names, so that there's no need to manually manage
 * file paths elsewhere.
 * */
-data class AppDirectoryNames(
-    val profileImageDirectoryName: String = "tournamake_profile_image"
-)
+class AppDirectoryNames {
+    /*
+    * A companion object is similar to a container of "static" constants.
+    * You can access its fields by typing AppDirectoryNames.fieldName
+    * */
+    companion object {
+        const val profileImageDirectoryName: String = "tournamake_profile_image"
+    }
+}
 
 fun doesDirectoryExist(dirName: String, context: Context, email: String? = null): Boolean {
     val path = "${context.filesDir.path}/${dirName}/${convertEmailToPathSegment(email)}"

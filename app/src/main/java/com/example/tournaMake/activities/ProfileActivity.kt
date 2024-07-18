@@ -82,13 +82,13 @@ class ProfileActivity : ComponentActivity() {
             var selectedImageURI by remember {
                 mutableStateOf<Uri?>(
                     if (doesDirectoryContainFile(
-                            AppDirectoryNames().profileImageDirectoryName,
+                            AppDirectoryNames.profileImageDirectoryName,
                             PROFILE_PICTURE_NAME,
                             baseContext,
                             loggedEmail.value.loggedProfileEmail
                         )
                     ) loadImageUriFromDirectory(
-                        AppDirectoryNames().profileImageDirectoryName,
+                        AppDirectoryNames.profileImageDirectoryName,
                         PROFILE_PICTURE_NAME,
                         baseContext,
                         loggedEmail.value.loggedProfileEmail
@@ -160,7 +160,7 @@ class ProfileActivity : ComponentActivity() {
                     uploadPhotoToDatabase(profileImageUri, loggedProfileState.loggedProfileEmail)
                     // Now that the picture is uploaded, we can retrieve its location as uri
                     val uriForInternallySavedFile = loadImageUriFromDirectory(
-                        AppDirectoryNames().profileImageDirectoryName,
+                        AppDirectoryNames.profileImageDirectoryName,
                         PROFILE_PICTURE_NAME,
                         baseContext,
                         loggedEmailStateFlow.value.loggedProfileEmail
@@ -187,7 +187,7 @@ class ProfileActivity : ComponentActivity() {
         storePhotoInInternalStorage(profileImageUri, loggedEmail)
         uploadPhotoToDatabase(profileImageUri, loggedEmail)
         return loadImageUriFromDirectory(
-            AppDirectoryNames().profileImageDirectoryName,
+            AppDirectoryNames.profileImageDirectoryName,
             PROFILE_PICTURE_NAME,
             baseContext,
             loggedEmail
@@ -201,9 +201,8 @@ class ProfileActivity : ComponentActivity() {
 
     private fun storePhotoInInternalStorage(uri: Uri, email: String?) {
         val context = baseContext
-        val appDirectoryNames = AppDirectoryNames()
-        if (!doesDirectoryExist(appDirectoryNames.profileImageDirectoryName, context, email)) {
-            createDirectory(appDirectoryNames.profileImageDirectoryName, context, email)
+        if (!doesDirectoryExist(AppDirectoryNames.profileImageDirectoryName, context, email)) {
+            createDirectory(AppDirectoryNames.profileImageDirectoryName, context, email)
             Log.d("DEV", "storePhotoInInternalStorage - Created directory!")
         }
         val inputStream = contentResolver.openInputStream(uri)
@@ -212,7 +211,7 @@ class ProfileActivity : ComponentActivity() {
         saveImageToDirectory(
             bitmap = bitmap,
             context = context,
-            dirName = appDirectoryNames.profileImageDirectoryName, // defined in filemanager/FileUtils.kt
+            dirName = AppDirectoryNames.profileImageDirectoryName, // defined in filemanager/FileUtils.kt
             imageName = PROFILE_PICTURE_NAME, // defined in filemanager/FileUtils.kt
             email = email
         )
@@ -233,7 +232,7 @@ class ProfileActivity : ComponentActivity() {
                 // observer
                 profileViewModel.changeProfileFromCoroutine(myProfile)
                 val profileImageUri = loadImageUriFromDirectory(
-                    dirName = AppDirectoryNames().profileImageDirectoryName,
+                    dirName = AppDirectoryNames.profileImageDirectoryName,
                     imageName = PROFILE_PICTURE_NAME,
                     context = baseContext,
                     email = myProfile?.email
