@@ -9,14 +9,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.net.toFile
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.example.tournaMake.data.models.LoggedProfileState
 import com.example.tournaMake.data.models.LoggedProfileViewModel
 import com.example.tournaMake.data.models.ProfileViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
@@ -32,6 +36,7 @@ import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.profile.ProfileScreen
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
@@ -82,12 +87,12 @@ class ProfileActivity : ComponentActivity() {
                         AppDirectoryNames().profileImageDirectoryName,
                         PROFILE_PICTURE_NAME,
                         baseContext,
-                        //loggedEmail.value.loggedProfileEmail
+                        loggedEmail.value.loggedProfileEmail
                     )) loadImageUriFromDirectory(
                         AppDirectoryNames().profileImageDirectoryName,
                         PROFILE_PICTURE_NAME,
                         baseContext,
-                        //loggedEmail.value.loggedProfileEmail
+                        loggedEmail.value.loggedProfileEmail
                     ) else null
                 )
             }
@@ -131,6 +136,43 @@ class ProfileActivity : ComponentActivity() {
                 photoPickerLauncher = singlePhotoPickerLauncher
             )
         }
+    }
+
+    /**
+     * If I understood correctly, this function collects the firs emission of the
+     * state flow. This happens each time the loggedEmailStateFlow changes and the lifecycle
+     * of the activity is in the STARTED state.
+     * Code taken from the official documentation at:
+     * https://developer.android.com/kotlin/flow/stateflow-and-sharedflow
+     * */
+    private fun waitForEmailThenStoreProfilePicture(
+        loggedEmailStateFlow: StateFlow<LoggedProfileState>,
+        profileImageUri: Uri,
+        thenUpdateMutableStateOfUri: (Uri?) -> Unit
+    ) {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                loggedEmailStateFlow.collect { loggedProfileState ->
+                    storePhotoInInternalStorage(profileImageUri, loggedProfileState.loggedProfileEmail)
+                    uploadPhotoToDatabase(profileImageUri, loggedProfileState.loggedProfileEmail)
+                    // Now that the picture is uploaded, we can retrieve its location as uri
+                    val uriForInternallySavedFile = loadImageUriFromDirectory(
+                        AppDirectoryNames().profileImageDirectoryName,
+                        PROFILE_PICTURE_NAME,
+                        baseContext,
+                        loggedEmailStateFlow.value.loggedProfileEmail
+                    )
+                    Log.d("DEV", "In coroutine inside waitForEmailThenStoreProfilePicture() in ProfileActivity.kt," +
+                            "uriForInternallySavedFile is $uriForInternallySavedFile")
+                    thenUpdateMutableStateOfUri(uriForInternallySavedFile)
+                }
+            }
+        }
+    }
+
+    private fun storeProfilePictureImmediately(profileImageUri: Uri, loggedEmail: String) {
+        storePhotoInInternalStorage(profileImageUri, loggedEmail)
+        uploadPhotoToDatabase(profileImageUri, loggedEmail)
     }
 
     private fun uploadPhotoToDatabase(uri: Uri, loggedEmail: String) {
