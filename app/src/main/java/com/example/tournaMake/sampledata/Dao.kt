@@ -41,14 +41,14 @@ data class PlayedGame(val gameID: String,
 interface GameDao {
     @Query("SELECT * FROM GAME")
     fun getAll(): List<Game>
-    @Query("""
+    /*@Query("""
         SELECT GAME.*, COUNT(MATCH_TM.gameID) as times_played
         FROM GAME
         JOIN MATCH_TM ON GAME.gameID = MATCH_TM.gameID
-        JOIN MATCH_SCORE_MAIN ON MATCH_TM.matchID = MATCH_SCORE_MAIN.matchID
-        WHERE MATCH_SCORE_MAIN.email = :email
+        JOIN MAIN_TEAM_SCORE ON MATCH_TM.matchID = MAIN_TEAM_SCORE.matchID
+        WHERE MAIN_TEAM_SCORE.email = :email
         GROUP BY GAME.name
-    """)
+    """) TODO bo non capisco*/
     fun getPlayedGames(email: String): List<PlayedGame>
 
 
@@ -66,9 +66,8 @@ interface MatchDao {
 
     @Query("SELECT MATCH_TM.*\n" +
             "FROM MATCH_TM\n" +
-            "INNER JOIN MATCH_SCORE_MAIN\n" +
-            "ON MATCH_TM.matchID = MATCH_SCORE_MAIN.matchID\n" +
-            "WHERE MATCH_SCORE_MAIN.email = :email")
+            "INNER JOIN MAIN_TEAM_SCORE\n" +
+            "WHERE MAIN_TEAM_SCORE.email = :email")
     fun getMyMatch(email: String): List<Match>
 
     @Insert
@@ -80,26 +79,26 @@ interface MatchDao {
 
 @Dao
 interface MatchScoreGuestDao {
-    @Query("SELECT * FROM MATCH_SCORE_GUEST")
-    fun getAll(): List<MatchScoreGuest>
+    @Query("SELECT * FROM GUEST_PARTECIPANT_SCORE")
+    fun getAll(): List<GuestPartecipantScore>
 
     @Insert
-    fun insertAll(vararg matchScoreGuests: MatchScoreGuest)
+    fun insertAll(vararg matchScoreGuests: GuestPartecipantScore)
 
     @Delete
-    fun delete(matchScoreGuest: MatchScoreGuest)
+    fun delete(matchScoreGuest: GuestPartecipantScore)
 }
 
 @Dao
 interface MatchScoreMainDao {
-    @Query("SELECT * FROM MATCH_SCORE_MAIN")
-    fun getAll(): List<MatchScoreMain>
+    @Query("SELECT * FROM MAIN_TEAM_SCORE")
+    fun getAll(): List<MainTeamScore>
 
     @Insert
-    fun insertAll(vararg matchScoreMains: MatchScoreMain)
+    fun insertAll(vararg matchScoreMains: MainTeamScore)
 
     @Delete
-    fun delete(matchScoreMain: MatchScoreMain)
+    fun delete(matchScoreMain: MainTeamScore)
 }
 
 @Dao
