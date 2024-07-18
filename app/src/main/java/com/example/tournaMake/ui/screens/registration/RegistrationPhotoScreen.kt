@@ -1,5 +1,6 @@
 package com.example.tournaMake.ui.screens.registration
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
@@ -22,16 +23,20 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.example.tournaMake.R
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
@@ -54,31 +59,33 @@ fun RegistrationPhotoScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (selectedImage != null) {
-                /* The profile image will be contained here. */
-                AsyncImage(
-                    model = selectedImage,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(200.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .border(
-                            BorderStroke(4.dp, MaterialTheme.colorScheme.primary)
-                        ),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Image(
-                    painter = painterResource(id = R.drawable.no_profile_picture_icon),
-                    contentDescription = "Appropriate logo image",
-                    modifier = Modifier
-                        .size(200.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .border(
-                            BorderStroke(4.dp, MaterialTheme.colorScheme.primary)
-                        ),
-                    contentScale = ContentScale.Crop
-                )
+            key(selectedImage) {
+                if (selectedImage != null) {
+                    /* The profile image will be contained here. */
+                    AsyncImage(
+                        model = createImageRequest(LocalContext.current, selectedImage),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(200.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .border(
+                                BorderStroke(4.dp, MaterialTheme.colorScheme.primary)
+                            ),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.no_profile_picture_icon),
+                        contentDescription = "Appropriate logo image",
+                        modifier = Modifier
+                            .size(200.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .border(
+                                BorderStroke(4.dp, MaterialTheme.colorScheme.primary)
+                            ),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
             Spacer(modifier = Modifier.height(5.dp))
             Button(
@@ -121,6 +128,19 @@ fun RegistrationPhotoScreen(
             }
         }
     }
+}
+
+/**
+ * This is needed because oftentimes newUri is equal to the value saved in
+ * the "selectedImage" var in the setContent function of this activity,
+ * so the composables don't "feel the urge" to update the image.
+ * */
+fun createImageRequest(context: Context, uri: Uri): ImageRequest {
+    return ImageRequest.Builder(context)
+        .data(uri)
+        .diskCachePolicy(CachePolicy.DISABLED)
+        .memoryCachePolicy(CachePolicy.DISABLED)
+        .build()
 }
 
 

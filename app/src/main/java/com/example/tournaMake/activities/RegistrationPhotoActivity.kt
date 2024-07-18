@@ -18,11 +18,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.LoggedProfileViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.filemanager.AppDirectoryNames
 import com.example.tournaMake.filemanager.PROFILE_PICTURE_NAME
+import com.example.tournaMake.filemanager.ProfileImageHelper
+import com.example.tournaMake.filemanager.ProfileImageHelperImpl
 import com.example.tournaMake.filemanager.createDirectory
+import com.example.tournaMake.filemanager.doesDirectoryContainFile
 import com.example.tournaMake.filemanager.doesDirectoryExist
 import com.example.tournaMake.filemanager.loadImageUriFromDirectory
 import com.example.tournaMake.filemanager.saveImageToDirectory
@@ -31,6 +35,7 @@ import org.koin.androidx.compose.koinViewModel
 import java.nio.file.NoSuchFileException
 
 class RegistrationPhotoActivity : ComponentActivity() {
+    private val profileImageHelper: ProfileImageHelper = ProfileImageHelperImpl()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -42,17 +47,54 @@ class RegistrationPhotoActivity : ComponentActivity() {
             * https://www.youtube.com/watch?v=uHX5NB6wHao
             * */
             var selectedImageURI by remember {
-                mutableStateOf<Uri?>(null)
+                mutableStateOf<Uri?>(
+                    if (doesDirectoryContainFile(
+                            AppDirectoryNames.profileImageDirectoryName,
+                            PROFILE_PICTURE_NAME,
+                            baseContext,
+                            loggedEmail.value.loggedProfileEmail
+                        )
+                    ) loadImageUriFromDirectory(
+                        AppDirectoryNames.profileImageDirectoryName,
+                        PROFILE_PICTURE_NAME,
+                        baseContext,
+                        loggedEmail.value.loggedProfileEmail
+                    ) else null
+                )
             }
             val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.PickVisualMedia(),
-                onResult = { uri ->
-                    if (uri != null) {
-                        selectedImageURI = uri
-                        uploadPhotoToDatabase(uri, loggedEmail.value.loggedProfileEmail)
-                    }
+                contract = ActivityResultContracts.PickVisualMedia()
+            ) { uri ->
+                if (uri != null && loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
+                    val uriForInternallySavedFile =
+                        profileImageHelper.storeProfilePictureImmediately(
+                            profileImageUri = uri,
+                            email = loggedEmail.value.loggedProfileEmail,
+                            contentResolver = contentResolver,
+                            context = baseContext,
+                            databaseUpdaterCallback = this::uploadPhotoToDatabase
+                        )
+                    selectedImageURI = uriForInternallySavedFile
+                    recreate() // I'm sorry but without this line I don't see changes take effect
+                } else if (uri != null && loggedEmail.value.loggedProfileEmail.isEmpty()) {
+                    profileImageHelper.waitForEmailThenStoreProfilePicture(
+                        loggedEmailStateFlow = loggedProfileViewModel.loggedEmail,
+                        profileImageUri = uri,
+                        context = baseContext,
+                        databaseUpdaterCallback = this::uploadPhotoToDatabase,
+                        lifecycleCoroutineScope = lifecycleScope,
+                        lifecycleOwner = this,
+                        stateChangerCallback = { resultUri ->
+                            selectedImageURI = resultUri
+                            recreate()
+                        },
+                        contentResolver = contentResolver
+                    )
                 }
-            )
+                Log.d(
+                    "DEV", "In onResult function in RegistrationPhotoActivity.kt: everything went fine!"
+                )
+            }
 
             RegistrationPhotoScreen(
                 state = state.value,
@@ -67,30 +109,6 @@ class RegistrationPhotoActivity : ComponentActivity() {
     private fun uploadPhotoToDatabase(uri: Uri, loggedEmail: String) {
         Log.d("DEV", "Got logged email: $loggedEmail")
         // TODO: add database uri uploading
-    }
-    private fun storePhotoInInternalStorage(uri: Uri, email: String?): Uri {
-        val context = baseContext
-        if (!doesDirectoryExist(AppDirectoryNames.profileImageDirectoryName, context, email)) {
-            createDirectory(AppDirectoryNames.profileImageDirectoryName, context, email)
-            Log.d("DEV", "In RegistratinPhotoActivity.kt, " +
-                    "storePhotoInInternalStorage - Created directory!")
-        }
-        val inputStream = contentResolver.openInputStream(uri)
-        val bitmap = BitmapFactory.decodeStream(inputStream)
-        inputStream?.close()
-        saveImageToDirectory(
-            bitmap = bitmap,
-            context = context,
-            dirName = AppDirectoryNames.profileImageDirectoryName, // defined in filemanager/FileUtils.kt
-            imageName = PROFILE_PICTURE_NAME, // defined in filemanager/FileUtils.kt
-            email = email
-        )
-        return loadImageUriFromDirectory(
-            dirName = AppDirectoryNames.profileImageDirectoryName,
-            imageName = PROFILE_PICTURE_NAME,
-            context = context,
-            email = email
-        ) ?: throw NoSuchFileException("No profile image uri was found for email $email")
     }
 
     private fun back() {

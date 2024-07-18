@@ -89,36 +89,38 @@ class ProfileActivity : ComponentActivity() {
                 )
             }
             val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.PickVisualMedia(),
-                onResult = { uri ->
-                    if (uri != null && loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
-                        val uriForInternallySavedFile = profilePictureHelper.storeProfilePictureImmediately(
+                contract = ActivityResultContracts.PickVisualMedia()
+            ) { uri ->
+                if (uri != null && loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
+                    val uriForInternallySavedFile =
+                        profilePictureHelper.storeProfilePictureImmediately(
                             profileImageUri = uri,
                             email = loggedEmail.value.loggedProfileEmail,
                             contentResolver = contentResolver,
                             context = baseContext,
                             databaseUpdaterCallback = this::uploadPhotoToDatabase
                         )
-                        selectedImageURI = uriForInternallySavedFile
-                        recreate() // I'm sorry but without this line I don't see changes take effect
-                    } else if (uri != null && loggedEmail.value.loggedProfileEmail.isEmpty()) {
-                        profilePictureHelper.waitForEmailThenStoreProfilePicture(
-                            loggedEmailStateFlow = loggedProfileViewModel.loggedEmail,
-                            profileImageUri = uri,
-                            context = baseContext,
-                            databaseUpdaterCallback = this::uploadPhotoToDatabase,
-                            lifecycleCoroutineScope = lifecycleScope,
-                            lifecycleOwner = this,
-                            stateChangerCallback = { resultUri ->
-                                selectedImageURI = resultUri
-                            },
-                            contentResolver = contentResolver
-                        )
-                    }
-                    Log.d(
-                        "DEV", "In onResult function in ProfileActivity.kt: everything went fine!"
+                    selectedImageURI = uriForInternallySavedFile
+                    recreate() // I'm sorry but without this line I don't see changes take effect
+                } else if (uri != null && loggedEmail.value.loggedProfileEmail.isEmpty()) {
+                    profilePictureHelper.waitForEmailThenStoreProfilePicture(
+                        loggedEmailStateFlow = loggedProfileViewModel.loggedEmail,
+                        profileImageUri = uri,
+                        context = baseContext,
+                        databaseUpdaterCallback = this::uploadPhotoToDatabase,
+                        lifecycleCoroutineScope = lifecycleScope,
+                        lifecycleOwner = this,
+                        stateChangerCallback = { resultUri ->
+                            selectedImageURI = resultUri
+                            recreate()
+                        },
+                        contentResolver = contentResolver
                     )
-                })
+                }
+                Log.d(
+                    "DEV", "In onResult function in ProfileActivity.kt: everything went fine!"
+                )
+            }
             fetchAndUpdateProfile(
                 loggedEmail.value.loggedProfileEmail, profileViewModel
             ) {

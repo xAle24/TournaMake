@@ -159,7 +159,7 @@ fun ProfileScreen(
                         }
                         Grid(
                             wonTournamentsNumber = profile.value?.wonTournamentsNumber ?: 0,
-                            playedTournamentsNumber = /*profile.value.playedTournamentsNumber ?: 0*/ 0,
+                            playedTournamentsNumber = /*profile.value.playedTournamentsNumber ?: 0*/ 0, // TODO: update
                             onChartClick = navigateToChart,
                             onActivityClick = navigateToPlayerActivity,
                             state = state
@@ -183,7 +183,7 @@ fun ProfileImage(
     key(selectedImage) {
         if (selectedImage == null) {
             Image(
-                painter = painterResource(id = R.drawable.no_profile_picture_icon), //TODO: aggiungere foto profilo
+                painter = painterResource(id = R.drawable.no_profile_picture_icon),
                 contentDescription = "Avatar",
                 modifier = Modifier
                     .padding(4.dp)
