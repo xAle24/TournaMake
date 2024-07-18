@@ -7,7 +7,21 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [Achievement::class, AchievementPlayer::class, Game::class, GuestProfile::class, MainProfile::class, Match::class, MatchScoreGuest::class, MatchScoreMain::class, Tournament::class, TournamentType::class], version = 1)
+@Database(entities =
+[
+    Achievement::class,
+    AchievementPlayer::class,
+    Team::class,
+    Game::class,
+    GuestParticipantScore::class,
+    GuestProfile::class,
+    MainProfile::class,
+    MainTeamScore::class,
+    Match::class,
+    TeamPlayMatch::class,
+    Tournament::class,
+    TournamentType::class
+], version = 1)
 @TypeConverters(Converters::class) // TODO verify if it works
 abstract class AppDatabase : RoomDatabase() {
     abstract fun achievementDao(): AchievementDao

@@ -36,8 +36,8 @@ data class Game(
     @ColumnInfo(name = "maxPlayers") val maxPlayers: Int
 )
 
-@Entity(tableName = "GUEST_PARTECIPANT_SCORE", primaryKeys = ["teamID", "Username"])
-data class GuestPartecipantScore(
+@Entity(tableName = "GUEST_PARTICIPANT_SCORE", primaryKeys = ["teamID", "Username"])
+data class GuestParticipantScore(
     @ColumnInfo(name = "Username") val username: String,
     @ColumnInfo(name = "teamID") val teamID: String,
     @ColumnInfo(name = "score") val score: Int
@@ -74,7 +74,7 @@ data class Match(
     @ColumnInfo(name = "duration") val duration: Int,
     @ColumnInfo(name = "status") val status: Int,
     @ColumnInfo(name = "gameID") val gameID: String,
-    @ColumnInfo(name = "tournamentID") val tournamentID: String
+    @ColumnInfo(name = "tournamentID") val tournamentID: String?
 )
 
 @Entity(tableName = "TEAM_PLAY_MATCH", primaryKeys = ["matchID", "teamID"])

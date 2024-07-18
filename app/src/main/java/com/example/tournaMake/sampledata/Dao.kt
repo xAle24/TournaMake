@@ -33,22 +33,22 @@ data class PlayedGame(val gameID: String,
                       val name: String,
                       val description : String,
                       val duration: Int,
-                      val MinPlayer: Int,
+                      val minPlayers: Int,
                       val maxPlayers: Int,
-                      val times_played: Int)
+                      val timesPlayed: Int)
 
 @Dao
 interface GameDao {
     @Query("SELECT * FROM GAME")
     fun getAll(): List<Game>
-    /*@Query("""
+    @Query("""
         SELECT GAME.*, COUNT(MATCH_TM.gameID) as times_played
         FROM GAME
         JOIN MATCH_TM ON GAME.gameID = MATCH_TM.gameID
-        JOIN MAIN_TEAM_SCORE ON MATCH_TM.matchID = MAIN_TEAM_SCORE.matchID
+        JOIN MAIN_TEAM_SCORE ON MATCH_TM.matchID = MAIN_TEAM_SCORE.teamID
         WHERE MAIN_TEAM_SCORE.email = :email
         GROUP BY GAME.name
-    """) TODO bo non capisco*/
+    """)
     fun getPlayedGames(email: String): List<PlayedGame>
 
 
@@ -79,14 +79,14 @@ interface MatchDao {
 
 @Dao
 interface MatchScoreGuestDao {
-    @Query("SELECT * FROM GUEST_PARTECIPANT_SCORE")
-    fun getAll(): List<GuestPartecipantScore>
+    @Query("SELECT * FROM GUEST_PARTICIPANT_SCORE")
+    fun getAll(): List<GuestParticipantScore>
 
     @Insert
-    fun insertAll(vararg matchScoreGuests: GuestPartecipantScore)
+    fun insertAll(vararg matchScoreGuests: GuestParticipantScore)
 
     @Delete
-    fun delete(matchScoreGuest: GuestPartecipantScore)
+    fun delete(matchScoreGuest: GuestParticipantScore)
 }
 
 @Dao
