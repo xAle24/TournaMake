@@ -29,7 +29,7 @@ fun doesDirectoryExist(dirName: String, context: Context, email: String? = null)
 
 fun createDirectory(dirName: String, context: Context, email: String? = null) {
     val path = "${context.filesDir.path}/${dirName}/${convertEmailToPathSegment(email)}"
-    if (!doesDirectoryExist(dirName, context)) {
+    if (!doesDirectoryExist(dirName, context, email)) {
         val dir = File(path)
         if (dir.mkdir()) {
             Log.d("DEV", "Successfully created directory with file path: $path.")

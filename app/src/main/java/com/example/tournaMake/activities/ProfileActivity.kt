@@ -42,6 +42,7 @@ import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
 import java.io.File
 import java.lang.IllegalStateException
+import java.nio.file.NoSuchFileException
 
 class ProfileActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = get<AppDatabase>()
@@ -65,7 +66,6 @@ class ProfileActivity : ComponentActivity() {
                 // TODO: add rest of the profile code
             }
             profileViewModel.profileLiveData.observe(this, profileObserver)
-            fetchAndUpdateProfile(loggedEmail.value.loggedProfileEmail, profileViewModel)
             //val profile
 
             /**
@@ -83,12 +83,13 @@ class ProfileActivity : ComponentActivity() {
             * */
             var selectedImageURI by remember {
                 mutableStateOf<Uri?>(
-                    if(doesDirectoryContainFile(
-                        AppDirectoryNames().profileImageDirectoryName,
-                        PROFILE_PICTURE_NAME,
-                        baseContext,
-                        loggedEmail.value.loggedProfileEmail
-                    )) loadImageUriFromDirectory(
+                    if (doesDirectoryContainFile(
+                            AppDirectoryNames().profileImageDirectoryName,
+                            PROFILE_PICTURE_NAME,
+                            baseContext,
+                            loggedEmail.value.loggedProfileEmail
+                        )
+                    ) loadImageUriFromDirectory(
                         AppDirectoryNames().profileImageDirectoryName,
                         PROFILE_PICTURE_NAME,
                         baseContext,
@@ -96,33 +97,41 @@ class ProfileActivity : ComponentActivity() {
                     ) else null
                 )
             }
-            val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.PickVisualMedia(),
-                onResult = { uri ->
-                    if (uri != null) {
-                        storePhotoInInternalStorage(uri, loggedEmail.value.loggedProfileEmail)
-                        val uriForInternallySavedFile = loadImageUriFromDirectory(
-                            AppDirectoryNames().profileImageDirectoryName,
-                            PROFILE_PICTURE_NAME,
-                            baseContext,
-                            //loggedEmail.value.loggedProfileEmail
-                        )
-                        if (uriForInternallySavedFile != null) {
-                            /* What I want to save in the database is the new uri, not
+            val singlePhotoPickerLauncher =
+                rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
+                    onResult = { uri ->
+                        if (uri != null && loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
+                            val uriForInternallySavedFile = storeProfilePictureImmediately(
+                                uri,
+                                loggedEmail.value.loggedProfileEmail
+                            )
+                            if (uriForInternallySavedFile != null) {/* What I want to save in the database is the new uri, not
                             * the one provided by the profile screen. */
-                            selectedImageURI = uriForInternallySavedFile
-                            uploadPhotoToDatabase(uriForInternallySavedFile, loggedEmail.value.loggedProfileEmail)
-                        } else {
-                            throw IllegalStateException("The uri received in ProfileActivity.kt is null and can't be saved in the db.")
+                                selectedImageURI = uriForInternallySavedFile
+                            } else {
+                                throw IllegalStateException("The uri received in ProfileActivity.kt is null and can't be saved in the db.")
+                            }
+                        } else if (uri != null && loggedEmail.value.loggedProfileEmail.isEmpty()) {
+                            waitForEmailThenStoreProfilePicture(
+                                loggedProfileViewModel.loggedEmail,
+                                uri,
+                            ) { resultUri ->
+                                selectedImageURI = resultUri
+                            }
                         }
-                    }
-                    Log.d("DEV", "In onResult function in ProfileActivity.kt: everything went fine!")
-                }
-            )
-
+                        Log.d(
+                            "DEV",
+                            "In onResult function in ProfileActivity.kt: everything went fine!"
+                        )
+                    })
+            fetchAndUpdateProfile(
+                loggedEmail.value.loggedProfileEmail,
+                profileViewModel
+            ) { it ->
+                selectedImageURI = it // callback for when the profile data come
+            }
             ProfileScreen(
-                state = state.value,
-                /*
+                state = state.value,/*
                 * TODO: consider passing the Observer as a parameter instead of the MainProfile
                 *  (forse è una cattiva idea, ma magari si può avere il codice dell'observer
                 *  sott'occhio al momento di costruire il ProfileScreen).
@@ -153,7 +162,10 @@ class ProfileActivity : ComponentActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 loggedEmailStateFlow.collect { loggedProfileState ->
-                    storePhotoInInternalStorage(profileImageUri, loggedProfileState.loggedProfileEmail)
+                    storePhotoInInternalStorage(
+                        profileImageUri,
+                        loggedProfileState.loggedProfileEmail
+                    )
                     uploadPhotoToDatabase(profileImageUri, loggedProfileState.loggedProfileEmail)
                     // Now that the picture is uploaded, we can retrieve its location as uri
                     val uriForInternallySavedFile = loadImageUriFromDirectory(
@@ -162,17 +174,25 @@ class ProfileActivity : ComponentActivity() {
                         baseContext,
                         loggedEmailStateFlow.value.loggedProfileEmail
                     )
-                    Log.d("DEV", "In coroutine inside waitForEmailThenStoreProfilePicture() in ProfileActivity.kt," +
-                            "uriForInternallySavedFile is $uriForInternallySavedFile")
+                    Log.d(
+                        "DEV",
+                        "In coroutine inside waitForEmailThenStoreProfilePicture() in ProfileActivity.kt," + "uriForInternallySavedFile is $uriForInternallySavedFile"
+                    )
                     thenUpdateMutableStateOfUri(uriForInternallySavedFile)
                 }
             }
         }
     }
 
-    private fun storeProfilePictureImmediately(profileImageUri: Uri, loggedEmail: String) {
+    private fun storeProfilePictureImmediately(profileImageUri: Uri, loggedEmail: String): Uri? {
         storePhotoInInternalStorage(profileImageUri, loggedEmail)
         uploadPhotoToDatabase(profileImageUri, loggedEmail)
+        return loadImageUriFromDirectory(
+            AppDirectoryNames().profileImageDirectoryName,
+            PROFILE_PICTURE_NAME,
+            baseContext,
+            loggedEmail
+        )
     }
 
     private fun uploadPhotoToDatabase(uri: Uri, loggedEmail: String) {
@@ -185,6 +205,7 @@ class ProfileActivity : ComponentActivity() {
         val appDirectoryNames = AppDirectoryNames()
         if (!doesDirectoryExist(appDirectoryNames.profileImageDirectoryName, context, email)) {
             createDirectory(appDirectoryNames.profileImageDirectoryName, context, email)
+            Log.d("DEV", "storePhotoInInternalStorage - Created directory!")
         }
         val inputStream = contentResolver.openInputStream(uri)
         val bitmap = BitmapFactory.decodeStream(inputStream)
@@ -194,11 +215,15 @@ class ProfileActivity : ComponentActivity() {
             context = context,
             dirName = appDirectoryNames.profileImageDirectoryName, // defined in filemanager/FileUtils.kt
             imageName = PROFILE_PICTURE_NAME, // defined in filemanager/FileUtils.kt
-            //email = email
+            email = email
         )
     }
 
-    private fun fetchAndUpdateProfile(email: String, profileViewModel: ProfileViewModel) {
+    private fun fetchAndUpdateProfile(
+        email: String,
+        profileViewModel: ProfileViewModel,
+        thenUpdateImageUri: (Uri?) -> Unit
+    ) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 val myProfile = appDatabase?.mainProfileDao()?.getProfileByEmail(email)
@@ -206,11 +231,19 @@ class ProfileActivity : ComponentActivity() {
                 // Now update the data in the view model, to trigger the onchange method of the attached
                 // observer
                 profileViewModel.changeProfileFromCoroutine(myProfile)
+                val profileImageUri = loadImageUriFromDirectory(
+                    dirName = AppDirectoryNames().profileImageDirectoryName,
+                    imageName = PROFILE_PICTURE_NAME,
+                    context = baseContext,
+                    email = myProfile?.email
+                )
+                thenUpdateImageUri(profileImageUri)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
     }
+
     private fun backButton() {
         finish()
     }
@@ -219,6 +252,7 @@ class ProfileActivity : ComponentActivity() {
         val intent = Intent(this, GamesChartActivity::class.java)
         startActivity(intent)
     }
+
     private fun navigateToPlayerActivity() {
         val intent = Intent(this, PlayerActActivity::class.java)
         startActivity(intent)

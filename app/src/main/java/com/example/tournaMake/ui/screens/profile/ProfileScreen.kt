@@ -192,7 +192,6 @@ fun ProfileScreen(
 
                 1 -> {
                     // Achievements
-                    //TODO: added the history of the played matches
                 }
             }
         }
