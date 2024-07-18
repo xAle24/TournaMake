@@ -35,7 +35,7 @@ class GamesChartActivity : ComponentActivity(){
             // is destroyed when we leave this Activity.
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
-            val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
+            val loggedEmail = authenticationViewModel.loggedEmailTemp.collectAsStateWithLifecycle()
             val graphViewModel = koinViewModel<GraphViewModel>()
             val gameObserver = Observer<List<PlayedGame>?> { game ->
                 Log.d("DEV", "In game observer profile = $game")//TODO remove

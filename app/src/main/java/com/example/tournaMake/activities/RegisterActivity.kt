@@ -63,6 +63,9 @@ class RegisterActivity : ComponentActivity() {
                 e.printStackTrace()
             }
         }
+        if (rememberMe) {
+            viewModel.rememberEmailAndPassword(email, password)
+        }
     }
 
     private fun goToNextActivity() {

@@ -28,7 +28,7 @@ class PlayerActActivity : ComponentActivity(){
             val themeViewModel = koinViewModel<ThemeViewModel>()
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
-            val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
+            val loggedEmail = authenticationViewModel.loggedEmailTemp.collectAsStateWithLifecycle()
             val matchListViewModel = koinViewModel<MatchListViewModel>()
             val matchObserver = Observer<List<Match>?> { match ->
                 Log.d("DEV", "In profile observer profile = $match")

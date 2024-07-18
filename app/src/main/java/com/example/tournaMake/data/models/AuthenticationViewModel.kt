@@ -18,12 +18,12 @@ import kotlinx.coroutines.launch
 data class LoggedProfileState(val loggedProfileEmail: String)
 
 class AuthenticationViewModel(private val repository: AuthenticationRepository): ViewModel() {
-    private val loggedEmail = repository.email.map { LoggedProfileState(it.toString()) }.stateIn(
+    val loggedEmail = repository.email.map { LoggedProfileState(it.toString()) }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
         initialValue = LoggedProfileState("")
     )
-    private val password = repository.password.map { it.toString() }.stateIn(
+    val password = repository.password.map { it.toString() }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
         initialValue = ""
