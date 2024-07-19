@@ -16,11 +16,25 @@ interface AchievementDao {
     @Delete
     fun delete(achievement: Achievement)
 }
+data class AchievementResult(
+    val achievementID: String,
+    val name: String,
+    val description: String,
+    val imagePath: String,
+    val achievementsPlayerID: String,
+    val status: Char,
+    val email: String
+)
 
 @Dao
 interface AchievementPlayerDao {
     @Query("SELECT * FROM ACHIEVEMENT_PLAYER")
     fun getAll(): List<AchievementPlayer>
+    @Query("SELECT ACHIEVEMENT.*, ACHIEVEMENT_PLAYER.status, ACHIEVEMENT_PLAYER.email \n" +
+            "FROM ACHIEVEMENT \n" +
+            "INNER JOIN ACHIEVEMENT_PLAYER ON ACHIEVEMENT.achievementID = ACHIEVEMENT_PLAYER.achievementID \n" +
+            "WHERE ACHIEVEMENT_PLAYER.email = :email\n")
+    fun getAchievementsByEmail(email: String): List<AchievementResult>
 
     @Insert
     fun insertAll(vararg achievementPlayers: AchievementPlayer)

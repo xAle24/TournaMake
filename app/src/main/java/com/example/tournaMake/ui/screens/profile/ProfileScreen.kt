@@ -12,7 +12,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,7 +24,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,7 +38,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,14 +54,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.tournaMake.R
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.sampledata.AchievementResult
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.theme.getThemeColors
@@ -78,6 +74,7 @@ fun ProfileScreen(
     state: ThemeState,
     //profile: MainProfile?,
     profileLiveData: LiveData<MainProfile?>,
+    achievementPlayerLiveData: LiveData<List<AchievementResult>>,
     backButton: () -> Unit,
     navigateToChart: () -> Unit,
     navigateToPlayerActivity: () -> Unit,
@@ -89,6 +86,7 @@ fun ProfileScreen(
     * implementation ("androidx.compose.runtime:runtime-livedata:1.6.8")
     * */
     val profile = profileLiveData.observeAsState()
+    val achievements = achievementPlayerLiveData.observeAsState()
     Log.d("DEV", "In ProfileScreen.kt, profile email = ${profile.value?.email}")
 
     BasicScreenWithTheme(
@@ -168,7 +166,34 @@ fun ProfileScreen(
                 }
 
                 1 -> {
-                    // Achievements
+                    achievements.value?.let { achievementList ->
+                        Column {
+                            achievementList.forEach { achievement ->
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp)
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .padding(16.dp)
+                                            .fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = achievement.name,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = achievement.status.toString(),
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

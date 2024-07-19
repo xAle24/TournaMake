@@ -51,7 +51,7 @@ class RegisterActivity : ComponentActivity() {
     }
 
     private fun handleRegistration(username: String, password: String, email: String, rememberMe: Boolean, viewModel: AuthenticationViewModel) {
-        val mainProfile = MainProfile(email, username, password, "", 0, 0f, 0f)
+        val mainProfile = MainProfile(username, password, email, "", 0, 0f, 0f)
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 Log.d("DEV", "Ci sono")

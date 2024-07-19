@@ -3,6 +3,7 @@ package com.example.tournaMake
 import android.content.Context
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
+import com.example.tournaMake.data.models.AchievementsProfileViewModel
 import com.example.tournaMake.data.models.GamesListViewModel
 import com.example.tournaMake.data.models.GraphViewModel
 import com.example.tournaMake.data.models.AuthenticationViewModel
@@ -31,6 +32,7 @@ val appModule = module {
     viewModel { GraphViewModel() }
     viewModel { GamesListViewModel() }
     viewModel { TournamentListViewModel() }
+    viewModel { AchievementsProfileViewModel() }
     single {
         Room.databaseBuilder(
             get(),
