@@ -13,7 +13,7 @@ import com.example.tournaMake.data.models.GraphViewModel
 import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.AppDatabase
-import com.example.tournaMake.sampledata.Match
+import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.sampledata.PlayedGame
 import com.example.tournaMake.ui.screens.profile.ChartScreen
 import kotlinx.coroutines.Dispatchers
@@ -35,12 +35,12 @@ class GamesChartActivity : ComponentActivity(){
             // is destroyed when we leave this Activity.
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
-            val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
+            val loggedEmail = authenticationViewModel.loggedEmailTemp.collectAsStateWithLifecycle()
             val graphViewModel = koinViewModel<GraphViewModel>()
             val gameObserver = Observer<List<PlayedGame>?> { game ->
                 Log.d("DEV", "In game observer profile = $game")//TODO remove
             }
-            val matchObserver = Observer<List<Match>?> { match ->
+            val matchObserver = Observer<List<MatchTM>?> { match ->
                 Log.d("DEV", "In match observer profile = $match")//TODO remove
             }
             graphViewModel.gamesListLiveData.observe(this, gameObserver)

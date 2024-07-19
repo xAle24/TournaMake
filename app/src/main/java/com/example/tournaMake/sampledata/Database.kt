@@ -1,104 +1,102 @@
 package com.example.tournaMake.sampledata
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 
 @Entity(tableName = "ACHIEVEMENT", primaryKeys = ["achievementID"])
 data class Achievement(
-    @ColumnInfo(name = "achievementID") val achievementID: String,
-    @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "description") val description: String,
-    @ColumnInfo(name = "imagePath") val imagePath: String,
-    @ColumnInfo(name = "achievements_playerID") val achievementsPlayerID: String
+    val achievementID: String,
+    val name: String,
+    val description: String,
+    val imagePath: String,
+    val achievementsPlayerID: String
 )
 
-@Entity(tableName = "ACHIEVEMENT_PLAYER", primaryKeys = ["achievements_playerID"])
+@Entity(tableName = "ACHIEVEMENT_PLAYER", primaryKeys = ["achievementsPlayerID"])
 data class AchievementPlayer(
-    @ColumnInfo(name = "achievements_playerID") val achievementsPlayerID: String,
-    @ColumnInfo(name = "achievementID") val achievementID: String?,
-    @ColumnInfo(name = "status") val status: String,
-    @ColumnInfo(name = "email") val email: String
-)
-@Entity(tableName = "TEAM", primaryKeys = ["teamID"])
-data class Team(
-    @ColumnInfo(name = "teamID") val teamID: String,
-    @ColumnInfo(name = "name") val name: String
+    val achievementsPlayerID: String,
+    val achievementID: String?,
+    val status: Char,
+    val email: String
 )
 
 @Entity(tableName = "GAME", primaryKeys = ["gameID"])
 data class Game(
-    @ColumnInfo(name = "gameID") val gameID: String,
-    @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "favorites") val favorites: Boolean,
-    @ColumnInfo(name = "description") val description: String,
-    @ColumnInfo(name = "duration") val duration: Int,
-    @ColumnInfo(name = "minPlayers") val minPlayers: Int,
-    @ColumnInfo(name = "maxPlayers") val maxPlayers: Int
+    val gameID: String,
+    val name: String,
+    val favorites: Char,
+    val description: String?,
+    val duration: Int?,
+    val minPlayers: Int,
+    val maxPlayers: Int
 )
 
-@Entity(tableName = "GUEST_PARTICIPANT_SCORE", primaryKeys = ["teamID", "Username"])
+@Entity(tableName = "GUEST_PARTICIPANT_SCORE", primaryKeys = ["teamID", "username"])
 data class GuestParticipantScore(
-    @ColumnInfo(name = "Username") val username: String,
-    @ColumnInfo(name = "teamID") val teamID: String,
-    @ColumnInfo(name = "score") val score: Int
+    val username: String,
+    val teamID: String,
+    val score: Int
 )
 
-@Entity(tableName = "GUEST_PROFILE", primaryKeys = ["Username"])
+@Entity(tableName = "GUEST_PROFILE", primaryKeys = ["username"])
 data class GuestProfile(
-    @ColumnInfo(name = "Username") val username: String
+    val username: String
 )
 
 @Entity(tableName = "MAIN_PROFILE", primaryKeys = ["email"])
 data class MainProfile(
-    @ColumnInfo(name = "username") val username: String,
-    @ColumnInfo(name = "password") val password: String,
-    @ColumnInfo(name = "email") val email: String,
-    @ColumnInfo(name = "profileImage") val profileImage: String,
-    @ColumnInfo(name = "wonTournamentsNumber") val wonTournamentsNumber: Int,
-    @ColumnInfo(name = "locationLatitude") val locationLatitude: Float,
-    @ColumnInfo(name = "locationLongitude") val locationLongitude: Float
+    val username: String,
+    val password: String,
+    val email: String,
+    val profileImage: String?,
+    val wonTournamentsNumber: Int,
+    val locationLatitude: Float?,
+    val locationLongitude: Float?
 )
 
-@Entity(tableName = "MAIN_TEAM_SCORE", primaryKeys = ["teamID", "email"])
-data class MainTeamScore(
-    @ColumnInfo(name = "teamID") val teamID: String,
-    @ColumnInfo(name = "email") val email: String,
-    @ColumnInfo(name = "score") val score: Int
+@Entity(tableName = "MAIN_PARTICIPANT_SCORE", primaryKeys = ["teamID", "email"])
+data class MainParticipantScore(
+    val teamID: String,
+    val email: String,
+    val score: Int
 )
 
-@Entity(tableName = "MATCH_TM", primaryKeys = ["matchID"])
-data class Match(
-    @ColumnInfo(name = "matchID") val matchID: String,
-    @ColumnInfo(name = "favorites") val favorites: String,
-    @ColumnInfo(name = "date") val date: Long,
-    @ColumnInfo(name = "duration") val duration: Int,
-    @ColumnInfo(name = "status") val status: Int,
-    @ColumnInfo(name = "gameID") val gameID: String,
-    @ColumnInfo(name = "tournamentID") val tournamentID: String?
+@Entity(tableName = "MATCH_TM", primaryKeys = ["matchTmID"])
+data class MatchTM(
+    val matchTmID: String,
+    val teamID: String?,
+    val favorites: Char,
+    val date: Long,
+    val duration: Int,
+    val status: Int,
+    val gameID: String,
+    val tournamentID: String?
 )
 
-@Entity(tableName = "TEAM_PLAY_MATCH", primaryKeys = ["matchID", "teamID"])
-data class TeamPlayMatch(
-    @ColumnInfo(name = "matchID") val matchID: String,
-    @ColumnInfo(name = "teamID") val teamID: String
+@Entity(tableName = "TEAM", primaryKeys = ["teamID"])
+data class Team(
+    val teamID: String,
+    val name: String,
+    val isWinner: Char,
+    val score: Int
 )
 
 @Entity(tableName = "TOURNAMENT", primaryKeys = ["tournamentID"])
 data class Tournament(
-    @ColumnInfo(name = "tournamentID") val tournamentID: String,
-    @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "favorites") val favorites: String,
-    @ColumnInfo(name = "status") val status: Int,
-    @ColumnInfo(name = "locationLatitude") val locationLatitude: Float,
-    @ColumnInfo(name = "locationLongitude") val locationLongitude: Float,
-    @ColumnInfo(name = "scheduledDate") val scheduledDate: Long,
-    @ColumnInfo(name = "tournamentTypeID") val tournamentTypeID: String
+    val tournamentID: String,
+    val name: String,
+    val favorites: Char,
+    val status: Int,
+    val locationLatitude: Float?,
+    val locationLongitude: Float?,
+    val scheduledDate: Long?,
+    val tournamentTypeID: String
 )
 
 @Entity(tableName = "TOURNAMENT_TYPE", primaryKeys = ["tournamentTypeID"])
 data class TournamentType(
-    @ColumnInfo(name = "tournamentTypeID") val tournamentTypeID: String,
-    @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "description") val description: String
+    val tournamentTypeID: String,
+    val name: String,
+    val description: String
 )
+
 

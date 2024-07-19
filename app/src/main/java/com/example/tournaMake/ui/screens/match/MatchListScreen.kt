@@ -54,7 +54,7 @@ import androidx.lifecycle.LiveData
 import com.example.tournaMake.R
 import com.example.tournaMake.data.constants.mapIntegerStatusToString
 import com.example.tournaMake.data.models.ThemeState
-import com.example.tournaMake.sampledata.Match
+import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.theme.ColorConstants
 import com.example.tournaMake.ui.theme.getThemeColors
@@ -67,7 +67,7 @@ import com.example.tournaMake.ui.theme.getThemeColors
 @Composable
 fun MatchListScreen(
     state: ThemeState,
-    matchesListLiveData: LiveData<List<Match>>,
+    matchesListLiveData: LiveData<List<MatchTM>>,
     navigationFunction: () -> Unit
 ) {
     // Data being fetched from database
@@ -183,7 +183,7 @@ fun FilterButton(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MatchCard(
-    match: Match,
+    match: MatchTM,
     onDelete: () -> Unit,
     colorConstants: ColorConstants
 ) {
@@ -245,7 +245,7 @@ fun DescriptionText(
 
 @Composable
 fun Content(
-    match: Match
+    match: MatchTM
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
