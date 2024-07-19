@@ -36,7 +36,7 @@ class RegisterActivity : ComponentActivity() {
             val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
             RegistrationScreen(
                 state = state.value,
-                setTemporaryLoggedEmail = authenticationViewModel::setAndSaveEmailTemporarily,
+                setTemporaryLoggedEmail = authenticationViewModel::setTemporaryEmail,
                 handleRegistration = { username, password, email, rememberMe ->
                     handleRegistration(
                         username = username,

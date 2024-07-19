@@ -9,6 +9,7 @@ import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.ui.screens.login.LoginScreen
 import org.koin.androidx.compose.koinViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,11 +22,40 @@ class LoginActivity : ComponentActivity() {
             // StateFlow objects can't. The 'withLifecycle' part ensures this state
             // is destroyed when we leave this Activity.
             val state = themeViewModel.state.collectAsStateWithLifecycle()
+            val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
             LoginScreen(
                 state = state.value,
-                navigateToMenu = this::navigateToMenu
+                checkIfUserWantedToBeRemembered = {
+                    this.checkIfUserWantedToBeRemembered(authenticationViewModel)
+                },
+                getRememberedEmail = {
+                    this.getRememberedEmail(authenticationViewModel)
+                },
+                getRememberedPassword = {
+                    this.getRememberedPassword(authenticationViewModel)
+                },
+                handleLogin = { email, password, rememberMe ->
+                    handleLogin(
+                        email = email,
+                        password = password,
+                        rememberMe = rememberMe,
+                        viewModel = authenticationViewModel
+                    )
+                }
             )
         }
+    }
+
+    private fun checkIfUserWantedToBeRemembered(vm: AuthenticationViewModel): Boolean {
+        return vm.didUserWantToBeRemembered()
+    }
+
+    private fun getRememberedEmail(vm: AuthenticationViewModel): String {
+        return vm.getRememberedEmail().value.loggedProfileEmail
+    }
+
+    private fun getRememberedPassword(vm: AuthenticationViewModel): String {
+        return vm.getRememberedPassword().value
     }
 
     private fun navigateToMenu() {
@@ -33,7 +63,16 @@ class LoginActivity : ComponentActivity() {
         startActivity(intent)
     }
 
-    private fun rememberUser(email: String, password: String, viewModel: AuthenticationViewModel) {
-
+    private fun handleLogin(
+        email: String,
+        password: String,
+        rememberMe: Boolean,
+        viewModel: AuthenticationViewModel
+    ) {
+        // TODO: add database check to see if user exists
+        if (rememberMe) {
+            viewModel.rememberEmailAndPassword(email, password)
+        }
+        navigateToMenu()
     }
 }
