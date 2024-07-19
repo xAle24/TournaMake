@@ -147,7 +147,7 @@ fun GamesListScreen(
                                 duration = duration.toInt(),
                                 minPlayers = minPlayer.toInt(),
                                 maxPlayers = maxPlayers.toInt(),
-                                favorites = false // TODO: change to actual value
+                                favorites = '0' // TODO: change to actual value
                             )
                             addGame(game)
                             showDialog = false

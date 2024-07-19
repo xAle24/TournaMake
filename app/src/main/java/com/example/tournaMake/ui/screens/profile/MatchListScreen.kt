@@ -27,14 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
 import com.example.tournaMake.data.models.ThemeState
-import com.example.tournaMake.sampledata.Match
+import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MatchListScreen(
     state: ThemeState,
-    matchListLiveData: LiveData<List<Match>>,
+    matchListLiveData: LiveData<List<MatchTM>>,
     backButton: () -> Unit
 ) {
     val matchList = matchListLiveData.observeAsState()
@@ -76,7 +76,7 @@ fun MatchListScreen(
                                 .fillMaxWidth(0.8f)
                                 .height(60.dp)
                         ) {
-                            Text(item.matchID)
+                            Text(item.matchTmID)
                         }
                     }
                 }

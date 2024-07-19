@@ -16,9 +16,8 @@ import androidx.room.TypeConverters
     GuestParticipantScore::class,
     GuestProfile::class,
     MainProfile::class,
-    MainTeamScore::class,
-    Match::class,
-    TeamPlayMatch::class,
+    MainParticipantScore::class,
+    MatchTM::class,
     Tournament::class,
     TournamentType::class
 ], version = 1)

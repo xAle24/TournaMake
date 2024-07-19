@@ -11,7 +11,7 @@ import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.MatchListViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.AppDatabase
-import com.example.tournaMake.sampledata.Match
+import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.ui.screens.profile.MatchListScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,7 +30,7 @@ class PlayerActActivity : ComponentActivity(){
             val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
             val loggedEmail = authenticationViewModel.loggedEmailTemp.collectAsStateWithLifecycle()
             val matchListViewModel = koinViewModel<MatchListViewModel>()
-            val matchObserver = Observer<List<Match>?> { match ->
+            val matchObserver = Observer<List<MatchTM>?> { match ->
                 Log.d("DEV", "In profile observer profile = $match")
                 // TODO: add rest of the profile code
             }
