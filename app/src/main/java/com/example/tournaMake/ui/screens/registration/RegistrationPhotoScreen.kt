@@ -16,17 +16,22 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -40,6 +45,8 @@ import coil.request.ImageRequest
 import com.example.tournaMake.R
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
+import com.example.tournaMake.ui.theme.getThemeColors
+import com.example.tournaMake.utils.LocationService
 
 @Composable
 fun RegistrationPhotoScreen(
@@ -47,7 +54,10 @@ fun RegistrationPhotoScreen(
     back: () -> Unit,
     loadMenu: () -> Unit,
     selectedImage: Uri?,
-    photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>
+    photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
+    snackbarHostState: SnackbarHostState,
+    requestLocation: () -> Unit,
+    locationService: LocationService
 ) {
     val configuration = LocalConfiguration.current // used to find screen size
     // val screenHeight = configuration.screenHeightDp
@@ -105,6 +115,13 @@ fun RegistrationPhotoScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+            LocationUIArea(
+                snackbarHostState = snackbarHostState,
+                requestLocation = requestLocation,
+                locationService = locationService,
+                state = state
+            )
+            Spacer(modifier = Modifier.height(16.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -141,6 +158,46 @@ fun createImageRequest(context: Context, uri: Uri): ImageRequest {
         .diskCachePolicy(CachePolicy.DISABLED)
         .memoryCachePolicy(CachePolicy.DISABLED)
         .build()
+}
+
+@Composable
+fun LocationUIArea(
+    snackbarHostState: SnackbarHostState,
+    requestLocation: () -> Unit,
+    locationService: LocationService,
+    state: ThemeState
+) {
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f),
+        modifier = Modifier
+            .fillMaxWidth(0.9f)
+            .height(150.dp)
+    ) { contentPadding ->
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .padding(contentPadding)
+                .fillMaxSize()
+        ) {
+            Button(onClick = requestLocation) {
+                Text("Get current location")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                "Latitude: ${locationService.coordinates?.latitude ?: "-"}", color = getThemeColors(
+                    themeState = state
+                ).getNormalTextColor()
+            )
+            Text(
+                "Longitude: ${locationService.coordinates?.longitude ?: "-"}",
+                color = getThemeColors(
+                    themeState = state
+                ).getNormalTextColor()
+            )
+        }
+    }
 }
 
 

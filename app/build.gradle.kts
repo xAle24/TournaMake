@@ -96,4 +96,6 @@ dependencies {
     //implementation("androidx.compose.foundation:foundation:1.6.8")
     //implementation("androidx.compose.foundation:foundation:1.4.3")
     implementation("org.jetbrains.kotlin:kotlin-reflect:<latest-version>")
+    // for location
+    implementation("com.google.android.gms:play-services-location:21.2.0")
 }

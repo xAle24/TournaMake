@@ -6,9 +6,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.semantics.Role.Companion.Button
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.tournaMake.activities.test.TestActivity
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.ui.screens.main.MainScreen
@@ -32,6 +36,13 @@ class MainActivity : ComponentActivity() {
                 navigateToRegistration = this::navigateToRegistration,
                 navigateToLogin = this::navigateToLogin
             )
+            // Test; TODO: remove
+            Button(onClick = {
+                val intent = Intent(this, TestActivity::class.java)
+                startActivity(intent)
+            }) {
+                Text("Go to test activity")
+            }
         }
     }
 

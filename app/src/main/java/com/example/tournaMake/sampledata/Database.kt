@@ -49,8 +49,8 @@ data class MainProfile(
     val email: String,
     val profileImage: String?,
     val wonTournamentsNumber: Int,
-    val locationLatitude: Float?,
-    val locationLongitude: Float?
+    val locationLatitude: Double?,
+    val locationLongitude: Double?
 )
 
 @Entity(tableName = "MAIN_PARTICIPANT_SCORE", primaryKeys = ["teamID", "email"])

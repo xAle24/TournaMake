@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <!-- Permission to access the gallery to upload pictures -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <application
         android:name=".TournaMakeApplication"
         android:allowBackup="true"
@@ -45,6 +45,19 @@
         <activity android:name=".activities.TournamentCreationActivity" />
         <activity android:name=".activities.TournamentActivity" />
         <activity android:name=".activities.MatchActivity" />
+
+        <!--Test activity-->
+        <activity android:name=".activities.test.TestActivity" />
     </application>
 
+    <queries>
+        <intent>
+            <!-- Intent to activate position on the phone -->
+            <action android:name="android.settings.LOCATION_SOURCE_SETTINGS" />
+        </intent>
+        <intent>
+            <!-- Intent to allow the user to change permissions if they denied them twice -->
+            <action android:name="android.settings.APPLICATION_DETAILS_SETTINGS" />
+        </intent>
+    </queries>
 </manifest>

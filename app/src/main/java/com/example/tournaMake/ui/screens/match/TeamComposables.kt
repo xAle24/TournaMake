@@ -57,13 +57,15 @@ interface Team {
     fun getGuestProfiles(): Set<GuestProfile>
     fun getTeamName(): String
     fun setTeamName(name: String)
+    fun addMainProfile(profile: MainProfile)
+    fun addGuestProfile(profile: GuestProfile)
 }
 
 // TODO: send this team entities to database
 // TODO: profiles need to be fetched from database
 class TeamImpl(
-    private val mainProfiles: Set<MainProfile>,
-    private val guestProfiles: Set<GuestProfile>,
+    private var mainProfiles: Set<MainProfile>,
+    private var guestProfiles: Set<GuestProfile>,
     private var teamName: String
 ) : Team {
     override fun getMainProfiles(): Set<MainProfile> {
@@ -81,6 +83,14 @@ class TeamImpl(
     override fun setTeamName(name: String) {
         this.teamName = name
     }
+
+    override fun addGuestProfile(profile: GuestProfile) {
+        this.guestProfiles = setOf(this.guestProfiles, setOf(profile)).flatten().toSet()
+    }
+
+    override fun addMainProfile(profile: MainProfile) {
+        this.mainProfiles = setOf(this.mainProfiles, setOf(profile)).flatten().toSet()
+    }
 }
 
 // Composables
@@ -92,8 +102,8 @@ val testTeam1 = TeamImpl(
         MainProfile(
             email = "email1@gmail",
             username = "Alin",
-            locationLatitude = 0f,
-            locationLongitude = 0f,
+            locationLatitude = 0.0,
+            locationLongitude = 0.0,
             password = "",
             profileImage = "",
             wonTournamentsNumber = 0
@@ -101,8 +111,8 @@ val testTeam1 = TeamImpl(
         MainProfile(
             email = "email2@gmail",
             username = "Alessio",
-            locationLatitude = 0f,
-            locationLongitude = 0f,
+            locationLatitude = 0.0,
+            locationLongitude = 0.0,
             password = "",
             profileImage = "",
             wonTournamentsNumber = 0
@@ -119,8 +129,8 @@ val testTeam2 = TeamImpl(
         MainProfile(
             email = "email3@gmail",
             username = "Lucrezia",
-            locationLatitude = 0f,
-            locationLongitude = 0f,
+            locationLatitude = 0.0,
+            locationLongitude = 0.0,
             password = "",
             profileImage = "",
             wonTournamentsNumber = 0
@@ -137,7 +147,7 @@ val testTeam2 = TeamImpl(
 @Composable
 fun TeamContainer(
     teamsSet: Set<Team>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
     RectangleContainer(
@@ -261,7 +271,11 @@ fun ClickableTextLabel() {
         Spacer(modifier = Modifier.width(8.dp))
         BasicTextField(
             value = "Add Members",
-            onValueChange = {},
+            onValueChange = {
+                            // list di roba dal db
+                            // filtra finché value = elementolista.name
+                            // aggiungi il membro all'oggetto teamImpl
+            },
             textStyle = MaterialTheme.typography.headlineSmall,
             modifier = Modifier
                 .fillMaxWidth()
@@ -323,8 +337,8 @@ fun MyTeamPreview() {
                 MainProfile(
                     email = "email1@gmail",
                     username = "Alin",
-                    locationLatitude = 0f,
-                    locationLongitude = 0f,
+                    locationLatitude = 0.0,
+                    locationLongitude = 0.0,
                     password = "",
                     profileImage = "",
                     wonTournamentsNumber = 0
@@ -332,8 +346,8 @@ fun MyTeamPreview() {
                 MainProfile(
                     email = "email2@gmail",
                     username = "Alessio",
-                    locationLatitude = 0f,
-                    locationLongitude = 0f,
+                    locationLatitude = 0.0,
+                    locationLongitude = 0.0,
                     password = "",
                     profileImage = "",
                     wonTournamentsNumber = 0
@@ -359,8 +373,8 @@ fun MyTeamsPreview() {
                 MainProfile(
                     email = "email1@gmail",
                     username = "Alin",
-                    locationLatitude = 0f,
-                    locationLongitude = 0f,
+                    locationLatitude = 0.0,
+                    locationLongitude = 0.0,
                     password = "",
                     profileImage = "",
                     wonTournamentsNumber = 0
@@ -368,8 +382,8 @@ fun MyTeamsPreview() {
                 MainProfile(
                     email = "email2@gmail",
                     username = "Alessio",
-                    locationLatitude = 0f,
-                    locationLongitude = 0f,
+                    locationLatitude = 0.0,
+                    locationLongitude = 0.0,
                     password = "",
                     profileImage = "",
                     wonTournamentsNumber = 0
@@ -386,8 +400,8 @@ fun MyTeamsPreview() {
                 MainProfile(
                     email = "email3@gmail",
                     username = "Lucrezia",
-                    locationLatitude = 0f,
-                    locationLongitude = 0f,
+                    locationLatitude = 0.0,
+                    locationLongitude = 0.0,
                     password = "",
                     profileImage = "",
                     wonTournamentsNumber = 0
