@@ -11,6 +11,7 @@ import com.example.tournaMake.data.models.MatchListViewModel
 import com.example.tournaMake.data.models.ProfileListViewModel
 import com.example.tournaMake.data.models.ProfileViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
+import com.example.tournaMake.data.models.TournamentCreationViewModel
 import com.example.tournaMake.data.models.TournamentListViewModel
 import com.example.tournaMake.data.repositories.AuthenticationRepository
 import com.example.tournaMake.data.repositories.ThemeRepository
@@ -33,6 +34,7 @@ val appModule = module {
     viewModel { GamesListViewModel() }
     viewModel { TournamentListViewModel() }
     viewModel { AchievementsProfileViewModel() }
+    viewModel { TournamentCreationViewModel() }
     single {
         Room.databaseBuilder(
             get(),

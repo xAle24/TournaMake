@@ -70,7 +70,10 @@ fun MatchCreationScreen(
                     .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f))
             ) {
                 SelectionMenu()
-                TeamContainer(teamsSet = setOf(testTeam1, testTeam2))
+                TeamContainer(teamsSet = setOf(testTeam1, testTeam2),
+                    mainProfileListFromDatabase =  emptyList(),
+                    guestProfileListFromDatabase =  emptyList(),
+                    removeTeam = {/*TODO palle di palle*/}) //TODO palle
                 Spacer(Modifier.height(20.dp))
                 Row(
                     modifier = Modifier

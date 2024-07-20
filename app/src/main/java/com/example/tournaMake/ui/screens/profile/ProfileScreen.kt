@@ -182,12 +182,17 @@ fun ProfileScreen(
                                     ) {
                                         Text(
                                             text = achievement.name,
-                                            color = MaterialTheme.colorScheme.onSurface
+                                            color = MaterialTheme.colorScheme.secondary
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
-                                            text = achievement.status.toString(),
-                                            color = MaterialTheme.colorScheme.onSurface
+                                            text = "Status"+achievement.status.toString(),
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = "Description"+achievement.description,
+                                            color = MaterialTheme.colorScheme.secondary
                                         )
                                     }
                                 }

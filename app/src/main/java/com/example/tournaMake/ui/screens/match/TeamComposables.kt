@@ -1,14 +1,13 @@
 package com.example.tournaMake.ui.screens.match
 
-import android.widget.Toast
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,60 +15,63 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.tournaMake.data.models.ThemeEnum
-import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.common.RectangleContainer
-import com.example.tournaMake.ui.theme.ColorConstants
-import com.example.tournaMake.ui.theme.getThemeColors
+import com.example.tournaMake.ui.screens.tournament.FilteredProfiles
+import com.example.tournaMake.ui.screens.tournament.ProfileUtils
+import java.util.stream.Collectors
 
-interface Team {
+interface TeamUI {
     fun getMainProfiles(): Set<MainProfile>
     fun getGuestProfiles(): Set<GuestProfile>
     fun getTeamName(): String
     fun setTeamName(name: String)
     fun addMainProfile(profile: MainProfile)
+    fun removeMainProfile(profile: MainProfile)
     fun addGuestProfile(profile: GuestProfile)
+    fun removeGuestProfile(profile: GuestProfile)
 }
+
 
 // TODO: send this team entities to database
 // TODO: profiles need to be fetched from database
-class TeamImpl(
+
+class TeamUIImpl(
     private var mainProfiles: Set<MainProfile>,
     private var guestProfiles: Set<GuestProfile>,
     private var teamName: String
-) : Team {
+) : TeamUI {
     override fun getMainProfiles(): Set<MainProfile> {
-        return this.mainProfiles
+        return this.mainProfiles.stream().collect(Collectors.toSet())
     }
 
     override fun getGuestProfiles(): Set<GuestProfile> {
@@ -91,13 +93,22 @@ class TeamImpl(
     override fun addMainProfile(profile: MainProfile) {
         this.mainProfiles = setOf(this.mainProfiles, setOf(profile)).flatten().toSet()
     }
+
+    override fun removeMainProfile(profile: MainProfile) {
+        this.mainProfiles = this.mainProfiles.filter { it != profile }.toSet()
+    }
+
+    override fun removeGuestProfile(profile: GuestProfile) {
+        this.guestProfiles = this.guestProfiles.filter { it != profile }.toSet()
+    }
 }
+
 
 // Composables
 
 private val spacerHeight = 20.dp
 
-val testTeam1 = TeamImpl(
+val testTeam1 = TeamUIImpl(
     mainProfiles = setOf(
         MainProfile(
             email = "email1@gmail",
@@ -124,7 +135,7 @@ val testTeam1 = TeamImpl(
     ),
     teamName = "The Pros"
 )
-val testTeam2 = TeamImpl(
+val testTeam2 = TeamUIImpl(
     mainProfiles = setOf(
         MainProfile(
             email = "email3@gmail",
@@ -146,23 +157,38 @@ val testTeam2 = TeamImpl(
 
 @Composable
 fun TeamContainer(
-    teamsSet: Set<Team>,
+    teamsSet: Set<TeamUI>,
     modifier: Modifier = Modifier,
+    mainProfileListFromDatabase: List<MainProfile>,
+    guestProfileListFromDatabase: List<GuestProfile>,
+    removeTeam: (TeamUI) -> Unit
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
     RectangleContainer(
-        modifier = modifier
-            .height((0.4 * screenHeight).dp)
-            //.background(MaterialTheme.colorScheme.tertiaryContainer),
+        modifier = if (teamsSet.isNotEmpty())
+            modifier
+                .height((0.4 * screenHeight).dp)
+        else
+            modifier
+        //.background(MaterialTheme.colorScheme.tertiaryContainer),
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            items(teamsSet.toList()) { team ->
-                TeamElement(team, null, null)
-                Spacer(modifier = Modifier.height(spacerHeight))
+        if (teamsSet.isNotEmpty()) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(teamsSet.toList()) { team ->
+                    TeamElement(
+                        team = team,
+                        backgroundColor = null,
+                        backgroundBrush = null,
+                        mainProfileListFromDatabase = mainProfileListFromDatabase,
+                        guestProfileListFromDatabase = guestProfileListFromDatabase,
+                        removeTeam = removeTeam
+                    )
+                    Spacer(modifier = Modifier.height(spacerHeight))
+                }
             }
         }
     }
@@ -170,10 +196,17 @@ fun TeamContainer(
 
 @Composable
 fun TeamElement(
-    team: Team,
+    team: TeamUI,
     backgroundColor: Color?,
-    backgroundBrush: Brush?
+    backgroundBrush: Brush?,
+    mainProfileListFromDatabase: List<MainProfile>,
+    guestProfileListFromDatabase: List<GuestProfile>,
+    removeTeam: (TeamUI) -> Unit
 ) {
+    var teamNameState by remember { mutableStateOf(team.getTeamName()) }
+    var mainProfilesState by remember { mutableStateOf(emptySet<MainProfile>()) }
+    var guestProfilesState by remember { mutableStateOf(emptySet<GuestProfile>()) }
+
     RectangleContainer(
         modifier = if (backgroundBrush != null) Modifier
             .background(backgroundBrush)
@@ -191,7 +224,7 @@ fun TeamElement(
                 .padding(5.dp)
         ) {
             IconButton(
-                onClick = { /*TODO*/ },
+                onClick = { removeTeam(team) },
                 modifier = Modifier
                     .align(Alignment.End)
                     .width(50.dp)
@@ -199,7 +232,7 @@ fun TeamElement(
                     .clip(RoundedCornerShape(10.dp))
                     .padding(3.dp)
                     .border(BorderStroke(3.dp, MaterialTheme.colorScheme.onPrimary))
-                    //.background(Color.Red)
+                //.background(Color.Red)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Delete,
@@ -208,32 +241,55 @@ fun TeamElement(
                     modifier = Modifier.size(30.dp)
                 )
             }
+
             Spacer(Modifier.height(spacerHeight))
+
             // Team name
-            TeamOutlinedTextField()
-            ClickableTextLabel()
-            HorizontalDivider(thickness = 2.dp)
+            TeamOutlinedTextField(
+                changeTeamName = { teamNameState = it }
+            )
+
+            Spacer(modifier = Modifier.height(spacerHeight))
+
+            /**
+             * Here are the callbacks that should trigger recompositions.
+             * */
+            AddMemberButton(
+                team,
+                mainProfileListFromDatabase,
+                guestProfileListFromDatabase,
+                changeMain = { mainProfilesState = it },
+                changeGuest = { guestProfilesState = it }
+            )
+
+            //HorizontalDivider(thickness = 2.dp)
             Spacer(Modifier.height(spacerHeight))
+
             // Creating the member bubbles
             // first MainProfiles
-            team.getMainProfiles().forEach { profile ->
-                TeamMemberBubble(teamMemberName = profile.username)
-                Spacer(modifier = Modifier.height(spacerHeight))
+            key(mainProfilesState) {
+                team.getMainProfiles().forEach { profile ->
+                    TeamMainMemberBubble(teamMember = profile, team, { mainProfilesState = it })
+                    Spacer(modifier = Modifier.height(spacerHeight))
+                }
             }
             // then GuestProfiles
-            team.getGuestProfiles().forEach { profile ->
-                TeamMemberBubble(teamMemberName = profile.username)
-                Spacer(modifier = Modifier.height(spacerHeight))
+            key(guestProfilesState) {
+                team.getGuestProfiles().forEach { profile ->
+                    TeamGuestMemberBubble(teamMember = profile, team, { guestProfilesState = it })
+                    Spacer(modifier = Modifier.height(spacerHeight))
+                }
             }
         }
     }
 }
 
 @Composable
-fun TeamOutlinedTextField() {
+fun TeamOutlinedTextField(changeTeamName: (String) -> Unit) {
+    var currentText by remember { mutableStateOf("") }
     OutlinedTextField(
-        value = "",
-        onValueChange = {},
+        value = currentText,
+        onValueChange = { currentText = it; changeTeamName(it) },
         label = {
             Text(
                 text = "Team Name",
@@ -255,39 +311,45 @@ fun TeamOutlinedTextField() {
 }
 
 @Composable
-fun ClickableTextLabel() {
+fun AddMemberButton(
+    team: TeamUI,
+    mainProfileList: List<MainProfile>,
+    guestProfileList: List<GuestProfile>,
+    changeMain: (Set<MainProfile>) -> Unit,
+    changeGuest: (Set<GuestProfile>) -> Unit,
+) {
+    val showDialog = remember { mutableStateOf(false) }
+    val profileUtils = ProfileUtils(mainProfileList, guestProfileList)
+    if (showDialog.value) {
+        ShowAddMember(
+            openDialog = showDialog,
+            onDismiss = { showDialog.value = false },
+            filteredProfileList = profileUtils.filteredProfiles(""),
+            team = team,
+            changeMain = changeMain,
+            changeGuest = changeGuest,
+        )
+    }
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .clickable { /* TODO: add member */ },
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center // to center the button in this row
     ) {
-        Icon(
-            imageVector = Icons.Filled.Add,
-            contentDescription = "Add team member",
-            tint = MaterialTheme.colorScheme.onPrimary
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        BasicTextField(
-            value = "Add Members",
-            onValueChange = {
-                            // list di roba dal db
-                            // filtra finché value = elementolista.name
-                            // aggiungi il membro all'oggetto teamImpl
-            },
-            textStyle = MaterialTheme.typography.headlineSmall,
+        Button(
+            onClick = { showDialog.value = true },
             modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
+                .fillMaxWidth(0.9f)
+        ) {
+            Text("Add member", style = MaterialTheme.typography.headlineSmall)
+        }
     }
 }
 
 @Composable
-fun TeamMemberBubble(
-    teamMemberName: String
+fun TeamMainMemberBubble(
+    teamMember: MainProfile,
+    team: TeamUI,
+    changeMain: (Set<MainProfile>) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -301,17 +363,49 @@ fun TeamMemberBubble(
             modifier = Modifier
                 .weight(0.7f)
                 .padding(start = 20.dp),
-            text = teamMemberName,
+            text = teamMember.username,
             color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(Modifier.weight(0.1f))
-        DeleteTeamMemeberButton(onDelete = {})
+        DeleteTeamMemberButton(onDelete = {
+            team.removeMainProfile(teamMember)
+            changeMain(team.getMainProfiles())
+        })
+        Spacer(modifier = Modifier.weight(0.02f))
+    }
+}
+@Composable
+fun TeamGuestMemberBubble(
+    teamMember: GuestProfile,
+    team: TeamUI,
+    changeGuest: (Set<GuestProfile>) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.secondary),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier
+                .weight(0.7f)
+                .padding(start = 20.dp),
+            text = teamMember.username,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(Modifier.weight(0.1f))
+        DeleteTeamMemberButton(onDelete = {
+            team.removeGuestProfile(teamMember)
+            changeGuest(team.getGuestProfiles())
+        })
         Spacer(modifier = Modifier.weight(0.02f))
     }
 }
 
 @Composable
-fun DeleteTeamMemeberButton(
+fun DeleteTeamMemberButton(
     onDelete: () -> Unit
 ) {
     IconButton(
@@ -327,93 +421,47 @@ fun DeleteTeamMemeberButton(
     }
 }
 
-@Preview
 @Composable
-fun MyTeamPreview() {
-    val colorConstants: ColorConstants = getThemeColors(themeState = ThemeState(ThemeEnum.Light))
-    TeamElement(
-        team = TeamImpl(
-            mainProfiles = setOf(
-                MainProfile(
-                    email = "email1@gmail",
-                    username = "Alin",
-                    locationLatitude = 0.0,
-                    locationLongitude = 0.0,
-                    password = "",
-                    profileImage = "",
-                    wonTournamentsNumber = 0
-                ),
-                MainProfile(
-                    email = "email2@gmail",
-                    username = "Alessio",
-                    locationLatitude = 0.0,
-                    locationLongitude = 0.0,
-                    password = "",
-                    profileImage = "",
-                    wonTournamentsNumber = 0
-                )
-            ),
-            guestProfiles = setOf(
-                GuestProfile("Banana"),
-                GuestProfile("Coconut")
-            ),
-            teamName = "The Pros"
-        ),
-        backgroundColor = null,
-        backgroundBrush = colorConstants.getButtonBackground()
-    )
-}
-
-@Preview
-@Composable
-fun MyTeamsPreview() {
-    val teamsSet = setOf(
-        TeamImpl(
-            mainProfiles = setOf(
-                MainProfile(
-                    email = "email1@gmail",
-                    username = "Alin",
-                    locationLatitude = 0.0,
-                    locationLongitude = 0.0,
-                    password = "",
-                    profileImage = "",
-                    wonTournamentsNumber = 0
-                ),
-                MainProfile(
-                    email = "email2@gmail",
-                    username = "Alessio",
-                    locationLatitude = 0.0,
-                    locationLongitude = 0.0,
-                    password = "",
-                    profileImage = "",
-                    wonTournamentsNumber = 0
-                )
-            ),
-            guestProfiles = setOf(
-                GuestProfile("Banana"),
-                GuestProfile("Coconut")
-            ),
-            teamName = "The Pros"
-        ),
-        TeamImpl(
-            mainProfiles = setOf(
-                MainProfile(
-                    email = "email3@gmail",
-                    username = "Lucrezia",
-                    locationLatitude = 0.0,
-                    locationLongitude = 0.0,
-                    password = "",
-                    profileImage = "",
-                    wonTournamentsNumber = 0
-                )
-            ),
-            guestProfiles = setOf(
-                GuestProfile("Kiwi"),
-                GuestProfile("Peanut"),
-                GuestProfile("Watermelon")
-            ),
-            teamName = "The Noobs"
+fun ShowAddMember(
+    openDialog: MutableState<Boolean>,
+    onDismiss: () -> Unit,
+    filteredProfileList: FilteredProfiles,
+    team: TeamUI,
+    changeMain: (Set<MainProfile>) -> Unit,
+    changeGuest: (Set<GuestProfile>) -> Unit,
+) {
+    if (openDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                onDismiss()
+            },
+            title = {
+                Text(text = "Select member to add:")
+            },
+            text = {
+                LazyColumn {
+                    items(filteredProfileList.mainProfiles) { item ->
+                        Button(onClick = {
+                            Log.d("DEV", "${team.getMainProfiles()}")
+                            team.addMainProfile(item)
+                            changeMain(team.getMainProfiles())
+                            Log.d("DEV", "${team.getMainProfiles()}")
+                        }) {
+                            Text(text = item.username)
+                        }
+                    }
+                    items(filteredProfileList.guestProfile) { item ->
+                        Button(onClick = { team.addGuestProfile(item); changeGuest(team.getGuestProfiles()) }) {
+                            Text(text = item.username)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { onDismiss() }) {
+                    Text("Close")
+                }
+            }
         )
-    )
-    TeamContainer(teamsSet = teamsSet)
+    }
 }
