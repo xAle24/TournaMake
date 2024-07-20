@@ -18,38 +18,24 @@ import kotlinx.coroutines.launch
 data class LoggedProfileState(val loggedProfileEmail: String)
 
 class AuthenticationViewModel(private val repository: AuthenticationRepository): ViewModel() {
-    private val loggedEmail = repository.email.map { LoggedProfileState(it.toString()) }.stateIn(
+    val loggedEmail = repository.email.map { LoggedProfileState(it.toString()) }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
         initialValue = LoggedProfileState("")
     )
-    private val password = repository.password.map { it.toString() }.stateIn(
+    val password = repository.password.map { it.toString() }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
         initialValue = ""
     )
-    /*
-    Use loggedEmailTemp if the user does not want the application to remember their
-    credentials when closed.*
-    The backing property _loggedEmailTemp is mutable, and thus must not be accessed by
-    external code.
-    The loggedEmailTemp is visible outside.
-    To use it, write the following lines:
-    *
-    val loggedProfileViewModel = viewModel<AuthenticationViewModel>()
-    val loggedEmail by loggedProfileViewModel.loggedEmailTemp.collectAsStateWithLifecycle()
-    */
-    private val _loggedEmailTemp = MutableStateFlow(LoggedProfileState(""))
-    val loggedEmailTemp = _loggedEmailTemp.asStateFlow()
-
-    private val _profile = MutableLiveData<MainProfile?>(null)
-    val profileLiveData: LiveData<MainProfile?> = _profile
-    fun rememberEmailAndPassword(email: String, password: String) = viewModelScope.launch {
+    val rememberMe = repository.doesUserWantToBeRemembered.map { it ?: false }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = false
+    )
+    fun saveUserAuthenticationPreferences(email: String, password: String, rememberMe: Boolean) = viewModelScope.launch {
         repository.setEmail(email)
         repository.setPassword(password)
-    }
-
-    fun setAndSaveEmailTemporarily(email: String) {
-        _loggedEmailTemp.value = LoggedProfileState(email)
+        repository.setRememberMe(rememberMe)
     }
 }
