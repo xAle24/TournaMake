@@ -75,6 +75,8 @@ fun TournamentCreationScreen(
 
         /* Variable containing all the created teams */
         var teamsSet by remember { mutableStateOf(setOf<TeamUI>()) }
+        var selectedGame by remember { mutableStateOf<Game?>(null) }
+        var selectedTournamentType by remember { mutableStateOf<TournamentType?>(null) }
 
         val gamesList = gamesListLiveData.observeAsState()
         val tournamentTypeList = tournamentType.observeAsState()
@@ -102,8 +104,8 @@ fun TournamentCreationScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
 
                 ) {
-                SelectionMenuGame(gamesList)
-                SelectionMenuTournamentType(tournamentTypeList)
+                SelectionMenuGame(gamesList, { selectedGame = it })
+                SelectionMenuTournamentType(tournamentTypeList, {selectedTournamentType = it})
                 /*
                 * Here begins the huge part of the team container
                 * */
@@ -154,7 +156,7 @@ fun TournamentCreationScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectionMenuGame(list: State<List<Game>?>) {
+fun SelectionMenuGame(list: State<List<Game>?>, gameCallback: (Game) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(list.value?.get(0)) }
 
@@ -199,6 +201,7 @@ fun SelectionMenuGame(list: State<List<Game>?>) {
                         onClick = {
                             selectedText = item
                             expanded = false
+                            gameCallback(item)
                             //Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
                             // TODO: add update for the form to complete
                         },
@@ -214,7 +217,7 @@ fun SelectionMenuGame(list: State<List<Game>?>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectionMenuTournamentType(list: State<List<TournamentType>?>) {
+fun SelectionMenuTournamentType(list: State<List<TournamentType>?>, typeCallback: (TournamentType) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(list.value?.get(0)) }
 
@@ -259,6 +262,7 @@ fun SelectionMenuTournamentType(list: State<List<TournamentType>?>) {
                         onClick = {
                             selectedText = item
                             expanded = false
+                            typeCallback(item)
                             //Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
                             // TODO: add update for the form to complete
                         },
