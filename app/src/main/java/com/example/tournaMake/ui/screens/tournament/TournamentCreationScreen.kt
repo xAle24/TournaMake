@@ -27,6 +27,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +51,7 @@ import com.example.tournaMake.ui.screens.match.TeamContainer
 import com.example.tournaMake.ui.screens.match.TeamUI
 import com.example.tournaMake.ui.screens.match.TeamUIImpl
 import com.example.tournaMake.ui.theme.getThemeColors
+import java.util.stream.Collectors
 
 @Composable
 fun TournamentCreationScreen(
@@ -102,17 +104,17 @@ fun TournamentCreationScreen(
                 ) {
                 SelectionMenuGame(gamesList)
                 SelectionMenuTournamentType(tournamentTypeList)
-
                 /*
                 * Here begins the huge part of the team container
                 * */
-                TeamContainer(
-                    teamsSet = teamsSet,
-                    mainProfileListFromDatabase = mainProfileListt.value ?: emptyList(),
-                    guestProfileListFromDatabase = guestProfileListt.value ?: emptyList()
-                )
-
-
+                key(teamsSet) {
+                    TeamContainer(
+                        teamsSet = teamsSet,
+                        mainProfileListFromDatabase = mainProfileListt.value ?: emptyList(),
+                        guestProfileListFromDatabase = guestProfileListt.value ?: emptyList(),
+                        removeTeam = {team -> teamsSet = teamsSet.stream().filter{ t -> t != team }.collect(Collectors.toSet()) }
+                    )
+                }
                 Button(
                     onClick = {
                         teamsSet = addElement(
@@ -273,3 +275,4 @@ fun SelectionMenuTournamentType(list: State<List<TournamentType>?>) {
 fun addElement(set: Set<TeamUI>, team: TeamUI): Set<TeamUI> {
     return setOf(set, setOf(team)).flatten().toSet()
 }
+

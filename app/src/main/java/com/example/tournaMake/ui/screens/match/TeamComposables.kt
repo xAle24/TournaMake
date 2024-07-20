@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -160,7 +159,8 @@ fun TeamContainer(
     teamsSet: Set<TeamUI>,
     modifier: Modifier = Modifier,
     mainProfileListFromDatabase: List<MainProfile>,
-    guestProfileListFromDatabase: List<GuestProfile>
+    guestProfileListFromDatabase: List<GuestProfile>,
+    removeTeam: (TeamUI) -> Unit
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
     RectangleContainer(
@@ -183,7 +183,8 @@ fun TeamContainer(
                         backgroundColor = null,
                         backgroundBrush = null,
                         mainProfileListFromDatabase = mainProfileListFromDatabase,
-                        guestProfileListFromDatabase = guestProfileListFromDatabase
+                        guestProfileListFromDatabase = guestProfileListFromDatabase,
+                        removeTeam = removeTeam
                     )
                     Spacer(modifier = Modifier.height(spacerHeight))
                 }
@@ -198,7 +199,8 @@ fun TeamElement(
     backgroundColor: Color?,
     backgroundBrush: Brush?,
     mainProfileListFromDatabase: List<MainProfile>,
-    guestProfileListFromDatabase: List<GuestProfile>
+    guestProfileListFromDatabase: List<GuestProfile>,
+    removeTeam: (TeamUI) -> Unit
 ) {
     var teamNameState by remember { mutableStateOf(team.getTeamName()) }
     var mainProfilesState by remember { mutableStateOf(emptySet<MainProfile>()) }
@@ -221,7 +223,7 @@ fun TeamElement(
                 .padding(5.dp)
         ) {
             IconButton(
-                onClick = { /* TODO: delete this whole team element, and remove team members from the TeamUI object passed as parameter. */ },
+                onClick = { removeTeam(team) },
                 modifier = Modifier
                     .align(Alignment.End)
                     .width(50.dp)
@@ -266,14 +268,14 @@ fun TeamElement(
             // first MainProfiles
             key(mainProfilesState) {
                 team.getMainProfiles().forEach { profile ->
-                    TeamMemberBubble(teamMemberName = profile.username)
+                    TeamMainMemberBubble(teamMember = profile, team, { mainProfilesState = it })
                     Spacer(modifier = Modifier.height(spacerHeight))
                 }
             }
             // then GuestProfiles
             key(guestProfilesState) {
                 team.getGuestProfiles().forEach { profile ->
-                    TeamMemberBubble(teamMemberName = profile.username)
+                    TeamGuestMemberBubble(teamMember = profile, team, { guestProfilesState = it })
                     Spacer(modifier = Modifier.height(spacerHeight))
                 }
             }
@@ -343,8 +345,10 @@ fun AddMemberButton(
 }
 
 @Composable
-fun TeamMemberBubble(
-    teamMemberName: String
+fun TeamMainMemberBubble(
+    teamMember: MainProfile,
+    team: TeamUI,
+    changeMain: (Set<MainProfile>) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -358,11 +362,43 @@ fun TeamMemberBubble(
             modifier = Modifier
                 .weight(0.7f)
                 .padding(start = 20.dp),
-            text = teamMemberName,
+            text = teamMember.username,
             color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(Modifier.weight(0.1f))
-        DeleteTeamMemberButton(onDelete = {})
+        DeleteTeamMemberButton(onDelete = {
+            team.removeMainProfile(teamMember)
+            changeMain(team.getMainProfiles())
+        })
+        Spacer(modifier = Modifier.weight(0.02f))
+    }
+}
+@Composable
+fun TeamGuestMemberBubble(
+    teamMember: GuestProfile,
+    team: TeamUI,
+    changeGuest: (Set<GuestProfile>) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.secondary),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            modifier = Modifier
+                .weight(0.7f)
+                .padding(start = 20.dp),
+            text = teamMember.username,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(Modifier.weight(0.1f))
+        DeleteTeamMemberButton(onDelete = {
+            team.removeGuestProfile(teamMember)
+            changeGuest(team.getGuestProfiles())
+        })
         Spacer(modifier = Modifier.weight(0.02f))
     }
 }

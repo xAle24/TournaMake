@@ -70,7 +70,9 @@ fun MatchCreationScreen(
             ) {
                 SelectionMenu()
                 TeamContainer(teamsSet = setOf(testTeam1, testTeam2),
-                    mainProfileListFromDatabase =  emptyList(), guestProfileListFromDatabase =  emptyList()) //TODO palle
+                    mainProfileListFromDatabase =  emptyList(),
+                    guestProfileListFromDatabase =  emptyList(),
+                    removeTeam = {/*TODO palle di palle*/}) //TODO palle
                 Spacer(Modifier.height(20.dp))
                 Row(
                     modifier = Modifier
