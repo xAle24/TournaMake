@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -55,7 +57,9 @@ interface TeamUI {
     fun getTeamName(): String
     fun setTeamName(name: String)
     fun addMainProfile(profile: MainProfile)
+    fun removeMainProfile(profile: MainProfile)
     fun addGuestProfile(profile: GuestProfile)
+    fun removeGuestProfile(profile: GuestProfile)
 }
 
 
@@ -88,6 +92,14 @@ class TeamUIImpl(
 
     override fun addMainProfile(profile: MainProfile) {
         this.mainProfiles = setOf(this.mainProfiles, setOf(profile)).flatten().toSet()
+    }
+
+    override fun removeMainProfile(profile: MainProfile) {
+        this.mainProfiles = this.mainProfiles.filter { it != profile }.toSet()
+    }
+
+    override fun removeGuestProfile(profile: GuestProfile) {
+        this.guestProfiles = this.guestProfiles.filter { it != profile }.toSet()
     }
 }
 
@@ -147,23 +159,34 @@ val testTeam2 = TeamUIImpl(
 fun TeamContainer(
     teamsSet: Set<TeamUI>,
     modifier: Modifier = Modifier,
-    mainProfileList: List<MainProfile>,
-    guestProfileList: List<GuestProfile>
+    mainProfileListFromDatabase: List<MainProfile>,
+    guestProfileListFromDatabase: List<GuestProfile>
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp
     RectangleContainer(
-        modifier = modifier
-            .height((0.4 * screenHeight).dp)
-            //.background(MaterialTheme.colorScheme.tertiaryContainer),
+        modifier = if (teamsSet.isNotEmpty())
+            modifier
+                .height((0.4 * screenHeight).dp)
+        else
+            modifier
+        //.background(MaterialTheme.colorScheme.tertiaryContainer),
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            items(teamsSet.toList()) { team ->
-                TeamElement(team, null, null, mainProfileList, guestProfileList)
-                Spacer(modifier = Modifier.height(spacerHeight))
+        if (teamsSet.isNotEmpty()) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(teamsSet.toList()) { team ->
+                    TeamElement(
+                        team = team,
+                        backgroundColor = null,
+                        backgroundBrush = null,
+                        mainProfileListFromDatabase = mainProfileListFromDatabase,
+                        guestProfileListFromDatabase = guestProfileListFromDatabase
+                    )
+                    Spacer(modifier = Modifier.height(spacerHeight))
+                }
             }
         }
     }
@@ -174,12 +197,13 @@ fun TeamElement(
     team: TeamUI,
     backgroundColor: Color?,
     backgroundBrush: Brush?,
-    mainProfileList: List<MainProfile>,
-    guestProfileList: List<GuestProfile>
+    mainProfileListFromDatabase: List<MainProfile>,
+    guestProfileListFromDatabase: List<GuestProfile>
 ) {
-    var changeGuestState by remember { mutableStateOf(emptySet<GuestProfile>()) }
-    var changeNameState by remember { mutableStateOf(team.getTeamName()) }
-    var changeMainState by remember { mutableStateOf(emptySet<MainProfile>()) }
+    var teamNameState by remember { mutableStateOf(team.getTeamName()) }
+    var mainProfilesState by remember { mutableStateOf(emptySet<MainProfile>()) }
+    var guestProfilesState by remember { mutableStateOf(emptySet<GuestProfile>()) }
+
     RectangleContainer(
         modifier = if (backgroundBrush != null) Modifier
             .background(backgroundBrush)
@@ -197,7 +221,7 @@ fun TeamElement(
                 .padding(5.dp)
         ) {
             IconButton(
-                onClick = { /*TODO*/ },
+                onClick = { /* TODO: delete this whole team element, and remove team members from the TeamUI object passed as parameter. */ },
                 modifier = Modifier
                     .align(Alignment.End)
                     .width(50.dp)
@@ -205,7 +229,7 @@ fun TeamElement(
                     .clip(RoundedCornerShape(10.dp))
                     .padding(3.dp)
                     .border(BorderStroke(3.dp, MaterialTheme.colorScheme.onPrimary))
-                    //.background(Color.Red)
+                //.background(Color.Red)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Delete,
@@ -214,29 +238,44 @@ fun TeamElement(
                     modifier = Modifier.size(30.dp)
                 )
             }
+
             Spacer(Modifier.height(spacerHeight))
+
             // Team name
             TeamOutlinedTextField(
-                changeTeamName = {changeNameState = it}
+                changeTeamName = { teamNameState = it }
             )
-            ClickableTextLabel(team, mainProfileList,
-                guestProfileList,
-                changeMain = { changeMainState = it; Log.d("DEV", it.toString()) },
-                changeGuest = { changeGuestState = it },
-                changeName = { changeNameState = it },
-                )
-            HorizontalDivider(thickness = 2.dp)
+
+            Spacer(modifier = Modifier.height(spacerHeight))
+
+            /**
+             * Here are the callbacks that should trigger recompositions.
+             * */
+            AddMemberButton(
+                team,
+                mainProfileListFromDatabase,
+                guestProfileListFromDatabase,
+                changeMain = { mainProfilesState = it },
+                changeGuest = { guestProfilesState = it }
+            )
+
+            //HorizontalDivider(thickness = 2.dp)
             Spacer(Modifier.height(spacerHeight))
+
             // Creating the member bubbles
             // first MainProfiles
-            team.getMainProfiles().forEach { profile ->
-                TeamMemberBubble(teamMemberName = profile.username)
-                Spacer(modifier = Modifier.height(spacerHeight))
+            key(mainProfilesState) {
+                team.getMainProfiles().forEach { profile ->
+                    TeamMemberBubble(teamMemberName = profile.username)
+                    Spacer(modifier = Modifier.height(spacerHeight))
+                }
             }
             // then GuestProfiles
-            team.getGuestProfiles().forEach { profile ->
-                TeamMemberBubble(teamMemberName = profile.username)
-                Spacer(modifier = Modifier.height(spacerHeight))
+            key(guestProfilesState) {
+                team.getGuestProfiles().forEach { profile ->
+                    TeamMemberBubble(teamMemberName = profile.username)
+                    Spacer(modifier = Modifier.height(spacerHeight))
+                }
             }
         }
     }
@@ -244,10 +283,10 @@ fun TeamElement(
 
 @Composable
 fun TeamOutlinedTextField(changeTeamName: (String) -> Unit) {
-    var currentText by remember { mutableStateOf("")}
+    var currentText by remember { mutableStateOf("") }
     OutlinedTextField(
         value = currentText,
-        onValueChange = {currentText = it; changeTeamName(it)},
+        onValueChange = { currentText = it; changeTeamName(it) },
         label = {
             Text(
                 text = "Team Name",
@@ -269,13 +308,13 @@ fun TeamOutlinedTextField(changeTeamName: (String) -> Unit) {
 }
 
 @Composable
-fun ClickableTextLabel(team: TeamUI,
-                       mainProfileList: List<MainProfile>,
-                       guestProfileList: List<GuestProfile>,
-                       changeMain: (Set<MainProfile>) -> Unit,
-                       changeGuest: (Set<GuestProfile>) -> Unit,
-                       changeName: (String) -> Unit,
-                       ) {
+fun AddMemberButton(
+    team: TeamUI,
+    mainProfileList: List<MainProfile>,
+    guestProfileList: List<GuestProfile>,
+    changeMain: (Set<MainProfile>) -> Unit,
+    changeGuest: (Set<GuestProfile>) -> Unit,
+) {
     val showDialog = remember { mutableStateOf(false) }
     val profileUtils = ProfileUtils(mainProfileList, guestProfileList)
     if (showDialog.value) {
@@ -286,14 +325,20 @@ fun ClickableTextLabel(team: TeamUI,
             team = team,
             changeMain = changeMain,
             changeGuest = changeGuest,
-            changeName = changeName,
         )
     }
-    Button(onClick = { showDialog.value = true },
+    Row(
         modifier = Modifier
-           .fillMaxWidth(0.9f)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center // to center the button in this row
     ) {
-        Text("Add member", style = MaterialTheme.typography.headlineSmall)
+        Button(
+            onClick = { showDialog.value = true },
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+        ) {
+            Text("Add member", style = MaterialTheme.typography.headlineSmall)
+        }
     }
 }
 
@@ -317,13 +362,13 @@ fun TeamMemberBubble(
             color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(Modifier.weight(0.1f))
-        DeleteTeamMemeberButton(onDelete = {})
+        DeleteTeamMemberButton(onDelete = {})
         Spacer(modifier = Modifier.weight(0.02f))
     }
 }
 
 @Composable
-fun DeleteTeamMemeberButton(
+fun DeleteTeamMemberButton(
     onDelete: () -> Unit
 ) {
     IconButton(
@@ -347,7 +392,6 @@ fun ShowAddMember(
     team: TeamUI,
     changeMain: (Set<MainProfile>) -> Unit,
     changeGuest: (Set<GuestProfile>) -> Unit,
-    changeName: (String) -> Unit,
 ) {
     if (openDialog.value) {
         AlertDialog(
@@ -361,9 +405,9 @@ fun ShowAddMember(
                 LazyColumn {
                     items(filteredProfileList.mainProfiles) { item ->
                         Button(onClick = {
-                            Log.d("DEV", "${team.getMainProfiles()}");
-                            team.addMainProfile(item);
-                            changeMain(team.getMainProfiles());
+                            Log.d("DEV", "${team.getMainProfiles()}")
+                            team.addMainProfile(item)
+                            changeMain(team.getMainProfiles())
                             Log.d("DEV", "${team.getMainProfiles()}")
                         }) {
                             Text(text = item.username)

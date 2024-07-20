@@ -19,11 +19,11 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
 
-class TournamentCreationActivity : ComponentActivity(){
+class TournamentCreationActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = get<AppDatabase>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent{
+        setContent {
             val themeViewModel = koinViewModel<ThemeViewModel>()
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val tournamentCreationViewModel = koinViewModel<TournamentCreationViewModel>()
@@ -42,10 +42,12 @@ class TournamentCreationActivity : ComponentActivity(){
             )
         }
     }
+
     private fun navigateToTournament() {
         val intent = Intent(this, TournamentActivity::class.java)
         startActivity(intent)
     }
+
     private fun fetchAndUpdateGamesList(tournamentCreationViewModel: TournamentCreationViewModel) {
         var gamesList: List<Game>
         lifecycleScope.launch(Dispatchers.IO) {
@@ -57,6 +59,7 @@ class TournamentCreationActivity : ComponentActivity(){
             }
         }
     }
+
     private fun fetchAndUpdateTournamentTypeList(tournamentCreationViewModel: TournamentCreationViewModel) {
         var typeList: List<TournamentType>
         lifecycleScope.launch(Dispatchers.IO) {
@@ -68,6 +71,7 @@ class TournamentCreationActivity : ComponentActivity(){
             }
         }
     }
+
     private fun fetchAndUpdateGuestProfileList(tournamentCreationViewModel: TournamentCreationViewModel) {
         var guestProfileList: List<GuestProfile>
         lifecycleScope.launch(Dispatchers.IO) {
@@ -78,7 +82,9 @@ class TournamentCreationActivity : ComponentActivity(){
                 e.printStackTrace()
             }
         }
-    }private fun fetchAndUpdateMainProfileList(tournamentCreationViewModel: TournamentCreationViewModel) {
+    }
+
+    private fun fetchAndUpdateMainProfileList(tournamentCreationViewModel: TournamentCreationViewModel) {
         var mainProfileList: List<MainProfile>
         lifecycleScope.launch(Dispatchers.IO) {
             try {

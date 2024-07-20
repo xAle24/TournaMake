@@ -56,8 +56,8 @@ fun TournamentCreationScreen(
     state: ThemeState,
     gamesListLiveData: LiveData<List<Game>>,
     tournamentType: LiveData<List<TournamentType>>,
-    mainProfileList:  LiveData<List<MainProfile>>,
-    guestProfileList:  LiveData<List<GuestProfile>>,
+    mainProfilesListLiveData: LiveData<List<MainProfile>>,
+    guestProfilesListLiveData: LiveData<List<GuestProfile>>,
     navigateToTournament: () -> Unit,
     backFunction: () -> Unit
 ) {
@@ -70,11 +70,14 @@ fun TournamentCreationScreen(
         val colorConstants = getThemeColors(themeState = state)
         val imageLogoId =
             if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
+
+        /* Variable containing all the created teams */
         var teamsSet by remember { mutableStateOf(setOf<TeamUI>()) }
+
         val gamesList = gamesListLiveData.observeAsState()
         val tournamentTypeList = tournamentType.observeAsState()
-        val mainProfileListt = mainProfileList.observeAsState()
-        val guestProfileListt = guestProfileList.observeAsState()
+        val mainProfileListt = mainProfilesListLiveData.observeAsState()
+        val guestProfileListt = guestProfilesListLiveData.observeAsState()
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
@@ -96,15 +99,31 @@ fun TournamentCreationScreen(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
 
-            ) {
+                ) {
                 SelectionMenuGame(gamesList)
                 SelectionMenuTournamentType(tournamentTypeList)
-                TeamContainer(teamsSet = teamsSet,
-                    mainProfileList = mainProfileListt.value ?: emptyList(),
-                    guestProfileList = guestProfileListt.value ?: emptyList()
+
+                /*
+                * Here begins the huge part of the team container
+                * */
+                TeamContainer(
+                    teamsSet = teamsSet,
+                    mainProfileListFromDatabase = mainProfileListt.value ?: emptyList(),
+                    guestProfileListFromDatabase = guestProfileListt.value ?: emptyList()
                 )
+
+
                 Button(
-                    onClick = { teamsSet = addElement(teamsSet, TeamUIImpl(emptySet(), emptySet(), "")) },
+                    onClick = {
+                        teamsSet = addElement(
+                            teamsSet,
+                            TeamUIImpl(
+                                mainProfiles = emptySet(),
+                                guestProfiles = emptySet(),
+                                teamName = ""
+                            )
+                        )
+                    },
                     modifier = Modifier
                         .background(colorConstants.getButtonBackground())
                         .fillMaxWidth(0.9f),
