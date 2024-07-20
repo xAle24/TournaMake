@@ -50,7 +50,7 @@ class ProfileActivity : ComponentActivity() {
             // is destroyed when we leave this Activity.
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
-            val loggedEmail = authenticationViewModel.loggedEmailTemp.collectAsStateWithLifecycle()
+            val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
             val profileViewModel = koinViewModel<ProfileViewModel>()
             val profileObserver = Observer<MainProfile?> { profile ->
                 Log.d("DEV", "In profile observer profile = ${profile?.email}")
@@ -95,7 +95,7 @@ class ProfileActivity : ComponentActivity() {
                     recreate() // I'm sorry but without this line I don't see changes take effect
                 } else if (uri != null && loggedEmail.value.loggedProfileEmail.isEmpty()) {
                     profilePictureHelper.waitForEmailThenStoreProfilePicture(
-                        loggedEmailStateFlow = authenticationViewModel.loggedEmailTemp,
+                        loggedEmailStateFlow = authenticationViewModel.loggedEmail,
                         profileImageUri = uri,
                         context = baseContext,
                         databaseUpdaterCallback = this::uploadPhotoToDatabase,

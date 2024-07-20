@@ -36,7 +36,6 @@ class RegisterActivity : ComponentActivity() {
             val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
             RegistrationScreen(
                 state = state.value,
-                setTemporaryLoggedEmail = authenticationViewModel::setAndSaveEmailTemporarily,
                 handleRegistration = { username, password, email, rememberMe ->
                     handleRegistration(
                         username = username,
@@ -45,6 +44,8 @@ class RegisterActivity : ComponentActivity() {
                         rememberMe = rememberMe,
                         viewModel = authenticationViewModel
                     )
+                    authenticationViewModel.saveUserAuthenticationPreferences(email, password, rememberMe)
+                    goToNextActivity()
                 }
             )
         }
@@ -58,7 +59,6 @@ class RegisterActivity : ComponentActivity() {
                 appDatabase?.mainProfileDao()?.insert(mainProfile)
                 //val intent = Intent(this, RegistrationPhotoActivity::class.java)
                 //startActivity(intent)
-                goToNextActivity()
             } catch (e: Exception) {
                 e.printStackTrace()
             }

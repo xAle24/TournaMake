@@ -35,7 +35,6 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 fun RegistrationScreen(
     state: ThemeState,
     handleRegistration: (String, String, String, Boolean) -> Unit,
-    setTemporaryLoggedEmail: (String) -> Unit,
 ) {
     BasicScreenWithTheme(
         state = state,
@@ -110,7 +109,6 @@ fun RegistrationScreen(
                 handleRegistration(username, password, email, rememberMe)
                 /* SETTING THE "GLOBAL" VARIABLE LOGGED EMAIL! */
                 Log.d("DEV", "In RegistrationScreen.kt, email = $email")
-                setTemporaryLoggedEmail(email)
             }, modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(60.dp)) {

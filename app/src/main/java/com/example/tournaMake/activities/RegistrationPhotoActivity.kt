@@ -33,7 +33,7 @@ class RegistrationPhotoActivity : ComponentActivity() {
             val themeViewModel = koinViewModel<ThemeViewModel>()
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
-            val loggedEmail = authenticationViewModel.loggedEmailTemp.collectAsStateWithLifecycle()
+            val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
             /* Code taken from:
             * https://www.youtube.com/watch?v=uHX5NB6wHao
             * */
@@ -69,7 +69,7 @@ class RegistrationPhotoActivity : ComponentActivity() {
                     recreate() // I'm sorry but without this line I don't see changes take effect
                 } else if (uri != null && loggedEmail.value.loggedProfileEmail.isEmpty()) {
                     profileImageHelper.waitForEmailThenStoreProfilePicture(
-                        loggedEmailStateFlow = authenticationViewModel.loggedEmailTemp,
+                        loggedEmailStateFlow = authenticationViewModel.loggedEmail,
                         profileImageUri = uri,
                         context = baseContext,
                         databaseUpdaterCallback = this::uploadPhotoToDatabase,
