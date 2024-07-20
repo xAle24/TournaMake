@@ -27,7 +27,8 @@ class TournamentListActivity : ComponentActivity(){
             TournamentListScreen(
                 state = state.value,
                 matchesListLiveData = tournamentListViewModel.tournamentListLiveData,
-                navigateToTournamentCreation = this::navigateToTournamentCreation
+                navigateToTournamentCreation = this::navigateToTournamentCreation,
+                backFunction = this::finish
             )
         }
     }
