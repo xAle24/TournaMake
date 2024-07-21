@@ -35,7 +35,11 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 @Composable
 fun LoginScreen(
     state: ThemeState, // The state of the UI (dark, light or system)
-    navigateToMenu: () -> Unit
+    navigateToMenu: () -> Unit,
+    changeViewModelRememberMeCallback: (Boolean) -> Unit,
+    rememberMeFromViewModel: Boolean,
+    userEmail: String,
+    userPassword: String
 ) {
     BasicScreenWithTheme(
         state = state,
@@ -45,18 +49,31 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            var username by remember { mutableStateOf("") }
-            var password by remember { mutableStateOf("") }
-            var rememberMe by remember { mutableStateOf(false) }
-            val imageId = if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
+            var username by remember {
+                mutableStateOf(
+                    if (rememberMeFromViewModel) userEmail else ""
+                )
+            }
+            var password by remember {
+                mutableStateOf(
+                    if (rememberMeFromViewModel) userPassword else ""
+                )
+            }
+            var rememberMe by remember { mutableStateOf(rememberMeFromViewModel) }
+            val imageId =
+                if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
             Image(
                 painter = painterResource(id = imageId),
                 contentDescription = "Appropriate theme image",
-                modifier = Modifier.fillMaxWidth(0.8f).fillMaxHeight(0.2f)
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .fillMaxHeight(0.2f)
             )
             OutlinedTextField(
                 value = username,
-                modifier = Modifier.fillMaxWidth(0.8f).height(60.dp),
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(60.dp),
                 onValueChange = { username = it },
                 label = { Text("Username") },
                 colors = TextFieldDefaults.colors(
@@ -64,12 +81,14 @@ fun LoginScreen(
                     focusedContainerColor = Color.White,
                     focusedIndicatorColor = Color.White,
                     unfocusedIndicatorColor = Color.White
-            )
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
                 value = password,
-                modifier = Modifier.fillMaxWidth(0.8f).height(60.dp),
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(60.dp),
                 onValueChange = { password = it },
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
@@ -88,14 +107,16 @@ fun LoginScreen(
             ) {
                 Checkbox(
                     checked = rememberMe,
-                    onCheckedChange = { rememberMe = it },
+                    onCheckedChange = {
+                        rememberMe = it
+                        changeViewModelRememberMeCallback(it)
+                    },
                 )
                 Text("Remember me")
             }
             Spacer(modifier = Modifier.height(20.dp))
             Button(
                 onClick = {
-
                     navigateToMenu()
                 },
                 modifier = Modifier

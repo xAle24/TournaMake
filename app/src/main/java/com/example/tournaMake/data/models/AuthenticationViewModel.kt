@@ -38,4 +38,8 @@ class AuthenticationViewModel(private val repository: AuthenticationRepository):
         repository.setPassword(password)
         repository.setRememberMe(rememberMe)
     }
+
+    fun setRememberMe(rememberMe: Boolean) = viewModelScope.launch {
+        repository.setRememberMe(rememberMe)
+    }
 }

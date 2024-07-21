@@ -21,9 +21,17 @@ class LoginActivity : ComponentActivity() {
             // StateFlow objects can't. The 'withLifecycle' part ensures this state
             // is destroyed when we leave this Activity.
             val state = themeViewModel.state.collectAsStateWithLifecycle()
+            val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
+            val userEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
+            val userPassword = authenticationViewModel.password.collectAsStateWithLifecycle()
+            val rememberMe = authenticationViewModel.rememberMe.collectAsStateWithLifecycle()
             LoginScreen(
                 state = state.value,
-                navigateToMenu = this::navigateToMenu
+                navigateToMenu = this::navigateToMenu,
+                changeViewModelRememberMeCallback = { authenticationViewModel.setRememberMe(it)},
+                rememberMeFromViewModel = rememberMe.value,
+                userEmail = userEmail.value.loggedProfileEmail,
+                userPassword = userPassword.value
             )
         }
     }
