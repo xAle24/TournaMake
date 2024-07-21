@@ -25,6 +25,7 @@ import com.example.tournaMake.ui.screens.tournament.TournamentScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
+import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.ceil
 import kotlin.math.log2
@@ -51,6 +52,7 @@ data class DatabaseMatchUpdateRequest(
 class TournamentActivity : ComponentActivity() {
     private val appDatabase = get<AppDatabase>()
     private lateinit var tournamentManager: TournamentManager
+    private lateinit var bracket: BracketDisplayModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -81,7 +83,7 @@ class TournamentActivity : ComponentActivity() {
                     Log.d("DEV", "Key() function at line 77 in TournamentActivity called")
                     TournamentScreen(
                         state = state.value,
-                        bracket = createBracket(tournamentDataViewModel),
+                        bracket = this.bracket,
                         matchesAndTeams = getMatchesNamesAsCompetingTeams(tournamentLiveData.value),
                         onConfirmCallback = {
                             updateMatch(
@@ -127,7 +129,8 @@ class TournamentActivity : ComponentActivity() {
     private fun createBracket(tournament: TournamentDataViewModel): BracketDisplayModel {
         val listOfTournamentData = tournament.tournamentMatchesAndTeamsLiveData.value ?: emptyList()
         val numberOfRounds = ceil(log2(listOfTournamentData.size.toDouble())).toInt()
-        return if (listOfTournamentData.isNotEmpty()) {
+        var bracketDisplayModel: BracketDisplayModel? = null
+        if (listOfTournamentData.isNotEmpty()) {
             val roundList = mutableListOf(
                 BracketRoundDisplayModel(
                     name = "Round 0",
@@ -160,8 +163,15 @@ class TournamentActivity : ComponentActivity() {
                 roundList.add(createRoundWithPlaceholders(numberOfMatches, i))
             }
 
-            BracketDisplayModel("MyBracket", roundList)
-        } else BracketDisplayModel("EmptyBracket", emptyList())
+            bracketDisplayModel = BracketDisplayModel("MyBracket", roundList)
+            this.tournamentManager = TournamentManager(
+                bracket = bracketDisplayModel,
+                tournamentData = listOfTournamentData
+            )
+            this.tournamentManager.init()
+            this.bracket = bracketDisplayModel
+        }
+        return bracketDisplayModel ?: BracketDisplayModel("EmptyBracket", emptyList())
     }
 
     private fun createRoundWithPlaceholders(
@@ -242,10 +252,13 @@ class TournamentActivity : ComponentActivity() {
                     isWinner = if (data.isSecondTeamWinner) 'Y' else 'N',
                     score = data.secondTeamScore
                 )
+
+                // Causes a recomposition to happen
                 fetchStuffForTournament(
                     tournamentID = tournamentID,
                     tournamentDataViewModel = tournamentDataViewModel
                 )
+
                 if (data.isFirstTeamWinner) {
                     tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.value?.indexOf(
                         tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.value!!.first { t -> t.teamID == data.firstTeamID })
@@ -259,12 +272,12 @@ class TournamentActivity : ComponentActivity() {
         }
     }
 
-    /*fun teamWon(teamName: String, tournamentDataViewModel: TournamentDataViewModel) {
-        val newTeamIndex = oldIndex / 2
+    private fun teamWon(teamName: String, tournamentDataViewModel: TournamentDataViewModel) {
+        val newTeamIndex = this.tournamentManager.mapTeamNameToIndex(teamName) / 2
         val matchIndex = newTeamIndex / 2
-        val teamCurrentRound = map[teamName]!!
-        map[teamName] = teamCurrentRound + 1
-        val matchToUpdate = bracket.rounds[teamCurrentRound + 1].matches[matchIndex]
+        val teamCurrentRound = this.tournamentManager.getTeamRound(teamName)
+        this.tournamentManager.setTeamRound(teamName, teamCurrentRound + 1)
+        val matchToUpdate = tournamentManager.getBracket().rounds[teamCurrentRound + 1].matches[matchIndex]
         if (newTeamIndex % 2 == 0) {
             // if the index is even, it means the team has to be inserted in the top team
             matchToUpdate.topTeam.name = teamName
@@ -275,7 +288,7 @@ class TournamentActivity : ComponentActivity() {
             matchToUpdate.bottomTeam.isWinner = false
             matchToUpdate.bottomTeam.score = "0"
         }
-    }*/
+    }
 
     /**
      * Configures our [MainActivity] window so that it reaches edge to edge of the device, meaning

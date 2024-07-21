@@ -55,6 +55,10 @@ class TournamentManager(
     fun getTeamRound(teamName: String): Int {
         return map[teamName]!!
     }
+
+    fun setTeamRound(teamName: String, roundNumber: Int) {
+        map[teamName] = roundNumber
+    }
     fun teamWon(teamName: String, oldIndex: Int) {
         val newTeamIndex = oldIndex / 2
         val matchIndex = newTeamIndex / 2
@@ -77,4 +81,7 @@ class TournamentManager(
         this.bracket = bracket
     }
 
+    fun getBracket(): BracketDisplayModel {
+        return this.bracket
+    }
 }
