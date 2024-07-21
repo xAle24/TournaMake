@@ -1,51 +1,38 @@
 package com.example.tournaMake.ui.screens.tournament
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
-import com.example.tournaMake.mylibrary.ui.MultiEliminationBracket
-import com.example.tournaMake.mylibrary.ui.SingleEliminationBracket
 import com.example.tournaMake.data.models.ThemeState
-import com.example.tournaMake.data.tournament.TestTournamentData
+import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
+import com.example.tournaMake.mylibrary.ui.SingleEliminationBracket
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 @Composable
 fun TournamentScreen(
-    state: ThemeState
+    state: ThemeState,
+    bracket: BracketDisplayModel
 ) {
     BasicScreenWithTheme(
         state = state
     ) {
         //TODO implement graph
-        TournamentView()
+        TournamentView(bracket = bracket)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun TournamentView() {
+fun TournamentView(
+    bracket: BracketDisplayModel
+) {
     ConfigureTransparentSystemBars()
-
-    Surface(
+    SingleEliminationBracket(bracket = bracket)
+    /*Surface(
         color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f), // the background behind the whole bracket system
         modifier = Modifier
             .systemBarsPadding(),
@@ -93,7 +80,7 @@ fun TournamentView() {
                 MultiEliminationBracket(brackets = brackets)
             }
         }
-    }
+    }*/
 }
 
 @Composable

@@ -25,7 +25,6 @@ import com.example.tournaMake.ui.screens.tournament.TournamentCreationScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
-import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
 import java.util.UUID
 
@@ -159,8 +158,6 @@ class TournamentCreationActivity : ComponentActivity() {
                 }
             }
         }
-
-        //TODO salvare in sharedPreferences uuid
         val intent = Intent(this, TournamentActivity::class.java)
         startActivity(intent)
     }

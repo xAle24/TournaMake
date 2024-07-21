@@ -10,6 +10,10 @@ import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.models.TournamentDataViewModel
 import com.example.tournaMake.data.models.TournamentIDViewModel
+import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
+import com.example.tournaMake.mylibrary.displaymodels.BracketMatchDisplayModel
+import com.example.tournaMake.mylibrary.displaymodels.BracketRoundDisplayModel
+import com.example.tournaMake.mylibrary.displaymodels.BracketTeamDisplayModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.ui.screens.tournament.TournamentScreen
 import kotlinx.coroutines.Dispatchers
@@ -31,9 +35,9 @@ class TournamentActivity : ComponentActivity() {
             val tournamentID = tournamentIDViewModel.tournamentID.collectAsStateWithLifecycle()
             val tournamentDataViewModel = koinViewModel<TournamentDataViewModel>()
             fetchStuffForTournament(tournamentID.value, tournamentDataViewModel)
-
             TournamentScreen(
-                state = state.value
+                state = state.value,
+                bracket = createBracket(tournamentDataViewModel)
             )
             //SingleEliminationBracket(bracket = TestTournamentData.singleEliminationBracket)
         }
@@ -51,6 +55,17 @@ class TournamentActivity : ComponentActivity() {
                 e.printStackTrace()
             }
         }
+    }
+    private fun createBracket(tournament: TournamentDataViewModel): BracketDisplayModel {
+
+        val matches = BracketMatchDisplayModel()
+        val round: BracketRoundDisplayModel = BracketRoundDisplayModel("bao")
+        val bracket: BracketDisplayModel = BracketDisplayModel("one",)
+        tournament.tournamentMatchesAndTeamsLiveData.value?.forEach { team ->
+            val teamI = BracketTeamDisplayModel(team.name, false, "")
+            if (matches.)
+        }
+        return bracket
     }
 
     /**
