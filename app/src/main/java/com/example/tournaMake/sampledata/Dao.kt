@@ -117,6 +117,13 @@ interface MatchScoreMainDao {
     fun delete(matchScoreMain: MainParticipantScore)
 }
 
+data class TournamentMatchData(
+    val matchTmID: String,
+    val gameID: String,
+    val tournamentID: String,
+    val teamID: String,
+    val name: String // team name
+)
 @Dao
 interface TournamentDao {
     @Query("SELECT * FROM TOURNAMENT")
@@ -127,6 +134,26 @@ interface TournamentDao {
 
     @Delete
     fun delete(tournament: Tournament)
+
+    @Query("""
+    SELECT 
+        MATCH_TM.matchTmID, 
+        MATCH_TM.gameID, 
+        MATCH_TM.tournamentID,
+        TEAM_IN_TM.teamID,
+        TEAM.name
+    FROM
+        MATCH_TM
+    JOIN
+        TEAM_IN_TM ON TEAM_IN_TM.matchTmID = MATCH_TM.matchTmID
+    JOIN
+        TEAM ON TEAM.teamID = TEAM_IN_TM.teamID
+    WHERE 
+        MATCH_TM.tournamentID = :tournamentID
+    """)
+    fun getMatchesAndTeamsFromTournamentID(tournamentID: String): List<TournamentMatchData>
+
+
 }
 
 @Dao
