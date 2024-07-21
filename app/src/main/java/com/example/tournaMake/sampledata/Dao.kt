@@ -200,6 +200,9 @@ interface TeamDao {
     @Query("SELECT * FROM TEAM")
     fun getAll(): List<Team>
 
+    @Query("UPDATE TEAM SET isWinner = :isWinner, score = :score WHERE teamID = :teamID")
+    suspend fun updateTeam(teamID: String, isWinner: Char, score: Int)
+
     @Insert
     fun insertAll(teams: List<Team>)
 

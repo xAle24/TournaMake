@@ -176,9 +176,34 @@ class TournamentActivity : ComponentActivity() {
 
     private fun updateMatch(
         tournamentDataViewModel: TournamentDataViewModel,
-        data: DatabaseMatchUpdateRequest
+        data: DatabaseMatchUpdateRequest,
+        tournamentID: String
     ) {
-
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                appDatabase.teamDao().updateTeam(
+                    teamID = data.firstTeamID,
+                    isWinner = if(data.isFirstTeamWinner) 'Y' else 'N',
+                    score = data.firstTeamScore
+                )
+                appDatabase.teamDao().updateTeam(
+                    teamID = data.secondTeamID,
+                    isWinner = if(data.isSecondTeamWinner) 'Y' else 'N',
+                    score = data.secondTeamScore
+                )
+                fetchStuffForTournament(tournamentID = tournamentID,
+                    tournamentDataViewModel = tournamentDataViewModel)
+                if (data.isFirstTeamWinner) {
+                    tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.value?.indexOf(
+                        tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.value!!.first { t -> t.teamID == data.firstTeamID })
+                } else if (data.isSecondTeamWinner) {
+                    tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.value?.indexOf(
+                        tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.value!!.first { t -> t.teamID == data.secondTeamID })
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     /**
