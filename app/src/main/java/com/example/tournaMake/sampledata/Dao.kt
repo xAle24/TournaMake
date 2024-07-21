@@ -152,8 +152,6 @@ interface TournamentDao {
         MATCH_TM.tournamentID = :tournamentID
     """)
     fun getMatchesAndTeamsFromTournamentID(tournamentID: String): List<TournamentMatchData>
-
-
 }
 
 @Dao

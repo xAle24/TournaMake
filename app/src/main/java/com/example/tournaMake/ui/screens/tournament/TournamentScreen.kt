@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
@@ -46,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.tournaMake.activities.DatabaseMatchUpdateRequest
 import com.example.tournaMake.activities.MatchAsCompetingTeams
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
@@ -58,7 +58,8 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 fun TournamentScreen(
     state: ThemeState,
     bracket: BracketDisplayModel,
-    matchesAndTeams: List<MatchAsCompetingTeams>
+    matchesAndTeams: List<MatchAsCompetingTeams>,
+    onConfirmCallback: (DatabaseMatchUpdateRequest) -> Unit
 ) {
     BasicScreenWithTheme(
         state = state
@@ -89,7 +90,8 @@ fun TournamentScreen(
         ModifyMatchesAlert(
             openDialog = isAlertVisible,
             onDismiss = { isAlertVisible = false },
-            matchesAndTeams = matchesAndTeams
+            matchesAndTeams = matchesAndTeams,
+            onConfirmCallback = onConfirmCallback
         )
     }
 }
@@ -101,8 +103,15 @@ fun ModifyMatchesAlert(
     openDialog: Boolean,
     onDismiss: () -> Unit,
     matchesAndTeams: List<MatchAsCompetingTeams>,
+    onConfirmCallback: (DatabaseMatchUpdateRequest) -> Unit
 ) {
     val matchID = remember { mutableStateOf("") }
+    val firstTeamID = remember {
+        mutableStateOf("")
+    }
+    val secondTeamID = remember {
+        mutableStateOf("")
+    }
     val firstTeamName = remember { mutableStateOf("") }
     val secondTeamName = remember { mutableStateOf("") }
     val firstTeamScore = remember { mutableIntStateOf(0) }
@@ -122,7 +131,13 @@ fun ModifyMatchesAlert(
                 ) {
                     MatchSelectionMenu(
                         list = matchesAndTeams,
-                        callback = { /* TODO */ }
+                        callback = {
+                            matchID.value = it.matchID
+                            firstTeamID.value = it.firstTeamID
+                            secondTeamID.value = it.secondTeamID
+                            firstTeamName.value = it.firstTeamName
+                            secondTeamName.value = it.secondTeamName
+                        }
                     )
                     // A row for each team name
                     // First team row
@@ -225,8 +240,26 @@ fun ModifyMatchesAlert(
                 }
             },
             confirmButton = {
+                Button(onClick = {
+                    onConfirmCallback(
+                        DatabaseMatchUpdateRequest(
+                            matchID = matchID.value,
+                            firstTeamID = firstTeamID.value,
+                            secondTeamID = secondTeamID.value,
+                            isFirstTeamWinner = winner.value == RadioButtonStates.First,
+                            isSecondTeamWinner = winner.value == RadioButtonStates.Second,
+                            firstTeamScore = firstTeamScore.intValue,
+                            secondTeamScore = secondTeamScore.intValue
+                        )
+                    )
+                    onDismiss()
+                }) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
                 Button(onClick = { onDismiss() }) {
-                    Text("Close")
+                    Text("Cancel")
                 }
             }
         )
@@ -321,8 +354,9 @@ fun ModifyMatchesAlertPreview() {
         openDialog = true,
         onDismiss = {},
         matchesAndTeams = listOf(
-            MatchAsCompetingTeams("match1", "Team1", "Team2"),
-            MatchAsCompetingTeams("match2", "Team3", "Team4")
-        )
+            MatchAsCompetingTeams("match1", "Team1", "1","Team2", "2"),
+            MatchAsCompetingTeams("match2", "Team3", "3","Team4", "4")
+        ),
+        onConfirmCallback = {}
     )
 }

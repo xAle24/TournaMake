@@ -29,7 +29,19 @@ data class MatchAsCompetingTeams(
     val matchID: String, // needed for database
     /* Data the user needs to see */
     val firstTeamName: String,
+    val firstTeamID: String,
     val secondTeamName: String,
+    val secondTeamID: String
+)
+
+data class DatabaseMatchUpdateRequest(
+    val matchID: String,
+    val firstTeamID: String,
+    val secondTeamID: String,
+    val isFirstTeamWinner: Boolean,
+    val isSecondTeamWinner: Boolean,
+    val firstTeamScore: Int,
+    val secondTeamScore: Int
 )
 
 class TournamentActivity : ComponentActivity() {
@@ -63,7 +75,8 @@ class TournamentActivity : ComponentActivity() {
                 TournamentScreen(
                     state = state.value,
                     bracket = createBracket(tournamentDataViewModel),
-                    matchesAndTeams = getMatchesNamesAsCompetingTeams(tournamentLiveData.value)
+                    matchesAndTeams = getMatchesNamesAsCompetingTeams(tournamentLiveData.value),
+                    onConfirmCallback = {}
                 )
             }
             //SingleEliminationBracket(bracket = TestTournamentData.singleEliminationBracket)
@@ -132,29 +145,40 @@ class TournamentActivity : ComponentActivity() {
     private fun getMatchesNamesAsCompetingTeams(data: List<TournamentMatchData>): List<MatchAsCompetingTeams> {
         val matchesList = data.map { it.matchTmID }.distinct().toList()
         return matchesList
-            .map { matchID -> matchID to Pair("", "") }
+            .map { matchID -> matchID to getPairOfTeamIDAndNameFromMatchID(matchID, data) }
             .map { strangePair ->
-                Pair(
-                    strangePair.first,
-                    getTeamsFromMatchID(data, strangePair.first)
-                )
-            }
-            .map { matchAndTeamsPair ->
                 MatchAsCompetingTeams(
-                    matchID = matchAndTeamsPair.first,
-                    firstTeamName = matchAndTeamsPair.second.first,
-                    secondTeamName = matchAndTeamsPair.second.second
+                    matchID = strangePair.first,
+                    firstTeamName = strangePair.second["First"]!!.second,
+                    secondTeamName = strangePair.second["Second"]!!.second,
+                    firstTeamID = strangePair.second["First"]!!.first,
+                    secondTeamID = strangePair.second["Second"]!!.first
                 )
             }
     }
 
-    private fun getTeamsFromMatchID(
-        data: List<TournamentMatchData>,
-        matchID: String
-    ): Pair<String, String> {
+    /**
+     * Returns a map of:
+     * First -> Pair(TeamID, TeamName)
+     * Second -> Pair(TeamID, TeamName)
+     * */
+    private fun getPairOfTeamIDAndNameFromMatchID(
+        matchID: String,
+        data: List<TournamentMatchData>
+    ): Map<String, Pair<String, String>> {
         val filteredData = data.filter { it.matchTmID == matchID }.toList()
         assert(filteredData.size == 2)
-        return Pair(filteredData[0].name, filteredData[1].name)
+        return mapOf(
+            "First" to Pair(filteredData[0].teamID, filteredData[0].name),
+            "Second" to Pair(filteredData[1].teamID, filteredData[1].name)
+        )
+    }
+
+    private fun updateMatch(
+        tournamentDataViewModel: TournamentDataViewModel,
+        data: DatabaseMatchUpdateRequest
+    ) {
+
     }
 
     /**
