@@ -8,6 +8,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.models.TournamentCreationViewModel
+import com.example.tournaMake.data.models.TournamentIDViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.Game
 import com.example.tournaMake.sampledata.GuestParticipantScore
@@ -24,11 +25,14 @@ import com.example.tournaMake.ui.screens.tournament.TournamentCreationScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
+import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
 import java.util.UUID
 
 class TournamentCreationActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = get<AppDatabase>()
+    // TODO: Check if it works
+    private val tournamentIDViewModel = get<TournamentIDViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -73,6 +77,8 @@ class TournamentCreationActivity : ComponentActivity() {
             lifecycleScope.launch(Dispatchers.IO) {
                 try { //insert tournament in database
                     appDatabase?.tournamentDao()?.insertAll(tournament)
+                    // Saving to shared preferences
+                    tournamentIDViewModel.saveTournamentIDInPreferences(tournamentID)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

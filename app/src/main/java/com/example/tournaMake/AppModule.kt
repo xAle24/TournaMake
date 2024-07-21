@@ -12,9 +12,11 @@ import com.example.tournaMake.data.models.ProfileListViewModel
 import com.example.tournaMake.data.models.ProfileViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.models.TournamentCreationViewModel
+import com.example.tournaMake.data.models.TournamentIDViewModel
 import com.example.tournaMake.data.models.TournamentListViewModel
 import com.example.tournaMake.data.repositories.AuthenticationRepository
 import com.example.tournaMake.data.repositories.ThemeRepository
+import com.example.tournaMake.data.repositories.TournamentIDRepository
 import com.example.tournaMake.sampledata.AppDatabase
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
@@ -35,6 +37,8 @@ val appModule = module {
     viewModel { TournamentListViewModel() }
     viewModel { AchievementsProfileViewModel() }
     viewModel { TournamentCreationViewModel() }
+    single { TournamentIDRepository(get()) }
+    viewModel { TournamentIDViewModel(get()) }
     single {
         Room.databaseBuilder(
             get(),
