@@ -52,6 +52,7 @@ import com.example.tournaMake.ui.screens.match.TeamUI
 import com.example.tournaMake.ui.screens.match.TeamUIImpl
 import com.example.tournaMake.ui.theme.getThemeColors
 import java.util.stream.Collectors
+import kotlin.reflect.KFunction4
 
 @Composable
 fun TournamentCreationScreen(
@@ -60,7 +61,7 @@ fun TournamentCreationScreen(
     tournamentType: LiveData<List<TournamentType>>,
     mainProfilesListLiveData: LiveData<List<MainProfile>>,
     guestProfilesListLiveData: LiveData<List<GuestProfile>>,
-    navigateToTournament: () -> Unit,
+    navigateToTournament: KFunction4<Set<TeamUI>, Game?, TournamentType?, String, Unit>,
     backFunction: () -> Unit
 ) {
     BasicScreenWithAppBars(
@@ -77,6 +78,7 @@ fun TournamentCreationScreen(
         var teamsSet by remember { mutableStateOf(setOf<TeamUI>()) }
         var selectedGame by remember { mutableStateOf<Game?>(null) }
         var selectedTournamentType by remember { mutableStateOf<TournamentType?>(null) }
+        var selectedTournamentName by remember { mutableStateOf("") }
 
         val gamesList = gamesListLiveData.observeAsState()
         val tournamentTypeList = tournamentType.observeAsState()
@@ -104,6 +106,11 @@ fun TournamentCreationScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
 
                 ) {
+                TextField(
+                    value = selectedTournamentName,
+                    onValueChange = { selectedTournamentName = it },
+                    label = { Text("Label") }
+                )
                 SelectionMenuGame(gamesList, { selectedGame = it })
                 SelectionMenuTournamentType(tournamentTypeList, {selectedTournamentType = it})
                 /*
@@ -139,7 +146,7 @@ fun TournamentCreationScreen(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
-                    onClick = { navigateToTournament() },
+                    onClick = { navigateToTournament(teamsSet, selectedGame, selectedTournamentType, selectedTournamentName) },
                     modifier = Modifier
                         .background(colorConstants.getButtonBackground())
                         .fillMaxWidth(0.9f),
@@ -153,7 +160,6 @@ fun TournamentCreationScreen(
         }
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectionMenuGame(list: State<List<Game>?>, gameCallback: (Game) -> Unit) {

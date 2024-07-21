@@ -245,7 +245,7 @@ fun TeamElement(
 
             // Team name
             TeamOutlinedTextField(
-                changeTeamName = { teamNameState = it }
+                changeTeamName = { teamNameState = it; team.setTeamName(it) }
             )
 
             Spacer(modifier = Modifier.height(spacerHeight))

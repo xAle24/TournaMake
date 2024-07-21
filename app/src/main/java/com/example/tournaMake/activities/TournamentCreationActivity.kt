@@ -10,14 +10,22 @@ import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.models.TournamentCreationViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.Game
+import com.example.tournaMake.sampledata.GuestParticipantScore
 import com.example.tournaMake.sampledata.GuestProfile
+import com.example.tournaMake.sampledata.MainParticipantScore
 import com.example.tournaMake.sampledata.MainProfile
+import com.example.tournaMake.sampledata.MatchTM
+import com.example.tournaMake.sampledata.Team
+import com.example.tournaMake.sampledata.TeamInTm
+import com.example.tournaMake.sampledata.Tournament
 import com.example.tournaMake.sampledata.TournamentType
+import com.example.tournaMake.ui.screens.match.TeamUI
 import com.example.tournaMake.ui.screens.tournament.TournamentCreationScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
+import java.util.UUID
 
 class TournamentCreationActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = get<AppDatabase>()
@@ -43,7 +51,110 @@ class TournamentCreationActivity : ComponentActivity() {
         }
     }
 
-    private fun navigateToTournament() {
+    private fun navigateToTournament(
+        teamsSet: Set<TeamUI>,
+        selectedGame: Game?,
+        selectedTournamentType: TournamentType?,
+        selectedTournamentName: String
+    ) {
+        //TODO salvare in db tutto 1 creare il torneo
+        val tournamentID = UUID.randomUUID().toString()
+        if (selectedTournamentType != null && selectedTournamentName != "") {
+            val tournament = Tournament(
+                tournamentID = tournamentID,
+                name = selectedTournamentName,
+                favorites = 'F',
+                locationLatitude = 0.0f,
+                locationLongitude = 0.0f,
+                scheduledDate = 0,
+                status = 0,
+                tournamentTypeID = selectedTournamentType.tournamentTypeID
+            )
+            lifecycleScope.launch(Dispatchers.IO) {
+                try { //insert tournament in database
+                    appDatabase?.tournamentDao()?.insertAll(tournament)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+        if (selectedGame != null) {
+            val shuffledList = teamsSet.shuffled()
+            val matches = generateSequence(0) { it + 2 }
+                .take(shuffledList.size / 2)
+                .map { index -> Pair(shuffledList[index], shuffledList[index + 1]) }
+                .toList()
+            lifecycleScope.launch(Dispatchers.IO) {
+                matches.forEach { match ->
+                    val firstTeamID = UUID.randomUUID().toString()
+                    val secondTeamID = UUID.randomUUID().toString()
+                    val teams: List<Team> = listOf(
+                        Team(
+                            teamID = firstTeamID,
+                            name = match.first.getTeamName(),
+                            isWinner = 'F',
+                            score = 0
+                        ),
+                        Team(
+                            teamID = secondTeamID,
+                            name = match.second.getTeamName(),
+                            isWinner = 'F',
+                            score = 0
+                        )
+                    )
+                    appDatabase?.teamDao()?.insertAll(teams)
+                    val matchID = UUID.randomUUID().toString()
+                    val matchCurr = MatchTM(
+                        matchTmID = matchID,
+                        date = 0,
+                        duration = 0,
+                        favorites = "F",
+                        gameID = selectedGame.gameID,
+                        status = 0,
+                        tournamentID = tournamentID
+                    )
+                    appDatabase?.matchDao()?.insertAll(matchCurr)
+                    teams.forEach { team ->
+                        val teamTm = TeamInTm(teamID = team.teamID, matchTmID = matchID)
+                        appDatabase?.teamInTmDao()?.insert(teamTm)
+                    }
+                    match.first.getGuestProfiles().forEach { profile ->
+                        val guestProfile = GuestParticipantScore(
+                            username = profile.username,
+                            teamID = firstTeamID,
+                            score = 0
+                        )
+                        appDatabase?.matchScoreGuestDao()?.insertAll(guestProfile)
+                    }
+                    match.first.getMainProfiles().forEach {profile ->
+                        val mainProfile = MainParticipantScore(
+                            email = profile.email,
+                            teamID = firstTeamID,
+                            score = 0
+                        )
+                        appDatabase?.matchScoreMainDao()?.insertAll(mainProfile)
+                    }
+                    match.second.getMainProfiles().forEach {profile ->
+                        val mainProfile = MainParticipantScore(
+                            email = profile.username,
+                            teamID = secondTeamID,
+                            score = 0
+                        )
+                        appDatabase?.matchScoreMainDao()?.insertAll(mainProfile)
+                    }
+                    match.second.getGuestProfiles().forEach {profile ->
+                        val guestProfile = GuestParticipantScore(
+                            username = profile.username,
+                            teamID = secondTeamID,
+                            score = 0
+                        )
+                        appDatabase?.matchScoreGuestDao()?.insertAll(guestProfile)
+                    }
+                }
+            }
+        }
+
+        //TODO salvare in sharedPreferences uuid
         val intent = Intent(this, TournamentActivity::class.java)
         startActivity(intent)
     }

@@ -1,6 +1,8 @@
 package com.example.tournaMake.sampledata
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 
 @Entity(tableName = "ACHIEVEMENT", primaryKeys = ["achievementID"])
 data class Achievement(
@@ -60,16 +62,51 @@ data class MainParticipantScore(
     val score: Int
 )
 
-@Entity(tableName = "MATCH_TM", primaryKeys = ["matchTmID"])
+@Entity(
+    tableName = "MATCH_TM",
+    primaryKeys = ["matchTmID"],
+    foreignKeys = [
+        ForeignKey(
+            entity = Game::class,
+            parentColumns = ["gameID"],
+            childColumns = ["gameID"]
+        ),
+        ForeignKey(
+            entity = Tournament::class,
+            parentColumns = ["tournamentID"],
+            childColumns = ["tournamentID"]
+        )
+    ]
+)
 data class MatchTM(
-    val matchTmID: String,
-    val teamID: String?,
-    val favorites: Char,
-    val date: Long,
-    val duration: Int,
-    val status: Int,
-    val gameID: String,
-    val tournamentID: String?
+    @ColumnInfo(name = "matchTmID") val matchTmID: String,
+    @ColumnInfo(name = "favorites") val favorites: String,
+    @ColumnInfo(name = "date") val date: Long,
+    @ColumnInfo(name = "duration") val duration: Int,
+    @ColumnInfo(name = "status") val status: Int,
+    @ColumnInfo(name = "gameID") val gameID: String,
+    @ColumnInfo(name = "tournamentID") val tournamentID: String?
+)
+
+@Entity(
+    tableName = "TEAM_IN_TM",
+    primaryKeys = ["teamID", "matchTmID"],
+    foreignKeys = [
+        ForeignKey(
+            entity = MatchTM::class,
+            parentColumns = ["matchTmID"],
+            childColumns = ["matchTmID"]
+        ),
+        ForeignKey(
+            entity = Team::class,
+            parentColumns = ["teamID"],
+            childColumns = ["teamID"]
+        )
+    ]
+)
+data class TeamInTm(
+    @ColumnInfo(name = "teamID") val teamID: String,
+    @ColumnInfo(name = "matchTmID") val matchTmID: String
 )
 
 @Entity(tableName = "TEAM", primaryKeys = ["teamID"])

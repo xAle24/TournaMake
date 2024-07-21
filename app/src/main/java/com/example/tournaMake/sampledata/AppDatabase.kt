@@ -1,9 +1,7 @@
 package com.example.tournaMake.sampledata
 
 import Converters
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
@@ -19,7 +17,8 @@ import androidx.room.TypeConverters
     MainParticipantScore::class,
     MatchTM::class,
     Tournament::class,
-    TournamentType::class
+    TournamentType::class,
+    TeamInTm::class
 ], version = 1)
 @TypeConverters(Converters::class) // TODO verify if it works
 abstract class AppDatabase : RoomDatabase() {
@@ -33,6 +32,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun matchScoreMainDao(): MatchScoreMainDao
     abstract fun tournamentDao(): TournamentDao
     abstract fun tournamentTypeDao(): TournamentTypeDao
+    abstract fun teamDao(): TeamDao
+    abstract fun teamInTmDao(): TeamInTmDao
 
     /*companion object {
         @Volatile

@@ -78,11 +78,11 @@ interface MatchDao {
     @Query("SELECT * FROM `MATCH_TM`")
     fun getAll(): List<MatchTM>
 
-    @Query("SELECT MATCH_TM.*\n" +
-            "FROM MAIN_PROFILE\n" +
-            "JOIN MAIN_PARTICIPANT_SCORE ON MAIN_PROFILE.email = MAIN_PARTICIPANT_SCORE.email\n" +
-            "JOIN MATCH_TM ON MAIN_PARTICIPANT_SCORE.teamID = MATCH_TM.teamID\n" +
-            "WHERE MAIN_PROFILE.email = :email;\n")
+    @Query("""SELECT MATCH_TM.*
+            FROM MATCH_TM
+            JOIN TEAM_IN_TM ON MATCH_TM.matchTmID = TEAM_IN_TM.matchTmID
+            JOIN MAIN_PARTICIPANT_SCORE ON TEAM_IN_TM.teamID = MAIN_PARTICIPANT_SCORE.teamID
+            WHERE MAIN_PARTICIPANT_SCORE.email = :email""")
     fun getMyMatch(email: String): List<MatchTM>
 
     @Insert
@@ -163,4 +163,30 @@ interface GuestProfileDao {
 
     @Delete
     fun delete(guestProfile: GuestProfile)
+}
+@Dao
+interface TeamDao {
+    @Query("SELECT * FROM TEAM")
+    fun getAll(): List<Team>
+
+    @Insert
+    fun insertAll(teams: List<Team>)
+
+    @Delete
+    fun delete(teams: Team)
+}
+
+@Dao
+interface TeamInTmDao {
+    @Insert
+    suspend fun insert(teamInTm: TeamInTm)
+
+    @Query("SELECT * FROM TEAM_IN_TM")
+    suspend fun getAll(): List<TeamInTm>
+
+    @Query("SELECT * FROM TEAM_IN_TM WHERE teamID = :teamID AND matchTmID = :matchTmID")
+    suspend fun findByID(teamID: String, matchTmID: String): TeamInTm
+
+    @Delete
+    suspend fun delete(teamInTm: TeamInTm)
 }
