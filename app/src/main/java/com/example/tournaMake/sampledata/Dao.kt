@@ -147,6 +147,8 @@ interface MainProfileDao {
     fun getAll(): List<MainProfile>
     @Query("SELECT * FROM MAIN_PROFILE WHERE email = :email")
     fun getProfileByEmail(email: String): MainProfile
+    @Query("SELECT MAIN_PROFILE.password FROM MAIN_PROFILE WHERE email = :email")
+    fun checkPassword(email: String): String
     @Insert
     fun insert(mainProfiles: MainProfile)
 
