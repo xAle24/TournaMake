@@ -64,6 +64,7 @@ interface TeamUI {
 
 // TODO: send this team entities to database
 // TODO: profiles need to be fetched from database
+
 class TeamUIImpl(
     private var mainProfiles: Set<MainProfile>,
     private var guestProfiles: Set<GuestProfile>,
@@ -112,8 +113,8 @@ val testTeam1 = TeamUIImpl(
         MainProfile(
             email = "email1@gmail",
             username = "Alin",
-            locationLatitude = 0f,
-            locationLongitude = 0f,
+            locationLatitude = 0.0,
+            locationLongitude = 0.0,
             password = "",
             profileImage = "",
             wonTournamentsNumber = 0
@@ -121,8 +122,8 @@ val testTeam1 = TeamUIImpl(
         MainProfile(
             email = "email2@gmail",
             username = "Alessio",
-            locationLatitude = 0f,
-            locationLongitude = 0f,
+            locationLatitude = 0.0,
+            locationLongitude = 0.0,
             password = "",
             profileImage = "",
             wonTournamentsNumber = 0
@@ -139,8 +140,8 @@ val testTeam2 = TeamUIImpl(
         MainProfile(
             email = "email3@gmail",
             username = "Lucrezia",
-            locationLatitude = 0f,
-            locationLongitude = 0f,
+            locationLatitude = 0.0,
+            locationLongitude = 0.0,
             password = "",
             profileImage = "",
             wonTournamentsNumber = 0

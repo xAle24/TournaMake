@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Upsert
 
 @Dao
 interface AchievementDao {
@@ -151,6 +152,9 @@ interface MainProfileDao {
 
     @Delete
     fun delete(mainProfile: MainProfile)
+
+    @Upsert
+    suspend fun upsert(mainProfile: MainProfile)
 }
 
 @Dao
