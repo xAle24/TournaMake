@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Looper
 import android.provider.Settings
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,6 +26,7 @@ enum class StartMonitoringResult { Started, GPSDisabled, PermissionDenied }
 data class Coordinates(val latitude: Double, val longitude: Double)
 
 class LocationService(private val ctx: Context) {
+    private val callbacks: MutableList<(Coordinates) -> Unit> = mutableListOf()
     var monitoringStatus by mutableStateOf(MonitoringStatus.NotMonitoring)
         private set
     var coordinates: Coordinates? by mutableStateOf(null)
@@ -42,6 +44,12 @@ class LocationService(private val ctx: Context) {
             super.onLocationResult(p0)
             with(p0.locations.last()) {
                 coordinates = Coordinates(latitude, longitude)
+                // TODO: IF THIS WORKS, ADD A CALLBACK
+                Log.d(
+                    "DEV",
+                    "In LocationService, where the callback should be, coordinates = $coordinates"
+                )
+                callbacks.forEach { it(Coordinates(latitude, longitude)) }
             }
             endLocationRequest()
         }
@@ -93,5 +101,9 @@ class LocationService(private val ctx: Context) {
     fun resumeLocationRequest() {
         if (monitoringStatus != MonitoringStatus.Paused) return
         requestCurrentLocation()
+    }
+
+    fun addCallback(onCoordinatesReceived: (Coordinates) -> Unit) {
+        this.callbacks.add(onCoordinatesReceived)
     }
 }

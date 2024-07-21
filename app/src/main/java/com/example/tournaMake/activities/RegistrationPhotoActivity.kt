@@ -88,7 +88,7 @@ class RegistrationPhotoActivity : ComponentActivity() {
                             email = loggedEmail.value.loggedProfileEmail,
                             contentResolver = contentResolver,
                             context = baseContext,
-                            databaseUpdaterCallback = this::updateDatabaseWithPhotoUriAndCoordinates
+                            databaseUpdaterCallback = this::updateDatabaseWithPhotoUri
                         )
                     selectedImageURI = uriForInternallySavedFile
                     recreate() // I'm sorry but without this line I don't see changes take effect
@@ -97,7 +97,7 @@ class RegistrationPhotoActivity : ComponentActivity() {
                         loggedEmailStateFlow = authenticationViewModel.loggedEmail,
                         profileImageUri = uri,
                         context = baseContext,
-                        databaseUpdaterCallback = this::updateDatabaseWithPhotoUriAndCoordinates,
+                        databaseUpdaterCallback = this::updateDatabaseWithPhotoUri,
                         lifecycleCoroutineScope = lifecycleScope,
                         lifecycleOwner = this,
                         stateChangerCallback = { resultUri ->
@@ -108,7 +108,8 @@ class RegistrationPhotoActivity : ComponentActivity() {
                     )
                 }
                 Log.d(
-                    "DEV", "In onResult function in RegistrationPhotoActivity.kt: everything went fine!"
+                    "DEV",
+                    "In onResult function in RegistrationPhotoActivity.kt: everything went fine!"
                 )
             }
 
@@ -119,6 +120,17 @@ class RegistrationPhotoActivity : ComponentActivity() {
             var showPermissionPermanentlyDeniedSnackbar by remember { mutableStateOf(false) }
             var selectedLatitude by remember { mutableDoubleStateOf(0.0) }
             var selectedLongitude by remember { mutableDoubleStateOf(0.0) }
+            // Setting the callback... hope it works
+            locationService.addCallback {
+                selectedLatitude = it.latitude
+                selectedLongitude = it.longitude
+                updateDatabaseWithCoordinates(
+                    loggedEmail.value.loggedProfileEmail,
+                    selectedLatitude,
+                    selectedLongitude
+                )
+            }
+
 
             val locationPermission = rememberPermission(
                 Manifest.permission.ACCESS_COARSE_LOCATION
@@ -143,10 +155,6 @@ class RegistrationPhotoActivity : ComponentActivity() {
                 if (locationPermission.status.isGranted) {
                     val res = locationService.requestCurrentLocation()
                     showLocationDisabledAlert = res == StartMonitoringResult.GPSDisabled
-                    // maybe this will break everything
-                    selectedLatitude = locationService.coordinates?.latitude ?: 0.0
-                    selectedLongitude = locationService.coordinates?.longitude ?: 0.0
-                    //Log.d("DEV")
                 } else {
                     locationPermission.launchPermissionRequest()
                 }
@@ -160,7 +168,10 @@ class RegistrationPhotoActivity : ComponentActivity() {
                 photoPickerLauncher = singlePhotoPickerLauncher,
                 snackbarHostState = snackbarHostState,
                 requestLocation = ::requestLocation,
-                locationService = locationService
+                locationService = locationService,
+                setCoordinatesCallback = {
+                    // TODO: REMOVE
+                }
             )
 
             if (showLocationDisabledAlert) {
@@ -228,7 +239,10 @@ class RegistrationPhotoActivity : ComponentActivity() {
         }
     }
 
-    private fun updateDatabaseWithPhotoUriAndCoordinates(uri: Uri, loggedEmail: String) {
+    private fun updateDatabaseWithPhotoUri(
+        uri: Uri,
+        loggedEmail: String
+    ) {
         Log.d("DEV", "Got logged email: $loggedEmail")
         // TODO: add database uri uploading
         lifecycleScope.launch(Dispatchers.IO) {
@@ -239,8 +253,25 @@ class RegistrationPhotoActivity : ComponentActivity() {
                 email = mainProfile.email,
                 profileImage = uri.toString(),
                 wonTournamentsNumber = mainProfile.wonTournamentsNumber,
-                locationLatitude = locationService.coordinates?.latitude ?: 0.0,
-                locationLongitude = locationService.coordinates?.longitude ?: 0.0
+                locationLatitude = null,
+                locationLongitude = null
+            )
+            appDatabase.mainProfileDao().upsert(updatedMainProfile)
+        }
+    }
+
+    private fun updateDatabaseWithCoordinates(loggedEmail: String, latitude: Double, longitude: Double) {
+        Log.d("DEV", "In RegistrationPhotoActivity, coordinates are: latitude = $latitude, longitude = $longitude")
+        lifecycleScope.launch(Dispatchers.IO) {
+            val mainProfile = appDatabase.mainProfileDao().getProfileByEmail(loggedEmail)
+            val updatedMainProfile = MainProfile(
+                username = mainProfile.username,
+                password = mainProfile.password,
+                email = mainProfile.email,
+                profileImage = mainProfile.profileImage,
+                wonTournamentsNumber = mainProfile.wonTournamentsNumber,
+                locationLatitude = latitude,
+                locationLongitude = longitude
             )
             appDatabase.mainProfileDao().upsert(updatedMainProfile)
         }

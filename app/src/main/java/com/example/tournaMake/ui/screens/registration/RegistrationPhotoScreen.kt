@@ -2,6 +2,7 @@ package com.example.tournaMake.ui.screens.registration
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,14 +31,12 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.times
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -46,6 +44,7 @@ import com.example.tournaMake.R
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.theme.getThemeColors
+import com.example.tournaMake.utils.Coordinates
 import com.example.tournaMake.utils.LocationService
 
 @Composable
@@ -57,7 +56,8 @@ fun RegistrationPhotoScreen(
     photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
     snackbarHostState: SnackbarHostState,
     requestLocation: () -> Unit,
-    locationService: LocationService
+    locationService: LocationService,
+    setCoordinatesCallback: (Coordinates) -> Unit
 ) {
     val configuration = LocalConfiguration.current // used to find screen size
     // val screenHeight = configuration.screenHeightDp
@@ -119,7 +119,8 @@ fun RegistrationPhotoScreen(
                 snackbarHostState = snackbarHostState,
                 requestLocation = requestLocation,
                 locationService = locationService,
-                state = state
+                state = state,
+                setCoordinatesCallback = setCoordinatesCallback
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -165,7 +166,8 @@ fun LocationUIArea(
     snackbarHostState: SnackbarHostState,
     requestLocation: () -> Unit,
     locationService: LocationService,
-    state: ThemeState
+    state: ThemeState,
+    setCoordinatesCallback: (Coordinates) -> Unit
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -181,7 +183,14 @@ fun LocationUIArea(
                 .padding(contentPadding)
                 .fillMaxSize()
         ) {
-            Button(onClick = requestLocation) {
+            Button(onClick = {
+                requestLocation()
+                Log.d("DEV", "In RegistrationPhotoScreen, in LocationUIArea: coordinates = ${locationService.coordinates}")
+                // Update the caller
+                setCoordinatesCallback(
+                    locationService.coordinates ?: Coordinates(0.0, 0.0)
+                )
+            }) {
                 Text("Get current location")
             }
             Spacer(modifier = Modifier.height(16.dp))
