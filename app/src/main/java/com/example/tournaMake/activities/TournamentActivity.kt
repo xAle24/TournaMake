@@ -25,6 +25,13 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
 
+data class MatchAsCompetingTeams(
+    val matchID: String, // needed for database
+    /* Data the user needs to see */
+    val firstTeamName: String,
+    val secondTeamName: String,
+)
+
 class TournamentActivity : ComponentActivity() {
     private val appDatabase = get<AppDatabase>()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,15 +50,20 @@ class TournamentActivity : ComponentActivity() {
                 // When data arrives, create the bracket
                 //bracket = createBracket(tournamentDataViewModel)
             }
-            tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.observe(this, liveDataObserver)
-            val tournamentLiveData = tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.observeAsState(
-                emptyList()
+            tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.observe(
+                this,
+                liveDataObserver
             )
+            val tournamentLiveData =
+                tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.observeAsState(
+                    emptyList()
+                )
             fetchStuffForTournament(tournamentID.value, tournamentDataViewModel)
             if (tournamentLiveData.value.isNotEmpty()) {
                 TournamentScreen(
                     state = state.value,
-                    bracket = createBracket(tournamentDataViewModel)
+                    bracket = createBracket(tournamentDataViewModel),
+                    matchesAndTeams = getMatchesNamesAsCompetingTeams(tournamentLiveData.value)
                 )
             }
             //SingleEliminationBracket(bracket = TestTournamentData.singleEliminationBracket)
@@ -115,6 +127,34 @@ class TournamentActivity : ComponentActivity() {
                 )
             )
         ) else BracketDisplayModel("EmptyBracket", emptyList())
+    }
+
+    private fun getMatchesNamesAsCompetingTeams(data: List<TournamentMatchData>): List<MatchAsCompetingTeams> {
+        val matchesList = data.map { it.matchTmID }.distinct().toList()
+        return matchesList
+            .map { matchID -> matchID to Pair("", "") }
+            .map { strangePair ->
+                Pair(
+                    strangePair.first,
+                    getTeamsFromMatchID(data, strangePair.first)
+                )
+            }
+            .map { matchAndTeamsPair ->
+                MatchAsCompetingTeams(
+                    matchID = matchAndTeamsPair.first,
+                    firstTeamName = matchAndTeamsPair.second.first,
+                    secondTeamName = matchAndTeamsPair.second.second
+                )
+            }
+    }
+
+    private fun getTeamsFromMatchID(
+        data: List<TournamentMatchData>,
+        matchID: String
+    ): Pair<String, String> {
+        val filteredData = data.filter { it.matchTmID == matchID }.toList()
+        assert(filteredData.size == 2)
+        return Pair(filteredData[0].name, filteredData[1].name)
     }
 
     /**

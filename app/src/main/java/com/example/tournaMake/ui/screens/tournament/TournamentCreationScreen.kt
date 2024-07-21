@@ -223,7 +223,7 @@ fun SelectionMenuGame(list: State<List<Game>?>, gameCallback: (Game) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectionMenuTournamentType(list: State<List<TournamentType>?>, typeCallback: (TournamentType) -> Unit) {
+private fun SelectionMenuTournamentType(list: State<List<TournamentType>?>, typeCallback: (TournamentType) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(list.value?.get(0)) }
 
