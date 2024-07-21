@@ -37,7 +37,7 @@ fun createDirectory(dirName: String, context: Context, email: String? = null) {
     val path = "${context.filesDir.path}/${dirName}/${convertEmailToPathSegment(email)}"
     if (!doesDirectoryExist(dirName, context, email)) {
         val dir = File(path)
-        if (dir.mkdir()) {
+        if (dir.mkdirs()) {
             Log.d("DEV", "Successfully created directory with file path: $path.")
         } else {
             throw NoSuchFileException("Could not create directory with file path: $path.")
