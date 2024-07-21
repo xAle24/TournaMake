@@ -20,11 +20,14 @@ import com.example.tournaMake.mylibrary.displaymodels.BracketRoundDisplayModel
 import com.example.tournaMake.mylibrary.displaymodels.BracketTeamDisplayModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.TournamentMatchData
+import com.example.tournaMake.tournamentmanager.TournamentManager
 import com.example.tournaMake.ui.screens.tournament.TournamentScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
+import kotlin.math.ceil
+import kotlin.math.log2
 
 data class MatchAsCompetingTeams(
     val matchID: String, // needed for database
@@ -47,6 +50,7 @@ data class DatabaseMatchUpdateRequest(
 
 class TournamentActivity : ComponentActivity() {
     private val appDatabase = get<AppDatabase>()
+    private lateinit var tournamentManager: TournamentManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -122,9 +126,9 @@ class TournamentActivity : ComponentActivity() {
      * */
     private fun createBracket(tournament: TournamentDataViewModel): BracketDisplayModel {
         val listOfTournamentData = tournament.tournamentMatchesAndTeamsLiveData.value ?: emptyList()
-        return if (listOfTournamentData.isNotEmpty()) BracketDisplayModel(
-            name = "MyBracket",
-            rounds = listOf(
+        val numberOfRounds = ceil(log2(listOfTournamentData.size.toDouble())).toInt()
+        return if (listOfTournamentData.isNotEmpty()) {
+            val roundList = mutableListOf(
                 BracketRoundDisplayModel(
                     name = "Round 0",
                     matches = generateSequence(0) { it + 2 }
@@ -149,7 +153,44 @@ class TournamentActivity : ComponentActivity() {
                         .toList()
                 )
             )
-        ) else BracketDisplayModel("EmptyBracket", emptyList())
+            val halfOfTheTeams = listOfTournamentData.size / 2
+            // Add the placeholder rounds
+            for (i in 1 until numberOfRounds) {
+                val numberOfMatches = halfOfTheTeams / (i * 2)
+                roundList.add(createRoundWithPlaceholders(numberOfMatches, i))
+            }
+
+            BracketDisplayModel("MyBracket", roundList)
+        } else BracketDisplayModel("EmptyBracket", emptyList())
+    }
+
+    private fun createRoundWithPlaceholders(
+        matchesNumber: Int,
+        roundIndex: Int
+    ): BracketRoundDisplayModel {
+        return BracketRoundDisplayModel(
+            name = "Round $roundIndex",
+            matches = generateSequence(0) { it + 1 }
+                .take(matchesNumber)
+                .map {
+                    Pair(
+                        BracketTeamDisplayModel(
+                            name = "---",
+                            isWinner = false,
+                            score = "0"
+                        ),
+                        BracketTeamDisplayModel(
+                            name = "---",
+                            isWinner = false,
+                            score = "0"
+                        )
+                    )
+                }
+                .map {
+                    BracketMatchDisplayModel(it.first, it.second)
+                }
+                .toList()
+        )
     }
 
     private fun getMatchesNamesAsCompetingTeams(data: List<TournamentMatchData>): List<MatchAsCompetingTeams> {
@@ -193,12 +234,12 @@ class TournamentActivity : ComponentActivity() {
             try {
                 appDatabase.teamDao().updateTeam(
                     teamID = data.firstTeamID,
-                    isWinner = if(data.isFirstTeamWinner) 'Y' else 'N',
+                    isWinner = if (data.isFirstTeamWinner) 'Y' else 'N',
                     score = data.firstTeamScore
                 )
                 appDatabase.teamDao().updateTeam(
                     teamID = data.secondTeamID,
-                    isWinner = if(data.isSecondTeamWinner) 'Y' else 'N',
+                    isWinner = if (data.isSecondTeamWinner) 'Y' else 'N',
                     score = data.secondTeamScore
                 )
                 fetchStuffForTournament(
@@ -217,6 +258,24 @@ class TournamentActivity : ComponentActivity() {
             }
         }
     }
+
+    /*fun teamWon(teamName: String, tournamentDataViewModel: TournamentDataViewModel) {
+        val newTeamIndex = oldIndex / 2
+        val matchIndex = newTeamIndex / 2
+        val teamCurrentRound = map[teamName]!!
+        map[teamName] = teamCurrentRound + 1
+        val matchToUpdate = bracket.rounds[teamCurrentRound + 1].matches[matchIndex]
+        if (newTeamIndex % 2 == 0) {
+            // if the index is even, it means the team has to be inserted in the top team
+            matchToUpdate.topTeam.name = teamName
+            matchToUpdate.topTeam.isWinner = false
+            matchToUpdate.topTeam.score = "0"
+        } else {
+            matchToUpdate.bottomTeam.name = teamName
+            matchToUpdate.bottomTeam.isWinner = false
+            matchToUpdate.bottomTeam.score = "0"
+        }
+    }*/
 
     /**
      * Configures our [MainActivity] window so that it reaches edge to edge of the device, meaning
