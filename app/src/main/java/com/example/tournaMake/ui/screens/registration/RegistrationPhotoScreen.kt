@@ -28,6 +28,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LiveData
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
@@ -56,12 +58,12 @@ fun RegistrationPhotoScreen(
     photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
     snackbarHostState: SnackbarHostState,
     requestLocation: () -> Unit,
-    locationService: LocationService,
-    setCoordinatesCallback: (Coordinates) -> Unit
+    coordinatesLiveData: LiveData<Coordinates>
 ) {
     val configuration = LocalConfiguration.current // used to find screen size
     // val screenHeight = configuration.screenHeightDp
     val screenWidth = configuration.screenWidthDp
+    val coordinates = coordinatesLiveData.observeAsState()
 
     BasicScreenWithTheme(state = state) {
         Column(
@@ -118,9 +120,8 @@ fun RegistrationPhotoScreen(
             LocationUIArea(
                 snackbarHostState = snackbarHostState,
                 requestLocation = requestLocation,
-                locationService = locationService,
                 state = state,
-                setCoordinatesCallback = setCoordinatesCallback
+                coordinates = coordinates.value
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -165,9 +166,8 @@ fun createImageRequest(context: Context, uri: Uri): ImageRequest {
 fun LocationUIArea(
     snackbarHostState: SnackbarHostState,
     requestLocation: () -> Unit,
-    locationService: LocationService,
     state: ThemeState,
-    setCoordinatesCallback: (Coordinates) -> Unit
+    coordinates: Coordinates?
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -185,22 +185,17 @@ fun LocationUIArea(
         ) {
             Button(onClick = {
                 requestLocation()
-                Log.d("DEV", "In RegistrationPhotoScreen, in LocationUIArea: coordinates = ${locationService.coordinates}")
-                // Update the caller
-                setCoordinatesCallback(
-                    locationService.coordinates ?: Coordinates(0.0, 0.0)
-                )
             }) {
                 Text("Get current location")
             }
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                "Latitude: ${locationService.coordinates?.latitude ?: "-"}", color = getThemeColors(
+                "Latitude: ${coordinates?.latitude ?: "-"}", color = getThemeColors(
                     themeState = state
                 ).getNormalTextColor()
             )
             Text(
-                "Longitude: ${locationService.coordinates?.longitude ?: "-"}",
+                "Longitude: ${coordinates?.longitude ?: "-"}",
                 color = getThemeColors(
                     themeState = state
                 ).getNormalTextColor()

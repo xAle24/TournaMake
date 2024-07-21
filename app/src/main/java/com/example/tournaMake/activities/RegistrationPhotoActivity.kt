@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.AuthenticationViewModel
+import com.example.tournaMake.data.models.CoordinatesViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.filemanager.AppDirectoryNames
 import com.example.tournaMake.filemanager.PROFILE_PICTURE_NAME
@@ -36,6 +37,7 @@ import com.example.tournaMake.filemanager.loadImageUriFromDirectory
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.registration.RegistrationPhotoScreen
+import com.example.tournaMake.utils.Coordinates
 import com.example.tournaMake.utils.LocationService
 import com.example.tournaMake.utils.PermissionStatus
 import com.example.tournaMake.utils.StartMonitoringResult
@@ -118,16 +120,15 @@ class RegistrationPhotoActivity : ComponentActivity() {
             var showLocationDisabledAlert by remember { mutableStateOf(false) }
             var showPermissionDeniedAlert by remember { mutableStateOf(false) }
             var showPermissionPermanentlyDeniedSnackbar by remember { mutableStateOf(false) }
-            var selectedLatitude by remember { mutableDoubleStateOf(0.0) }
-            var selectedLongitude by remember { mutableDoubleStateOf(0.0) }
+            val coordinatesViewModel = koinViewModel<CoordinatesViewModel>()
+
             // Setting the callback... hope it works
             locationService.addCallback {
-                selectedLatitude = it.latitude
-                selectedLongitude = it.longitude
                 updateDatabaseWithCoordinates(
                     loggedEmail.value.loggedProfileEmail,
-                    selectedLatitude,
-                    selectedLongitude
+                    it.latitude,
+                    it.longitude,
+                    coordinatesViewModel
                 )
             }
 
@@ -168,10 +169,7 @@ class RegistrationPhotoActivity : ComponentActivity() {
                 photoPickerLauncher = singlePhotoPickerLauncher,
                 snackbarHostState = snackbarHostState,
                 requestLocation = ::requestLocation,
-                locationService = locationService,
-                setCoordinatesCallback = {
-                    // TODO: REMOVE
-                }
+                coordinatesLiveData = coordinatesViewModel.coordinatesLiveData
             )
 
             if (showLocationDisabledAlert) {
@@ -253,27 +251,40 @@ class RegistrationPhotoActivity : ComponentActivity() {
                 email = mainProfile.email,
                 profileImage = uri.toString(),
                 wonTournamentsNumber = mainProfile.wonTournamentsNumber,
-                locationLatitude = null,
-                locationLongitude = null
+                locationLatitude = mainProfile.locationLatitude,
+                locationLongitude = mainProfile.locationLongitude
             )
             appDatabase.mainProfileDao().upsert(updatedMainProfile)
         }
     }
 
-    private fun updateDatabaseWithCoordinates(loggedEmail: String, latitude: Double, longitude: Double) {
-        Log.d("DEV", "In RegistrationPhotoActivity, coordinates are: latitude = $latitude, longitude = $longitude")
-        lifecycleScope.launch(Dispatchers.IO) {
-            val mainProfile = appDatabase.mainProfileDao().getProfileByEmail(loggedEmail)
-            val updatedMainProfile = MainProfile(
-                username = mainProfile.username,
-                password = mainProfile.password,
-                email = mainProfile.email,
-                profileImage = mainProfile.profileImage,
-                wonTournamentsNumber = mainProfile.wonTournamentsNumber,
-                locationLatitude = latitude,
-                locationLongitude = longitude
-            )
-            appDatabase.mainProfileDao().upsert(updatedMainProfile)
+    private fun updateDatabaseWithCoordinates(
+        loggedEmail: String,
+        latitude: Double,
+        longitude: Double,
+        coordinatesViewModel: CoordinatesViewModel
+    ) {
+        Log.d(
+            "DEV",
+            "In RegistrationPhotoActivity, coordinates are: latitude = $latitude, longitude = $longitude"
+        )
+        try {
+            lifecycleScope.launch(Dispatchers.IO) {
+                val mainProfile = appDatabase.mainProfileDao().getProfileByEmail(loggedEmail)
+                val updatedMainProfile = MainProfile(
+                    username = mainProfile.username,
+                    password = mainProfile.password,
+                    email = mainProfile.email,
+                    profileImage = mainProfile.profileImage,
+                    wonTournamentsNumber = mainProfile.wonTournamentsNumber,
+                    locationLatitude = latitude,
+                    locationLongitude = longitude
+                )
+                appDatabase.mainProfileDao().upsert(updatedMainProfile)
+                coordinatesViewModel.changeCoordinates(Coordinates(latitude, longitude))
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

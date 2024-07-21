@@ -54,13 +54,6 @@ fun MatchListScreen(
                 title = { Text(text = "My match list") }
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = { /* Do something when button is clicked */ }, modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .height(80.dp)
-            ) {
-                Text("Add games")
-            }
             Spacer(modifier = Modifier.height(16.dp))
             LazyColumn(
                 modifier = Modifier
