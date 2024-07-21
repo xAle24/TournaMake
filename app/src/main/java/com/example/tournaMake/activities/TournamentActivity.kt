@@ -76,7 +76,13 @@ class TournamentActivity : ComponentActivity() {
                     state = state.value,
                     bracket = createBracket(tournamentDataViewModel),
                     matchesAndTeams = getMatchesNamesAsCompetingTeams(tournamentLiveData.value),
-                    onConfirmCallback = {}
+                    onConfirmCallback = {
+                        updateMatch(
+                            tournamentDataViewModel = tournamentDataViewModel,
+                            data = it,
+                            tournamentID.value
+                        )
+                    }
                 )
             }
             //SingleEliminationBracket(bracket = TestTournamentData.singleEliminationBracket)
