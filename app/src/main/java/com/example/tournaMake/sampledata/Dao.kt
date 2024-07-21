@@ -122,7 +122,9 @@ data class TournamentMatchData(
     val gameID: String,
     val tournamentID: String,
     val teamID: String,
-    val name: String // team name
+    val name: String, // team name
+    val isWinner: Char,
+    val score: Int
 )
 @Dao
 interface TournamentDao {
@@ -140,8 +142,7 @@ interface TournamentDao {
         MATCH_TM.matchTmID, 
         MATCH_TM.gameID, 
         MATCH_TM.tournamentID,
-        TEAM_IN_TM.teamID,
-        TEAM.name
+        TEAM.*
     FROM
         MATCH_TM
     JOIN

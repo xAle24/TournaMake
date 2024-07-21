@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Observer
@@ -72,18 +73,21 @@ class TournamentActivity : ComponentActivity() {
                 )
             fetchStuffForTournament(tournamentID.value, tournamentDataViewModel)
             if (tournamentLiveData.value.isNotEmpty()) {
-                TournamentScreen(
-                    state = state.value,
-                    bracket = createBracket(tournamentDataViewModel),
-                    matchesAndTeams = getMatchesNamesAsCompetingTeams(tournamentLiveData.value),
-                    onConfirmCallback = {
-                        updateMatch(
-                            tournamentDataViewModel = tournamentDataViewModel,
-                            data = it,
-                            tournamentID.value
-                        )
-                    }
-                )
+                key(tournamentLiveData.value) {
+                    Log.d("DEV", "Key() function at line 77 in TournamentActivity called")
+                    TournamentScreen(
+                        state = state.value,
+                        bracket = createBracket(tournamentDataViewModel),
+                        matchesAndTeams = getMatchesNamesAsCompetingTeams(tournamentLiveData.value),
+                        onConfirmCallback = {
+                            updateMatch(
+                                tournamentDataViewModel = tournamentDataViewModel,
+                                data = it,
+                                tournamentID.value
+                            )
+                        }
+                    )
+                }
             }
             //SingleEliminationBracket(bracket = TestTournamentData.singleEliminationBracket)
         }
@@ -129,13 +133,13 @@ class TournamentActivity : ComponentActivity() {
                             Pair(
                                 BracketTeamDisplayModel(
                                     name = listOfTournamentData[index].name,
-                                    isWinner = false,
-                                    score = "0"
+                                    isWinner = listOfTournamentData[index].isWinner == 'Y',
+                                    score = listOfTournamentData[index].score.toString()
                                 ),
                                 BracketTeamDisplayModel(
                                     name = listOfTournamentData[index + 1].name,
-                                    isWinner = false,
-                                    score = "0"
+                                    isWinner = listOfTournamentData[index + 1].isWinner == 'Y',
+                                    score = listOfTournamentData[index + 1].score.toString()
                                 )
                             )
                         }
@@ -197,8 +201,10 @@ class TournamentActivity : ComponentActivity() {
                     isWinner = if(data.isSecondTeamWinner) 'Y' else 'N',
                     score = data.secondTeamScore
                 )
-                fetchStuffForTournament(tournamentID = tournamentID,
-                    tournamentDataViewModel = tournamentDataViewModel)
+                fetchStuffForTournament(
+                    tournamentID = tournamentID,
+                    tournamentDataViewModel = tournamentDataViewModel
+                )
                 if (data.isFirstTeamWinner) {
                     tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.value?.indexOf(
                         tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.value!!.first { t -> t.teamID == data.firstTeamID })
