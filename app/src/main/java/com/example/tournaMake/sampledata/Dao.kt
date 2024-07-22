@@ -86,6 +86,12 @@ interface MatchDao {
             WHERE MAIN_PARTICIPANT_SCORE.email = :email""")
     fun getMyMatch(email: String): List<MatchTM>
 
+    @Query("""SELECT * FROM MATCH_TM WHERE favorites = '1'""")
+    fun getFavoritesMatch(): List<MatchTM>
+
+    @Query("""UPDATE MATCH_TM SET favorites = '1' WHERE matchTmID = :matchTmID""")
+    fun setMatchFavorites(matchTmID: String)
+
     @Insert
     fun insertAll(vararg matches: MatchTM)
 
