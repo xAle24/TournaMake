@@ -7,6 +7,9 @@ import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
 import com.example.tournaMake.mylibrary.displaymodels.BracketMatchDisplayModel
 import com.example.tournaMake.sampledata.TournamentMatchData
 import java.util.UUID
+import java.util.stream.Collectors
+import kotlin.math.ceil
+import kotlin.math.log2
 
 class TournamentManager {
     /*
@@ -16,6 +19,7 @@ class TournamentManager {
     private lateinit var bracket: BracketDisplayModel
     private var wasInitialised = false
     private var tournamentDataList = mutableListOf<TournamentMatchData>()
+    private var numberOfRounds = 0
 
     /**
      * Order of function calls:
@@ -25,6 +29,7 @@ class TournamentManager {
      * */
     fun setTournamentMatchData(tournamentData: List<TournamentMatchData>) {
         this.tournamentDataList = tournamentData.toMutableList()
+        this.numberOfRounds = ceil(log2(tournamentData.size.toDouble())).toInt()
     }
 
     fun initMap() {
@@ -49,7 +54,7 @@ class TournamentManager {
      *
      *  means that this function will return 3.
      * */
-    fun mapTeamNameToIndex(teamName: String): Int {
+    private fun mapTeamNameToIndex(teamName: String): Int {
         var index = 0
         bracket.rounds[this.map[teamName]!!].matches.forEach { match ->
             if (match.topTeam.name == teamName) {
@@ -78,8 +83,8 @@ class TournamentManager {
     }
 
     fun updateMatch(data: TournamentManagerUpdateRequest) {
-        var didFirstTeamWin = data.isFirstTeamWinner
-        var didSecondTeamWin = data.isSecondTeamWinner
+        val didFirstTeamWin = data.isFirstTeamWinner
+        val didSecondTeamWin = data.isSecondTeamWinner
         val teamRound = this.getTeamRound(data.firstTeamName)
         val match = getMatchFromTeamNameAndRoundNumber(data.firstTeamName, teamRound)
         if (match.topTeam.name == data.firstTeamName) {
@@ -108,43 +113,45 @@ class TournamentManager {
         val newTeamIndex = oldIndex / 2
         val matchIndex = newTeamIndex / 2
         val teamCurrentRound = map[teamName]!!
-        this.setTeamRound(teamName, teamCurrentRound + 1)
-        val matchToUpdate = bracket.rounds[teamCurrentRound + 1].matches[matchIndex]
-        if (newTeamIndex % 2 == 0) {
-            // if the index is even, it means the team has to be inserted in the top team
-            matchToUpdate.topTeam.name = teamName
-            matchToUpdate.topTeam.isWinner = false
-            matchToUpdate.topTeam.score = "0"
-        } else {
-            matchToUpdate.bottomTeam.name = teamName
-            matchToUpdate.bottomTeam.isWinner = false
-            matchToUpdate.bottomTeam.score = "0"
-        }
-        // Updating the other data structure
-        if (matchToUpdate.topTeam.name != "---" && matchToUpdate.bottomTeam.name != "---") {
-            val uuid = UUID.randomUUID().toString()
-            this.tournamentDataList.add(
-                TournamentMatchData(
-                    matchTmID = uuid,
-                    gameID = "",
-                    tournamentID = "",
-                    teamID = "",
-                    name = matchToUpdate.topTeam.name,
-                    isWinner = 'F',
-                    score = 0
+        if (teamCurrentRound + 1 < bracket.rounds.size) {
+            this.setTeamRound(teamName, teamCurrentRound + 1)
+            val matchToUpdate = bracket.rounds[teamCurrentRound + 1].matches[matchIndex]
+            if (newTeamIndex % 2 == 0) {
+                // if the index is even, it means the team has to be inserted in the top team
+                matchToUpdate.topTeam.name = teamName
+                matchToUpdate.topTeam.isWinner = false
+                matchToUpdate.topTeam.score = "0"
+            } else {
+                matchToUpdate.bottomTeam.name = teamName
+                matchToUpdate.bottomTeam.isWinner = false
+                matchToUpdate.bottomTeam.score = "0"
+            }
+            // Updating the other data structure
+            if (matchToUpdate.topTeam.name != "---" && matchToUpdate.bottomTeam.name != "---") {
+                val uuid = UUID.randomUUID().toString()
+                this.tournamentDataList.add(
+                    TournamentMatchData(
+                        matchTmID = uuid,
+                        gameID = "",
+                        tournamentID = "",
+                        teamID = "",
+                        name = matchToUpdate.topTeam.name,
+                        isWinner = 'F',
+                        score = 0
+                    )
                 )
-            )
-            this.tournamentDataList.add(
-                TournamentMatchData(
-                    matchTmID = uuid,
-                    gameID = "",
-                    tournamentID = "",
-                    teamID = "",
-                    name = matchToUpdate.bottomTeam.name,
-                    isWinner = 'F',
-                    score = 0
+                this.tournamentDataList.add(
+                    TournamentMatchData(
+                        matchTmID = uuid,
+                        gameID = "",
+                        tournamentID = "",
+                        teamID = "",
+                        name = matchToUpdate.bottomTeam.name,
+                        isWinner = 'F',
+                        score = 0
+                    )
                 )
-            )
+            }
         }
     }
 
@@ -169,5 +176,11 @@ class TournamentManager {
         val newBracket = BracketDisplayModel(this.bracket.name, this.bracket.rounds)
         this.bracket = newBracket
         return newBracket
+    }
+
+    fun refreshTournamentDataList(): List<TournamentMatchData> {
+        val newList = this.tournamentDataList.stream().collect(Collectors.toList())
+        this.tournamentDataList = newList.toMutableList()
+        return newList
     }
 }

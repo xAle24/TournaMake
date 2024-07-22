@@ -1,5 +1,6 @@
 package com.example.tournaMake.ui.screens.tournament
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -308,6 +309,7 @@ private fun MatchSelectionMenu(
     var expanded by remember { mutableStateOf(false) }
     // Assuming that the list will always contain at least one value
     var selectedMatch by remember { mutableStateOf(list[0]) }
+    Log.d("DEV", "List of competing teams in Alert Selector = $list")
 
     Box(
         modifier = Modifier

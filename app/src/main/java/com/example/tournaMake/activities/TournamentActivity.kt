@@ -100,13 +100,18 @@ class TournamentActivity : ComponentActivity() {
             if (this.tournamentManager.wasBracketInitialised()) {
                 val privateBracket = this.tournamentManager.getBracket()
                 val bracket = remember { mutableStateOf(privateBracket) }
-                val data = getMatchesNamesAsCompetingTeams(this.tournamentManager.getTournamentMatchData())
+                val privateData =
+                    getMatchesNamesAsCompetingTeams(this.tournamentManager.getTournamentMatchData())
+                val data = remember {
+                    mutableStateOf(privateData)
+                }
+                Log.d("DEV", "TournamentActivity: Alert data size = ${data.value.size}, elements = ${data.value}")
                 key(bracket, data) {
                     Log.d("DEV", "Key() function at line 77 in TournamentActivity called")
                     TournamentScreen(
                         state = state.value,
                         bracket = bracket.value,
-                        matchesAndTeams = data,
+                        matchesAndTeams = data.value,
                         onConfirmCallback = {
                             /* updateMatch(
                                  tournamentDataViewModel = tournamentDataViewModel,
@@ -116,6 +121,7 @@ class TournamentActivity : ComponentActivity() {
                             // TODO: update the tournament manager
                             this.tournamentManager.updateMatch(it)
                             bracket.value = this.tournamentManager.refreshBracket()
+                            data.value = getMatchesNamesAsCompetingTeams(this.tournamentManager.refreshTournamentDataList())
                             Log.d("DEV", "Trying to refresh...")
                         }
                     )
