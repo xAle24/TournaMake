@@ -177,9 +177,11 @@ class TournamentActivity : ComponentActivity() {
             }
 
             bracketDisplayModel = BracketDisplayModel("MyBracket", roundList)
-            this.tournamentManager.setTournamentMatchData(listOfTournamentData)
-            this.tournamentManager.initMap()
-            this.tournamentManager.setBracket(bracketDisplayModel)
+            if (!this.tournamentManager.wasBracketInitialised()) {
+                this.tournamentManager.setTournamentMatchData(listOfTournamentData)
+                this.tournamentManager.initMap()
+                this.tournamentManager.setBracket(bracketDisplayModel)
+            }
             /*onTournamentCreated()*/
         }
     }

@@ -6,6 +6,7 @@ import com.example.tournaMake.activities.TournamentManagerUpdateRequest
 import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
 import com.example.tournaMake.mylibrary.displaymodels.BracketMatchDisplayModel
 import com.example.tournaMake.sampledata.TournamentMatchData
+import java.util.UUID
 
 class TournamentManager {
     /*
@@ -14,7 +15,7 @@ class TournamentManager {
     private val map: MutableMap<String, Int> = mutableMapOf()
     private lateinit var bracket: BracketDisplayModel
     private var wasInitialised = false
-    private var tournamentDataList = emptyList<TournamentMatchData>()
+    private var tournamentDataList = mutableListOf<TournamentMatchData>()
 
     /**
      * Order of function calls:
@@ -23,7 +24,7 @@ class TournamentManager {
      * [setBracket]
      * */
     fun setTournamentMatchData(tournamentData: List<TournamentMatchData>) {
-        this.tournamentDataList = tournamentData
+        this.tournamentDataList = tournamentData.toMutableList()
     }
 
     fun initMap() {
@@ -92,17 +93,22 @@ class TournamentManager {
             match.bottomTeam.score = data.firstTeamScore.toString()
             match.bottomTeam.isWinner = data.isFirstTeamWinner
         }
+        if (didFirstTeamWin) {
+            this.teamWon(data.firstTeamName, mapTeamNameToIndex(data.firstTeamName), data)
+        } else if (didSecondTeamWin) {
+            this.teamWon(data.secondTeamName, mapTeamNameToIndex(data.secondTeamName), data)
+        }
     }
 
-    fun setTeamRound(teamName: String, roundNumber: Int) {
+    private fun setTeamRound(teamName: String, roundNumber: Int) {
         map[teamName] = roundNumber
     }
 
-    fun teamWon(teamName: String, oldIndex: Int) {
+    private fun teamWon(teamName: String, oldIndex: Int, data: TournamentManagerUpdateRequest) {
         val newTeamIndex = oldIndex / 2
         val matchIndex = newTeamIndex / 2
         val teamCurrentRound = map[teamName]!!
-        map[teamName] = teamCurrentRound + 1
+        this.setTeamRound(teamName, teamCurrentRound + 1)
         val matchToUpdate = bracket.rounds[teamCurrentRound + 1].matches[matchIndex]
         if (newTeamIndex % 2 == 0) {
             // if the index is even, it means the team has to be inserted in the top team
@@ -113,6 +119,32 @@ class TournamentManager {
             matchToUpdate.bottomTeam.name = teamName
             matchToUpdate.bottomTeam.isWinner = false
             matchToUpdate.bottomTeam.score = "0"
+        }
+        // Updating the other data structure
+        if (matchToUpdate.topTeam.name != "---" && matchToUpdate.bottomTeam.name != "---") {
+            val uuid = UUID.randomUUID().toString()
+            this.tournamentDataList.add(
+                TournamentMatchData(
+                    matchTmID = uuid,
+                    gameID = "",
+                    tournamentID = "",
+                    teamID = "",
+                    name = matchToUpdate.topTeam.name,
+                    isWinner = 'F',
+                    score = 0
+                )
+            )
+            this.tournamentDataList.add(
+                TournamentMatchData(
+                    matchTmID = uuid,
+                    gameID = "",
+                    tournamentID = "",
+                    teamID = "",
+                    name = matchToUpdate.bottomTeam.name,
+                    isWinner = 'F',
+                    score = 0
+                )
+            )
         }
     }
 
