@@ -1,6 +1,10 @@
 package com.example.tournaMake.tournamentmanager
 
+import android.util.Log
+import androidx.compose.runtime.MutableState
+import com.example.tournaMake.activities.TournamentManagerUpdateRequest
 import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
+import com.example.tournaMake.mylibrary.displaymodels.BracketMatchDisplayModel
 import com.example.tournaMake.sampledata.TournamentMatchData
 
 class TournamentManager {
@@ -60,8 +64,34 @@ class TournamentManager {
         return -1
     }
 
-    fun getTeamRound(teamName: String): Int {
+    private fun getTeamRound(teamName: String): Int {
         return map[teamName]!!
+    }
+
+    private fun getMatchFromTeamNameAndRoundNumber(teamName: String, roundNumber: Int): BracketMatchDisplayModel {
+        return this.bracket
+            .rounds[roundNumber]
+            .matches.first { match ->
+                match.topTeam.name == teamName || match.bottomTeam.name == teamName
+            }
+    }
+
+    fun updateMatch(data: TournamentManagerUpdateRequest) {
+        var didFirstTeamWin = data.isFirstTeamWinner
+        var didSecondTeamWin = data.isSecondTeamWinner
+        val teamRound = this.getTeamRound(data.firstTeamName)
+        val match = getMatchFromTeamNameAndRoundNumber(data.firstTeamName, teamRound)
+        if (match.topTeam.name == data.firstTeamName) {
+            match.topTeam.score = data.firstTeamScore.toString()
+            match.topTeam.isWinner = data.isFirstTeamWinner
+            match.bottomTeam.score = data.secondTeamScore.toString()
+            match.bottomTeam.isWinner = data.isSecondTeamWinner
+        } else {
+            match.topTeam.score = data.secondTeamScore.toString()
+            match.topTeam.isWinner = data.isSecondTeamWinner
+            match.bottomTeam.score = data.firstTeamScore.toString()
+            match.bottomTeam.isWinner = data.isFirstTeamWinner
+        }
     }
 
     fun setTeamRound(teamName: String, roundNumber: Int) {
@@ -101,5 +131,11 @@ class TournamentManager {
 
     fun getTournamentMatchData(): List<TournamentMatchData> {
         return this.tournamentDataList
+    }
+
+    fun refreshBracket(): BracketDisplayModel {
+        val newBracket = BracketDisplayModel(this.bracket.name, this.bracket.rounds)
+        this.bracket = newBracket
+        return newBracket
     }
 }

@@ -50,6 +50,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.tournaMake.activities.DatabaseMatchUpdateRequest
 import com.example.tournaMake.activities.MatchAsCompetingTeams
+import com.example.tournaMake.activities.TournamentManagerUpdateRequest
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
 import com.example.tournaMake.mylibrary.ui.SingleEliminationBracket
@@ -62,7 +63,7 @@ fun TournamentScreen(
     state: ThemeState,
     bracket: BracketDisplayModel,
     matchesAndTeams: List<MatchAsCompetingTeams>,
-    onConfirmCallback: (DatabaseMatchUpdateRequest) -> Unit
+    onConfirmCallback: (TournamentManagerUpdateRequest) -> Unit
 ) {
     BasicScreenWithTheme(
         state = state
@@ -77,9 +78,9 @@ fun TournamentScreen(
             modifier = Modifier
                 .systemBarsPadding(),
         ) {
-            key(bracket) {
-                SingleEliminationBracket(bracket = bracket)
-            }
+
+            SingleEliminationBracket(bracket = bracket)
+
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.BottomEnd
@@ -96,7 +97,7 @@ fun TournamentScreen(
             openDialog = isAlertVisible,
             onDismiss = { isAlertVisible = false },
             matchesAndTeams = matchesAndTeams,
-            onConfirmCallback = onConfirmCallback
+            onConfirmCallback = onConfirmCallback,
         )
     }
 }
@@ -108,7 +109,7 @@ fun ModifyMatchesAlert(
     openDialog: Boolean,
     onDismiss: () -> Unit,
     matchesAndTeams: List<MatchAsCompetingTeams>,
-    onConfirmCallback: (DatabaseMatchUpdateRequest) -> Unit
+    onConfirmCallback: (TournamentManagerUpdateRequest) -> Unit,
 ) {
     val matchID = remember { mutableStateOf("") }
     val firstTeamID = remember {
@@ -259,10 +260,9 @@ fun ModifyMatchesAlert(
             confirmButton = {
                 Button(onClick = {
                     onConfirmCallback(
-                        DatabaseMatchUpdateRequest(
-                            matchID = matchID.value,
-                            firstTeamID = firstTeamID.value,
-                            secondTeamID = secondTeamID.value,
+                        TournamentManagerUpdateRequest(
+                            firstTeamName = firstTeamName.value,
+                            secondTeamName = secondTeamName.value,
                             isFirstTeamWinner = winner.value == RadioButtonStates.First,
                             isSecondTeamWinner = winner.value == RadioButtonStates.Second,
                             firstTeamScore = firstTeamScore.intValue,
@@ -364,7 +364,7 @@ private fun MatchSelectionMenu(
     }
 }
 
-@Preview
+/*@Preview
 @Composable
 fun ModifyMatchesAlertPreview() {
     ModifyMatchesAlert(
@@ -374,6 +374,7 @@ fun ModifyMatchesAlertPreview() {
             MatchAsCompetingTeams("match1", "Team1", "1","Team2", "2"),
             MatchAsCompetingTeams("match2", "Team3", "3","Team4", "4")
         ),
-        onConfirmCallback = {}
+        onConfirmCallback = {},
+        tryToRecomposePlease = {}
     )
-}
+}*/

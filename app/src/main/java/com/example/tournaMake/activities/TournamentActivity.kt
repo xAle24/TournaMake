@@ -55,6 +55,15 @@ data class DatabaseMatchUpdateRequest(
     val secondTeamScore: Int
 )
 
+data class TournamentManagerUpdateRequest(
+    val firstTeamName: String,
+    val secondTeamName: String,
+    val isFirstTeamWinner: Boolean,
+    val isSecondTeamWinner: Boolean,
+    val firstTeamScore: Int,
+    val secondTeamScore: Int
+)
+
 class TournamentActivity : ComponentActivity() {
     private val appDatabase = get<AppDatabase>()
     private val tournamentManager: TournamentManager = TournamentManager()
@@ -89,13 +98,15 @@ class TournamentActivity : ComponentActivity() {
             )
 
             if (this.tournamentManager.wasBracketInitialised()) {
-                val bracket = this.tournamentManager.getBracket()
-                key(bracket) {
+                val privateBracket = this.tournamentManager.getBracket()
+                val bracket = remember { mutableStateOf(privateBracket) }
+                val data = getMatchesNamesAsCompetingTeams(this.tournamentManager.getTournamentMatchData())
+                key(bracket, data) {
                     Log.d("DEV", "Key() function at line 77 in TournamentActivity called")
                     TournamentScreen(
                         state = state.value,
-                        bracket = this.tournamentManager.getBracket(),
-                        matchesAndTeams = getMatchesNamesAsCompetingTeams(this.tournamentManager.getTournamentMatchData()),
+                        bracket = bracket.value,
+                        matchesAndTeams = data,
                         onConfirmCallback = {
                             /* updateMatch(
                                  tournamentDataViewModel = tournamentDataViewModel,
@@ -103,6 +114,9 @@ class TournamentActivity : ComponentActivity() {
                                  tournamentID.value
                              )*/
                             // TODO: update the tournament manager
+                            this.tournamentManager.updateMatch(it)
+                            bracket.value = this.tournamentManager.refreshBracket()
+                            Log.d("DEV", "Trying to refresh...")
                         }
                     )
                 }
