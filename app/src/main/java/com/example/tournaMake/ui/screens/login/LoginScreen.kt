@@ -35,11 +35,11 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 @Composable
 fun LoginScreen(
     state: ThemeState, // The state of the UI (dark, light or system)
-    navigateToMenu: () -> Unit,
     changeViewModelRememberMeCallback: (Boolean) -> Unit,
     rememberMeFromViewModel: Boolean,
     userEmail: String,
-    userPassword: String
+    userPassword: String,
+    handleLogin: (String, String, Boolean) -> Unit
 ) {
     BasicScreenWithTheme(
         state = state,
@@ -49,7 +49,7 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            var username by remember {
+            var email by remember {
                 mutableStateOf(
                     if (rememberMeFromViewModel) userEmail else ""
                 )
@@ -70,12 +70,12 @@ fun LoginScreen(
                     .fillMaxHeight(0.2f)
             )
             OutlinedTextField(
-                value = username,
+                value = email,
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .height(60.dp),
-                onValueChange = { username = it },
-                label = { Text("Username") },
+                onValueChange = { email = it },
+                label = { Text("Email") },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
                     focusedContainerColor = Color.White,
@@ -117,7 +117,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(20.dp))
             Button(
                 onClick = {
-                    navigateToMenu()
+                    handleLogin(email, password, rememberMe)
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)

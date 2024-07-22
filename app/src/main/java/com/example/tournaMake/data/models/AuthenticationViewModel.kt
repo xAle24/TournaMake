@@ -1,5 +1,9 @@
 package com.example.tournaMake.data.models
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.example.tournaMake.data.repositories.AuthenticationRepository
 import androidx.lifecycle.ViewModel
@@ -15,6 +19,9 @@ import java.lang.IllegalStateException
 // To keep track of the currently logged in or registered user
 // This email refers to a MainProfile
 data class LoggedProfileState(val loggedProfileEmail: String)
+
+enum class LoginStatus {Success, Fail, Unknown}
+
 
 class AuthenticationViewModel(private val repository: AuthenticationRepository): ViewModel() {
     val loggedEmail = repository.email.map { LoggedProfileState(it.toString()) }.stateIn(
@@ -32,6 +39,8 @@ class AuthenticationViewModel(private val repository: AuthenticationRepository):
         started = SharingStarted.WhileSubscribed(),
         initialValue = false
     )
+    private val _loginStatus = MutableStateFlow(LoginStatus.Unknown)
+    val loginStatus: StateFlow<LoginStatus> = _loginStatus.asStateFlow()
     fun saveUserAuthenticationPreferences(email: String, password: String, rememberMe: Boolean) = viewModelScope.launch {
         repository.setEmail(email)
         repository.setPassword(password)
@@ -60,5 +69,9 @@ class AuthenticationViewModel(private val repository: AuthenticationRepository):
         } else {
             throw IllegalStateException("The user did not select 'Remember me' option!")
         }
+    }
+
+    fun changeLoginStatus(status: LoginStatus) {
+        this._loginStatus.value = status
     }
 }

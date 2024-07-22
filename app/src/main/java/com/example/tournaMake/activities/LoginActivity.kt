@@ -2,15 +2,31 @@ package com.example.tournaMake.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.AuthenticationViewModel
+import com.example.tournaMake.data.models.LoginStatus
 import com.example.tournaMake.data.models.ThemeViewModel
+import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.ui.screens.login.LoginScreen
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.get
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.context.GlobalContext.get
 
 class LoginActivity : ComponentActivity() {
+    private val appDatabase = get<AppDatabase>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -25,13 +41,14 @@ class LoginActivity : ComponentActivity() {
             val userEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
             val userPassword = authenticationViewModel.password.collectAsStateWithLifecycle()
             val rememberMe = authenticationViewModel.rememberMe.collectAsStateWithLifecycle()
+
             LoginScreen(
                 state = state.value,
-                navigateToMenu = this::navigateToMenu,
-                changeViewModelRememberMeCallback = { authenticationViewModel.setRememberMe(it)},
+                changeViewModelRememberMeCallback = { authenticationViewModel.setRememberMe(it) },
                 rememberMeFromViewModel = rememberMe.value,
                 userEmail = userEmail.value.loggedProfileEmail,
-                userPassword = userPassword.value
+                userPassword = userPassword.value,
+                handleLogin = this::handleLogin
             )
         }
     }
@@ -57,12 +74,52 @@ class LoginActivity : ComponentActivity() {
         email: String,
         password: String,
         rememberMe: Boolean,
-        viewModel: AuthenticationViewModel
+        viewModel: AuthenticationViewModel = get<AuthenticationViewModel>()
     ) {
-        // TODO: add database check to see if user exists
-        if (rememberMe) {
-            viewModel.saveUserAuthenticationPreferences(email, password, true)
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                Log.d("DEV", "Checking email $email, password $password")
+                val storedPassword = appDatabase.mainProfileDao().checkPassword(email)
+                Log.d("DEV", "Retrieved password = $storedPassword")
+                if (storedPassword == password) {
+                    viewModel.changeLoginStatus(LoginStatus.Success)
+                    Log.d("DEV", "SUCCESS")
+                    if (rememberMe) {
+                        viewModel.saveUserAuthenticationPreferences(email, password, true)
+                    }
+                } else {
+                    viewModel.changeLoginStatus(LoginStatus.Fail)
+                    Log.d("DEV", "Fail...")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                viewModel.changeLoginStatus(LoginStatus.Fail)
+            }
+            // Toasts and UI updates can only be executed on the main thread
+            withContext(Dispatchers.Main) {
+                when (viewModel.loginStatus.value) {
+                    LoginStatus.Success -> Toast.makeText(
+                        this@LoginActivity,
+                        "Login succeeded",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    LoginStatus.Fail -> Toast.makeText(
+                        this@LoginActivity,
+                        "Login failed",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    LoginStatus.Unknown -> {}
+                }
+                if (viewModel.loginStatus.value == LoginStatus.Success) {
+                    // Maybe navigating to another screen from a coroutine is a bad idea,
+                    // but it also seems a bad idea to do so from a composable function
+                    // in this case
+                    navigateToMenu()
+                }
+            }
         }
-        navigateToMenu()
+
     }
 }
