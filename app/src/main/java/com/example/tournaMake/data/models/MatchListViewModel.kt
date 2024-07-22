@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.tournaMake.sampledata.MatchTM
 
-class MatchListViewModel : ViewModel() {
+class MatchListViewModel: ViewModel() {
     private val _matchesList = MutableLiveData<List<MatchTM>>()
     val matchesListLiveData : LiveData<List<MatchTM>> = _matchesList
 

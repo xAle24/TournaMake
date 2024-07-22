@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,7 +70,10 @@ fun MatchCreationScreen(
                     .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f))
             ) {
                 SelectionMenu()
-                TeamContainer(teamsSet = setOf(testTeam1, testTeam2))
+                TeamContainer(teamsSet = setOf(testTeam1, testTeam2),
+                    mainProfileListFromDatabase =  emptyList(),
+                    guestProfileListFromDatabase =  emptyList(),
+                    removeTeam = {/*TODO palle di palle*/}) //TODO palle
                 Spacer(Modifier.height(20.dp))
                 Row(
                     modifier = Modifier

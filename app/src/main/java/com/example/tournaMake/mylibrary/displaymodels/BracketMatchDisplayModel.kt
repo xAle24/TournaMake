@@ -7,6 +7,6 @@ package com.example.tournaMake.mylibrary.displaymodels
  * will appear on the top of the [com.adammcneilly.tournament.bracket.internal.BracketMatchItem] UI.
  */
 data class BracketMatchDisplayModel(
-    val topTeam: BracketTeamDisplayModel,
-    val bottomTeam: BracketTeamDisplayModel,
+    var topTeam: BracketTeamDisplayModel,
+    var bottomTeam: BracketTeamDisplayModel,
 )

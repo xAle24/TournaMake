@@ -8,7 +8,7 @@ package com.example.tournaMake.mylibrary.displaymodels
  * the entity is being used in.
  */
 data class BracketTeamDisplayModel(
-    val name: String,
-    val isWinner: Boolean,
-    val score: String,
+    var name: String,
+    var isWinner: Boolean,
+    var score: String,
 )

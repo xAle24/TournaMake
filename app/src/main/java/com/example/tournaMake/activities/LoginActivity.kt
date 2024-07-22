@@ -9,7 +9,6 @@ import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.ui.screens.login.LoginScreen
 import org.koin.androidx.compose.koinViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,25 +22,16 @@ class LoginActivity : ComponentActivity() {
             // is destroyed when we leave this Activity.
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
+            val userEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
+            val userPassword = authenticationViewModel.password.collectAsStateWithLifecycle()
+            val rememberMe = authenticationViewModel.rememberMe.collectAsStateWithLifecycle()
             LoginScreen(
                 state = state.value,
-                checkIfUserWantedToBeRemembered = {
-                    this.checkIfUserWantedToBeRemembered(authenticationViewModel)
-                },
-                getRememberedEmail = {
-                    this.getRememberedEmail(authenticationViewModel)
-                },
-                getRememberedPassword = {
-                    this.getRememberedPassword(authenticationViewModel)
-                },
-                handleLogin = { email, password, rememberMe ->
-                    handleLogin(
-                        email = email,
-                        password = password,
-                        rememberMe = rememberMe,
-                        viewModel = authenticationViewModel
-                    )
-                }
+                navigateToMenu = this::navigateToMenu,
+                changeViewModelRememberMeCallback = { authenticationViewModel.setRememberMe(it)},
+                rememberMeFromViewModel = rememberMe.value,
+                userEmail = userEmail.value.loggedProfileEmail,
+                userPassword = userPassword.value
             )
         }
     }
@@ -71,7 +61,7 @@ class LoginActivity : ComponentActivity() {
     ) {
         // TODO: add database check to see if user exists
         if (rememberMe) {
-            viewModel.rememberEmailAndPassword(email, password)
+            viewModel.saveUserAuthenticationPreferences(email, password, true)
         }
         navigateToMenu()
     }

@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.example.tournaMake.data.models.AchievementsProfileViewModel
 import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.ProfileViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
@@ -24,6 +25,8 @@ import com.example.tournaMake.filemanager.ProfileImageHelper
 import com.example.tournaMake.filemanager.ProfileImageHelperImpl
 import com.example.tournaMake.filemanager.doesDirectoryContainFile
 import com.example.tournaMake.filemanager.loadImageUriFromDirectory
+import com.example.tournaMake.sampledata.AchievementPlayer
+import com.example.tournaMake.sampledata.AchievementResult
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.profile.ProfileScreen
@@ -47,12 +50,15 @@ class ProfileActivity : ComponentActivity() {
             // is destroyed when we leave this Activity.
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
-            val loggedEmail = authenticationViewModel.loggedEmailTemp.collectAsStateWithLifecycle()
+            val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
             val profileViewModel = koinViewModel<ProfileViewModel>()
             val profileObserver = Observer<MainProfile?> { profile ->
                 Log.d("DEV", "In profile observer profile = ${profile?.email}")
             }
             profileViewModel.profileLiveData.observe(this, profileObserver)
+            val achievementsProfileViewModelViewModel = koinViewModel<AchievementsProfileViewModel>()
+            val achievementsObserver = Observer<List<AchievementResult>> { }
+            achievementsProfileViewModelViewModel.achievementProfileListLiveData.observe(this, achievementsObserver)
             // Adding management of profile photo
             /* Code taken from:
             * https://www.youtube.com/watch?v=uHX5NB6wHao
@@ -89,7 +95,7 @@ class ProfileActivity : ComponentActivity() {
                     recreate() // I'm sorry but without this line I don't see changes take effect
                 } else if (uri != null && loggedEmail.value.loggedProfileEmail.isEmpty()) {
                     profilePictureHelper.waitForEmailThenStoreProfilePicture(
-                        loggedEmailStateFlow = authenticationViewModel.loggedEmailTemp,
+                        loggedEmailStateFlow = authenticationViewModel.loggedEmail,
                         profileImageUri = uri,
                         context = baseContext,
                         databaseUpdaterCallback = this::uploadPhotoToDatabase,
@@ -111,10 +117,12 @@ class ProfileActivity : ComponentActivity() {
             ) {
                 selectedImageURI = it // callback for when the profile data come
             }
+            fetchAndUpdateAchievementsProfile(loggedEmail.value.loggedProfileEmail, achievementsProfileViewModelViewModel)
             ProfileScreen(
                 state = state.value,
                 profileLiveData = profileViewModel.profileLiveData,
-                backButton = this::backButton,
+                achievementPlayerLiveData = achievementsProfileViewModelViewModel.achievementProfileListLiveData,
+                backButton = this::finish,
                 navigateToChart = this::navigateToChart,
                 navigateToPlayerActivity = this::navigateToPlayerActivity,
                 selectedImage = selectedImageURI,
@@ -154,11 +162,18 @@ class ProfileActivity : ComponentActivity() {
             }
         }
     }
-
-    private fun backButton() {
-        finish()
+    private fun fetchAndUpdateAchievementsProfile(email: String, achievementsProfileViewModel: AchievementsProfileViewModel){
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val myAchievement = appDatabase?.achievementPlayerDao()?.getAchievementsByEmail(email)
+                if (myAchievement != null) {
+                    achievementsProfileViewModel.updateAchievementProfileList(myAchievement)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
-
     private fun navigateToChart() {
         val intent = Intent(this, GamesChartActivity::class.java)
         startActivity(intent)

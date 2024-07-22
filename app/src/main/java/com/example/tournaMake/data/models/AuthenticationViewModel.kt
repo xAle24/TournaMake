@@ -17,47 +17,37 @@ import java.lang.IllegalStateException
 data class LoggedProfileState(val loggedProfileEmail: String)
 
 class AuthenticationViewModel(private val repository: AuthenticationRepository): ViewModel() {
-    private val loggedEmail = repository.email.map { LoggedProfileState(it.toString()) }.stateIn(
+    val loggedEmail = repository.email.map { LoggedProfileState(it.toString()) }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
         initialValue = LoggedProfileState("")
     )
-    private val password = repository.password.map { it.toString() }.stateIn(
+    val password = repository.password.map { it.toString() }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
         initialValue = ""
     )
-    private var rememberMe = false
-    /*
-    Use loggedEmailTemp if the user does not want the application to remember their
-    credentials when closed.*
-    The backing property _loggedEmailTemp is mutable, and thus must not be accessed by
-    external code.
-    The loggedEmailTemp is visible outside.
-    To use it, write the following lines:
-    *
-    val loggedProfileViewModel = viewModel<AuthenticationViewModel>()
-    val loggedEmail by loggedProfileViewModel.loggedEmailTemp.collectAsStateWithLifecycle()
-    */
-    private val _loggedEmailTemp = MutableStateFlow(LoggedProfileState(""))
-    val loggedEmailTemp = _loggedEmailTemp.asStateFlow()
-
-    fun rememberEmailAndPassword(email: String, password: String) = viewModelScope.launch {
+    val rememberMe = repository.doesUserWantToBeRemembered.map { it ?: false }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(),
+        initialValue = false
+    )
+    fun saveUserAuthenticationPreferences(email: String, password: String, rememberMe: Boolean) = viewModelScope.launch {
         repository.setEmail(email)
         repository.setPassword(password)
-        rememberMe
+        repository.setRememberMe(rememberMe)
     }
 
-    fun setTemporaryEmail(email: String) {
-        _loggedEmailTemp.value = LoggedProfileState(email)
+    fun setRememberMe(rememberMe: Boolean) = viewModelScope.launch {
+        repository.setRememberMe(rememberMe)
     }
 
     fun didUserWantToBeRemembered(): Boolean {
-        return this.rememberMe
+        return this.rememberMe.value
     }
 
     fun getRememberedEmail(): StateFlow<LoggedProfileState> {
-        if (this.rememberMe) {
+        if (this.rememberMe.value) {
             return this.loggedEmail
         } else {
             throw IllegalStateException("The user did not select 'Remember me' option!")
@@ -65,7 +55,7 @@ class AuthenticationViewModel(private val repository: AuthenticationRepository):
     }
 
     fun getRememberedPassword(): StateFlow<String> {
-        if (this.rememberMe) {
+        if (this.rememberMe.value) {
             return this.password
         } else {
             throw IllegalStateException("The user did not select 'Remember me' option!")

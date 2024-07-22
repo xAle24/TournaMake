@@ -24,6 +24,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -185,7 +187,8 @@ fun FilterButton(
 fun MatchCard(
     match: MatchTM,
     onDelete: () -> Unit,
-    colorConstants: ColorConstants
+    colorConstants: ColorConstants,
+    isFavourite: Boolean = false // TODO: add logic from database
 ) {
     var expanded by remember { mutableStateOf(false) }
     Card(
@@ -202,13 +205,24 @@ fun MatchCard(
             disabledContentColor = MaterialTheme.colorScheme.error
         )
     ) {
-        Text(
-            match.gameID + " Match", // TODO: change with Game Name
+        Row(
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(0.dp, 10.dp),
-            style = MaterialTheme.typography.displaySmall
-        )
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                match.gameID + " Match", // TODO: change with Game Name
+                modifier = Modifier
+                    .padding(0.dp, 10.dp),
+                style = MaterialTheme.typography.displaySmall
+            )
+            IconButton(onClick = {
+                /*TODO: Add to favorites*/
+            }) {
+                Icon(imageVector = if (isFavourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, contentDescription = null)
+            }
+        }
         Column(
             //Modifier.background(MaterialTheme.colorScheme.secondary)
             modifier = Modifier.align(Alignment.CenterHorizontally)

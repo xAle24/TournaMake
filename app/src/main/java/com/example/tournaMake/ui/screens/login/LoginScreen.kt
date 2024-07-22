@@ -35,10 +35,11 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 @Composable
 fun LoginScreen(
     state: ThemeState, // The state of the UI (dark, light or system)
-    handleLogin: (String, String, Boolean) -> Unit,
-    checkIfUserWantedToBeRemembered: () -> Boolean,
-    getRememberedEmail: () -> String,
-    getRememberedPassword: () -> String
+    navigateToMenu: () -> Unit,
+    changeViewModelRememberMeCallback: (Boolean) -> Unit,
+    rememberMeFromViewModel: Boolean,
+    userEmail: String,
+    userPassword: String
 ) {
     BasicScreenWithTheme(
         state = state,
@@ -48,13 +49,17 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            var email by remember {
-                mutableStateOf(if (checkIfUserWantedToBeRemembered()) getRememberedEmail() else "")
+            var username by remember {
+                mutableStateOf(
+                    if (rememberMeFromViewModel) userEmail else ""
+                )
             }
             var password by remember {
-                mutableStateOf(if (checkIfUserWantedToBeRemembered()) getRememberedPassword() else "")
+                mutableStateOf(
+                    if (rememberMeFromViewModel) userPassword else ""
+                )
             }
-            var rememberMe by remember { mutableStateOf(checkIfUserWantedToBeRemembered()) }
+            var rememberMe by remember { mutableStateOf(rememberMeFromViewModel) }
             val imageId =
                 if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
             Image(
@@ -65,12 +70,12 @@ fun LoginScreen(
                     .fillMaxHeight(0.2f)
             )
             OutlinedTextField(
-                value = email,
+                value = username,
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .height(60.dp),
-                onValueChange = { email = it },
-                label = { Text("Email") },
+                onValueChange = { username = it },
+                label = { Text("Username") },
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.White,
                     focusedContainerColor = Color.White,
@@ -102,14 +107,17 @@ fun LoginScreen(
             ) {
                 Checkbox(
                     checked = rememberMe,
-                    onCheckedChange = { rememberMe = it },
+                    onCheckedChange = {
+                        rememberMe = it
+                        changeViewModelRememberMeCallback(it)
+                    },
                 )
                 Text("Remember me")
             }
             Spacer(modifier = Modifier.height(20.dp))
             Button(
                 onClick = {
-                    handleLogin(email, password, rememberMe)
+                    navigateToMenu()
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
