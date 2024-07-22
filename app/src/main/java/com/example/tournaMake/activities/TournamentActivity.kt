@@ -5,10 +5,17 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Observer
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.ThemeViewModel
@@ -25,7 +32,6 @@ import com.example.tournaMake.ui.screens.tournament.TournamentScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
-import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.ceil
 import kotlin.math.log2
@@ -51,8 +57,7 @@ data class DatabaseMatchUpdateRequest(
 
 class TournamentActivity : ComponentActivity() {
     private val appDatabase = get<AppDatabase>()
-    private lateinit var tournamentManager: TournamentManager
-    private lateinit var bracket: BracketDisplayModel
+    private val tournamentManager: TournamentManager = TournamentManager()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -64,38 +69,44 @@ class TournamentActivity : ComponentActivity() {
             val tournamentIDViewModel = koinViewModel<TournamentIDViewModel>()
             val tournamentID = tournamentIDViewModel.tournamentID.collectAsStateWithLifecycle()
             val tournamentDataViewModel = koinViewModel<TournamentDataViewModel>()
+            var wasTournamentCreated by remember { mutableStateOf(false) }
+            val liveData =
+                tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.observeAsState()
+            fetchStuffForTournament(tournamentID.value, tournamentDataViewModel)
+
+
             val liveDataObserver = Observer<List<TournamentMatchData>> {
                 Log.d("DEV", "In TournamentActivity: Observer code called! List size = ${it.size}")
                 // When data arrives, create the bracket
-                //bracket = createBracket(tournamentDataViewModel)
+                createBracket(tournamentDataViewModel)
+                // Update wasTournamentCreated state to trigger recomposition
+                wasTournamentCreated = tournamentManager.wasBracketInitialised()
+                Log.d("DEV", "Guard variable wasTournamentCreated = $wasTournamentCreated")
             }
             tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.observe(
                 this,
                 liveDataObserver
             )
-            val tournamentLiveData =
-                tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.observeAsState(
-                    emptyList()
-                )
-            fetchStuffForTournament(tournamentID.value, tournamentDataViewModel)
-            if (tournamentLiveData.value.isNotEmpty()) {
-                key(tournamentLiveData.value) {
+
+            if (this.tournamentManager.wasBracketInitialised()) {
+                val bracket = this.tournamentManager.getBracket()
+                key(bracket) {
                     Log.d("DEV", "Key() function at line 77 in TournamentActivity called")
                     TournamentScreen(
                         state = state.value,
-                        bracket = this.bracket,
-                        matchesAndTeams = getMatchesNamesAsCompetingTeams(tournamentLiveData.value),
+                        bracket = this.tournamentManager.getBracket(),
+                        matchesAndTeams = getMatchesNamesAsCompetingTeams(this.tournamentManager.getTournamentMatchData()),
                         onConfirmCallback = {
-                            updateMatch(
-                                tournamentDataViewModel = tournamentDataViewModel,
-                                data = it,
-                                tournamentID.value
-                            )
+                            /* updateMatch(
+                                 tournamentDataViewModel = tournamentDataViewModel,
+                                 data = it,
+                                 tournamentID.value
+                             )*/
+                            // TODO: update the tournament manager
                         }
                     )
                 }
             }
-            //SingleEliminationBracket(bracket = TestTournamentData.singleEliminationBracket)
         }
     }
 
@@ -114,19 +125,7 @@ class TournamentActivity : ComponentActivity() {
         }
     }
 
-    /**
-     * 1) bisogna aspettare che i live data arrivino
-     * 2) bisogna creare il bracket
-     * 3) bisogna creare la schermata
-     * */
-
-    /**
-     * Input: tournament data, che contiene team e match
-     * Bracket contiene più round
-     * I round (es. semifinali, finali) contengono team / 2 matches
-     * un match è giocato da 2 team
-     * */
-    private fun createBracket(tournament: TournamentDataViewModel): BracketDisplayModel {
+    private fun createBracket(tournament: TournamentDataViewModel /*onTournamentCreated: () -> Unit*/) {
         val listOfTournamentData = tournament.tournamentMatchesAndTeamsLiveData.value ?: emptyList()
         val numberOfRounds = ceil(log2(listOfTournamentData.size.toDouble())).toInt()
         var bracketDisplayModel: BracketDisplayModel? = null
@@ -164,14 +163,11 @@ class TournamentActivity : ComponentActivity() {
             }
 
             bracketDisplayModel = BracketDisplayModel("MyBracket", roundList)
-            this.tournamentManager = TournamentManager(
-                bracket = bracketDisplayModel,
-                tournamentData = listOfTournamentData
-            )
-            this.tournamentManager.init()
-            this.bracket = bracketDisplayModel
+            this.tournamentManager.setTournamentMatchData(listOfTournamentData)
+            this.tournamentManager.initMap()
+            this.tournamentManager.setBracket(bracketDisplayModel)
+            /*onTournamentCreated()*/
         }
-        return bracketDisplayModel ?: BracketDisplayModel("EmptyBracket", emptyList())
     }
 
     private fun createRoundWithPlaceholders(
@@ -269,24 +265,6 @@ class TournamentActivity : ComponentActivity() {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-        }
-    }
-
-    private fun teamWon(teamName: String, tournamentDataViewModel: TournamentDataViewModel) {
-        val newTeamIndex = this.tournamentManager.mapTeamNameToIndex(teamName) / 2
-        val matchIndex = newTeamIndex / 2
-        val teamCurrentRound = this.tournamentManager.getTeamRound(teamName)
-        this.tournamentManager.setTeamRound(teamName, teamCurrentRound + 1)
-        val matchToUpdate = tournamentManager.getBracket().rounds[teamCurrentRound + 1].matches[matchIndex]
-        if (newTeamIndex % 2 == 0) {
-            // if the index is even, it means the team has to be inserted in the top team
-            matchToUpdate.topTeam.name = teamName
-            matchToUpdate.topTeam.isWinner = false
-            matchToUpdate.topTeam.score = "0"
-        } else {
-            matchToUpdate.bottomTeam.name = teamName
-            matchToUpdate.bottomTeam.isWinner = false
-            matchToUpdate.bottomTeam.score = "0"
         }
     }
 

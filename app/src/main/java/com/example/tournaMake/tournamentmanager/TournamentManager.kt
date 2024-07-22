@@ -1,21 +1,29 @@
 package com.example.tournaMake.tournamentmanager
 
 import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
-import com.example.tournaMake.mylibrary.displaymodels.BracketTeamDisplayModel
 import com.example.tournaMake.sampledata.TournamentMatchData
-import kotlin.math.log2
 
-class TournamentManager(
-    private var bracket: BracketDisplayModel,
-    private val tournamentData: List<TournamentMatchData>
-) {
+class TournamentManager {
     /*
     * A map of TeamID -> Team's current Round
     * */
     private val map: MutableMap<String, Int> = mutableMapOf()
+    private lateinit var bracket: BracketDisplayModel
+    private var wasInitialised = false
+    private var tournamentDataList = emptyList<TournamentMatchData>()
 
-    fun init() {
-        this.tournamentData
+    /**
+     * Order of function calls:
+     * [setTournamentMatchData]
+     * [initMap]
+     * [setBracket]
+     * */
+    fun setTournamentMatchData(tournamentData: List<TournamentMatchData>) {
+        this.tournamentDataList = tournamentData
+    }
+
+    fun initMap() {
+        this.tournamentDataList
             .map { elem -> elem.name }
             .forEach { teamName -> map[teamName] = 0 }
     }
@@ -59,6 +67,7 @@ class TournamentManager(
     fun setTeamRound(teamName: String, roundNumber: Int) {
         map[teamName] = roundNumber
     }
+
     fun teamWon(teamName: String, oldIndex: Int) {
         val newTeamIndex = oldIndex / 2
         val matchIndex = newTeamIndex / 2
@@ -79,9 +88,18 @@ class TournamentManager(
 
     fun setBracket(bracket: BracketDisplayModel) {
         this.bracket = bracket
+        wasInitialised = true
+    }
+
+    fun wasBracketInitialised(): Boolean {
+        return this.wasInitialised
     }
 
     fun getBracket(): BracketDisplayModel {
         return this.bracket
+    }
+
+    fun getTournamentMatchData(): List<TournamentMatchData> {
+        return this.tournamentDataList
     }
 }
