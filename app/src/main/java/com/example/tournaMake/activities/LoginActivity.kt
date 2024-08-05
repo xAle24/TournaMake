@@ -41,23 +41,15 @@ class LoginActivity : ComponentActivity() {
             val userEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
             val userPassword = authenticationViewModel.password.collectAsStateWithLifecycle()
             val rememberMe = authenticationViewModel.rememberMe.collectAsStateWithLifecycle()
-            val loginState = authenticationViewModel.loginStatus.collectAsStateWithLifecycle()
 
-            Log.d("DEV-LOGIN", "Login status: ${loginState.value}")
-            if (loginState.value == LoginStatus.Success) {
-                navigateToMenu()
-                Log.d("DEV-LOGIN", "navigateToMenu() theoretically called")
-                finish() // TODO: maybe this is useless
-            } else {
-                LoginScreen(
-                    state = state.value,
-                    changeViewModelRememberMeCallback = { authenticationViewModel.setRememberMe(it) },
-                    rememberMeFromViewModel = rememberMe.value,
-                    userEmail = userEmail.value.loggedProfileEmail,
-                    userPassword = userPassword.value,
-                    handleLogin = this::handleLogin
-                )
-            }
+            LoginScreen(
+                state = state.value,
+                changeViewModelRememberMeCallback = { authenticationViewModel.setRememberMe(it) },
+                rememberMeFromViewModel = rememberMe.value,
+                userEmail = userEmail.value.loggedProfileEmail,
+                userPassword = userPassword.value,
+                handleLogin = this::handleLogin
+            )
         }
     }
 
@@ -95,6 +87,12 @@ class LoginActivity : ComponentActivity() {
                     if (rememberMe) {
                         viewModel.saveUserAuthenticationPreferences(email, password, true)
                     }
+                    //Trying to switch activity
+                    if (viewModel.loginStatus.value == LoginStatus.Success) {
+                        Log.d("DEV-AHGAH", "Entering this if")
+                        val intent = Intent(this@LoginActivity, MenuActivity::class.java)
+                        startActivity(intent)
+                    }
                 } else {
                     viewModel.changeLoginStatus(LoginStatus.Fail)
                     Log.d("DEV", "Fail...")
@@ -121,13 +119,6 @@ class LoginActivity : ComponentActivity() {
 
                     LoginStatus.Unknown -> {}
                 }
-            }
-
-            //Trying to switch activity
-            if (viewModel.loginStatus.value == LoginStatus.Success) {
-                Log.d("DEV-AHGAH", "Entering this if")
-                val intent = Intent(this@LoginActivity, MenuActivity::class.java)
-                startActivity(intent)
             }
         }
     }
