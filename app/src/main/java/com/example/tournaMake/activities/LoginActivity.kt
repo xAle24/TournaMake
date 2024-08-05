@@ -41,15 +41,23 @@ class LoginActivity : ComponentActivity() {
             val userEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
             val userPassword = authenticationViewModel.password.collectAsStateWithLifecycle()
             val rememberMe = authenticationViewModel.rememberMe.collectAsStateWithLifecycle()
+            val loginState = authenticationViewModel.loginStatus.collectAsStateWithLifecycle()
 
-            LoginScreen(
-                state = state.value,
-                changeViewModelRememberMeCallback = { authenticationViewModel.setRememberMe(it) },
-                rememberMeFromViewModel = rememberMe.value,
-                userEmail = userEmail.value.loggedProfileEmail,
-                userPassword = userPassword.value,
-                handleLogin = this::handleLogin
-            )
+            Log.d("DEV-LOGIN", "Login status: ${loginState.value}")
+            if (loginState.value == LoginStatus.Success) {
+                navigateToMenu()
+                Log.d("DEV-LOGIN", "navigateToMenu() theoretically called")
+                finish() // TODO: maybe this is useless
+            } else {
+                LoginScreen(
+                    state = state.value,
+                    changeViewModelRememberMeCallback = { authenticationViewModel.setRememberMe(it) },
+                    rememberMeFromViewModel = rememberMe.value,
+                    userEmail = userEmail.value.loggedProfileEmail,
+                    userPassword = userPassword.value,
+                    handleLogin = this::handleLogin
+                )
+            }
         }
     }
 
@@ -76,7 +84,7 @@ class LoginActivity : ComponentActivity() {
         rememberMe: Boolean,
         viewModel: AuthenticationViewModel = get<AuthenticationViewModel>()
     ) {
-        lifecycleScope.launch(Dispatchers.IO) {
+        lifecycleScope.launch(Dispatchers.Default) {
             try {
                 Log.d("DEV", "Checking email $email, password $password")
                 val storedPassword = appDatabase.mainProfileDao().checkPassword(email)
@@ -95,6 +103,7 @@ class LoginActivity : ComponentActivity() {
                 e.printStackTrace()
                 viewModel.changeLoginStatus(LoginStatus.Fail)
             }
+
             // Toasts and UI updates can only be executed on the main thread
             withContext(Dispatchers.Main) {
                 when (viewModel.loginStatus.value) {
@@ -112,14 +121,14 @@ class LoginActivity : ComponentActivity() {
 
                     LoginStatus.Unknown -> {}
                 }
-                if (viewModel.loginStatus.value == LoginStatus.Success) {
-                    // Maybe navigating to another screen from a coroutine is a bad idea,
-                    // but it also seems a bad idea to do so from a composable function
-                    // in this case
-                    navigateToMenu()
-                }
+            }
+
+            //Trying to switch activity
+            if (viewModel.loginStatus.value == LoginStatus.Success) {
+                Log.d("DEV-AHGAH", "Entering this if")
+                val intent = Intent(this@LoginActivity, MenuActivity::class.java)
+                startActivity(intent)
             }
         }
-
     }
 }
