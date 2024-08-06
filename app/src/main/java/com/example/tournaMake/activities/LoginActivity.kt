@@ -96,6 +96,8 @@ class LoginActivity : ComponentActivity() {
                     Log.d("DEV", "SUCCESS")
                     if (rememberMe) {
                         viewModel.saveUserAuthenticationPreferences(email, password, true)
+                    } else {
+                        viewModel.setRememberMe(false)
                     }
                     //Trying to switch activity
                     if (viewModel.loginStatus.value == LoginStatus.Success) {
