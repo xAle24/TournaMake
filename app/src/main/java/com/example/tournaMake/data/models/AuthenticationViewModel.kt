@@ -11,12 +11,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.tournaMake.data.repositories.AuthenticationRepository
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
+import com.example.tournaMake.data.repositories.ThemeRepository
 import com.example.tournaMake.sampledata.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -85,5 +87,35 @@ class AuthenticationViewModel(private val repository: AuthenticationRepository):
     fun changeLoginStatus(status: LoginStatus) {
         this._loginStatus.value = status
         Log.d("DEV-LOGIN-VM", "ViewModel: value of login status = ${loginStatus.value}")
+    }
+}
+
+/**
+ * This class is an attempt to force credentials fetching when entering the login screen.
+ * */
+class CredentialsBlockingFetcher(private val repository: AuthenticationRepository) {
+    private var rememberedEmail: String? = null
+    private var rememberedPassword: String? = null
+    private var rememberMe = false
+
+    suspend fun initCredentials() {
+        rememberMe = repository.doesUserWantToBeRemembered.first() ?: false
+        if (rememberMe) {
+            rememberedEmail = repository.email.first()
+            rememberedPassword = repository.password.first()
+            Log.d("DEV-CREDENTIALS", "Credentials fetched: email = $rememberedEmail, password = $rememberedPassword")
+        }
+    }
+
+    fun getEmail(): String? {
+        return this.rememberedEmail
+    }
+
+    fun getPassword(): String? {
+        return this.rememberedPassword
+    }
+
+    fun didUserWantToBeRemembered(): Boolean {
+        return this.rememberMe
     }
 }

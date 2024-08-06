@@ -33,9 +33,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.tournaMake.R
 import com.example.tournaMake.data.models.AuthenticationViewModel
+import com.example.tournaMake.data.models.CredentialsBlockingFetcher
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
+import kotlinx.coroutines.runBlocking
+import org.koin.compose.koinInject
 
 @Composable
 fun LoginScreen(
@@ -51,17 +54,20 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val credentialsBlockingFetcher = CredentialsBlockingFetcher(koinInject())
+
+            /* This should block the UI thread until the "asynchronous" fetching completes. */
+            runBlocking {
+                credentialsBlockingFetcher.initCredentials()
+            }
+
             Log.d("DEV-LOGIN", "Did user want to be remembered? ${viewModel.didUserWantToBeRemembered()}")
-            var rememberMe by remember { mutableStateOf(viewModel.didUserWantToBeRemembered()) }
+            var rememberMe by remember { mutableStateOf(credentialsBlockingFetcher.didUserWantToBeRemembered()) }
             var email by remember {
-                mutableStateOf(
-                    if (viewModel.didUserWantToBeRemembered()) viewModel.getRememberedEmail().loggedProfileEmail else ""
-                )
+                mutableStateOf(credentialsBlockingFetcher.getEmail() ?: "")
             }
             var password by remember {
-                mutableStateOf(
-                    if (viewModel.didUserWantToBeRemembered()) viewModel.getRememberedPassword() else ""
-                )
+                mutableStateOf(credentialsBlockingFetcher.getPassword() ?: "")
             }
             Log.d("DEV-LOGIN", "Value of email: $email, value of pw: $password")
             val imageId =
