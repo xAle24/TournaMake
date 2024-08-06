@@ -42,12 +42,22 @@ class LoginActivity : ComponentActivity() {
             val userPassword = authenticationViewModel.password.collectAsStateWithLifecycle()
             val rememberMe = authenticationViewModel.rememberMe.collectAsStateWithLifecycle()
 
+            // If the user wanted to be remembered, login directly
+            /* TODO: remember to set the "rememberMe" sharedPreferences value to false
+             when the user clicks "Logout" */
+            /*if (rememberMe.value) {
+                Log.d("DEV-LOGIN", "Entering login handling with shared preferences.")
+                handleLogin(
+                    userEmail.value.loggedProfileEmail,
+                    userPassword.value,
+                    true,
+                    authenticationViewModel
+                )
+            }*/
+
             LoginScreen(
                 state = state.value,
-                changeViewModelRememberMeCallback = { authenticationViewModel.setRememberMe(it) },
-                rememberMeFromViewModel = rememberMe.value,
-                userEmail = userEmail.value.loggedProfileEmail,
-                userPassword = userPassword.value,
+                viewModel = authenticationViewModel,
                 handleLogin = this::handleLogin
             )
         }
@@ -58,11 +68,11 @@ class LoginActivity : ComponentActivity() {
     }
 
     private fun getRememberedEmail(vm: AuthenticationViewModel): String {
-        return vm.getRememberedEmail().value.loggedProfileEmail
+        return vm.getRememberedEmail().loggedProfileEmail
     }
 
     private fun getRememberedPassword(vm: AuthenticationViewModel): String {
-        return vm.getRememberedPassword().value
+        return vm.getRememberedPassword()
     }
 
     private fun navigateToMenu() {

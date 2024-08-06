@@ -64,17 +64,19 @@ class AuthenticationViewModel(private val repository: AuthenticationRepository):
         return this.rememberMe.value
     }
 
-    fun getRememberedEmail(): StateFlow<LoggedProfileState> {
+    fun getRememberedEmail(): LoggedProfileState {
         if (this.rememberMe.value) {
-            return this.loggedEmail
+            Log.d("DEV-LOGIN-VM", "Value of remembered email: ${this.loggedEmail.value.loggedProfileEmail}")
+            return this.loggedEmail.value
         } else {
             throw IllegalStateException("The user did not select 'Remember me' option!")
         }
     }
 
-    fun getRememberedPassword(): StateFlow<String> {
+    fun getRememberedPassword(): String {
         if (this.rememberMe.value) {
-            return this.password
+            Log.d("DEV-LOGIN-VM", "Value of remembered password: ${this.password.value}")
+            return this.password.value
         } else {
             throw IllegalStateException("The user did not select 'Remember me' option!")
         }
@@ -83,48 +85,5 @@ class AuthenticationViewModel(private val repository: AuthenticationRepository):
     fun changeLoginStatus(status: LoginStatus) {
         this._loginStatus.value = status
         Log.d("DEV-LOGIN-VM", "ViewModel: value of login status = ${loginStatus.value}")
-    }
-
-    fun viewModelHandleLogin(email: String, password: String, rememberMe: Boolean, appDatabase: AppDatabase, context: Context) {
-        viewModelScope.launch(Dispatchers.Default) {
-
-            try {
-                Log.d("DEV", "Checking email $email, password $password")
-                val storedPassword = appDatabase.mainProfileDao().checkPassword(email)
-                Log.d("DEV", "Retrieved password = $storedPassword")
-                if (storedPassword == password) {
-                    changeLoginStatus(LoginStatus.Success)
-                    Log.d("DEV", "SUCCESS")
-                    if (rememberMe) {
-                        saveUserAuthenticationPreferences(email, password, true)
-                    }
-                } else {
-                    changeLoginStatus(LoginStatus.Fail)
-                    Log.d("DEV", "Fail...")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                changeLoginStatus(LoginStatus.Fail)
-            }
-            // Toasts and UI updates can only be executed on the main thread
-            withContext(Dispatchers.Main) {
-                when (loginStatus.value) {
-                    LoginStatus.Success -> Toast.makeText(
-                        context,
-                        "Login succeeded",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-                    LoginStatus.Fail -> Toast.makeText(
-                        context,
-                        "Login failed",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-                    LoginStatus.Unknown -> {}
-                }
-
-            }
-        }
     }
 }
