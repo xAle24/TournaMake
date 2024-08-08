@@ -1,19 +1,9 @@
 package com.example.tournaMake.data.models
 
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import com.example.tournaMake.data.repositories.AuthenticationRepository
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.lifecycleScope
-import com.example.tournaMake.data.repositories.ThemeRepository
-import com.example.tournaMake.sampledata.AppDatabase
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -22,9 +12,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.koin.compose.koinInject
-import org.koin.core.context.GlobalContext.get
 import java.lang.IllegalStateException
 
 // To keep track of the currently logged in or registered user
@@ -93,7 +80,7 @@ class AuthenticationViewModel(private val repository: AuthenticationRepository):
 /**
  * This class is an attempt to force credentials fetching when entering the login screen.
  * */
-class CredentialsBlockingFetcher(private val repository: AuthenticationRepository) {
+class BlockingCredentialsFetcher(private val repository: AuthenticationRepository) {
     private var rememberedEmail: String? = null
     private var rememberedPassword: String? = null
     private var rememberMe = false

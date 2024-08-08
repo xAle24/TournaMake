@@ -33,7 +33,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.tournaMake.R
 import com.example.tournaMake.data.models.AuthenticationViewModel
-import com.example.tournaMake.data.models.CredentialsBlockingFetcher
+import com.example.tournaMake.data.models.BlockingCredentialsFetcher
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
@@ -54,20 +54,20 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val credentialsBlockingFetcher = CredentialsBlockingFetcher(koinInject())
+            val blockingCredentialsFetcher = BlockingCredentialsFetcher(koinInject())
 
             /* This should block the UI thread until the "asynchronous" fetching completes. */
             runBlocking {
-                credentialsBlockingFetcher.initCredentials()
+                blockingCredentialsFetcher.initCredentials()
             }
 
             Log.d("DEV-LOGIN", "Did user want to be remembered? ${viewModel.didUserWantToBeRemembered()}")
-            var rememberMe by remember { mutableStateOf(credentialsBlockingFetcher.didUserWantToBeRemembered()) }
+            var rememberMe by remember { mutableStateOf(blockingCredentialsFetcher.didUserWantToBeRemembered()) }
             var email by remember {
-                mutableStateOf(credentialsBlockingFetcher.getEmail() ?: "")
+                mutableStateOf(blockingCredentialsFetcher.getEmail() ?: "")
             }
             var password by remember {
-                mutableStateOf(credentialsBlockingFetcher.getPassword() ?: "")
+                mutableStateOf(blockingCredentialsFetcher.getPassword() ?: "")
             }
             Log.d("DEV-LOGIN", "Value of email: $email, value of pw: $password")
             val imageId =
