@@ -3,6 +3,32 @@ package com.example.tournaMake.sampledata
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
+
+@Entity(
+    tableName = "NOTIFICATION",
+    foreignKeys = [
+        ForeignKey(
+            entity = MainProfile::class,
+            parentColumns = ["email"],
+            childColumns = ["email"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index(value = ["email"])]
+)
+data class Notification(
+    @PrimaryKey
+    @ColumnInfo(name = "notificationID")
+    val notificationID: String,
+
+    @ColumnInfo(name = "description")
+    val description: String,
+
+    @ColumnInfo(name = "email")
+    val email: String
+)
 
 @Entity(tableName = "ACHIEVEMENT", primaryKeys = ["achievementID"])
 data class Achievement(

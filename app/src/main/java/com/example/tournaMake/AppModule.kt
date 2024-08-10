@@ -3,6 +3,8 @@ package com.example.tournaMake
 import android.content.Context
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.tournaMake.data.models.AchievementsProfileViewModel
 import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.CoordinatesViewModel
@@ -48,7 +50,14 @@ val appModule = module {
             get(),
             AppDatabase::class.java,
             "tournamake-database"
-        ).build()
+        ).addCallback(object : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                db.execSQL("INSERT INTO ACHIEVEMENT (achievementID, name, description, imagePath, achievementsPlayerID) VALUES ('1', 'Welcome', 'Welcome in TournaMake', '', '1');")
+                db.execSQL("CREATE TRIGGER IF NOT EXISTS create_achievement_player AFTER INSERT ON MAIN_PROFILE BEGIN INSERT INTO ACHIEVEMENT_PLAYER (achievementsPlayerID, achievementID, status, email) VALUES (NEW.email, '1', 'C', NEW.email); END;")
+                db.execSQL("CREATE TRIGGER IF NOT EXISTS create_notification AFTER INSERT ON MAIN_PROFILE BEGIN INSERT INTO NOTIFICATION (notificationID, description, email) VALUES (NEW.email, 'You have completed the Welcome achievement!', NEW.email); END;")
+            }
+        }).build()
     }
 
 }

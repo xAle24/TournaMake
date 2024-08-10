@@ -231,3 +231,8 @@ interface TeamInTmDao {
     @Delete
     suspend fun delete(teamInTm: TeamInTm)
 }
+@Dao
+interface NotificationDao {
+    @Query("SELECT * FROM NOTIFICATION WHERE email = :email")
+    fun getNotificationsByEmail(email: String): List<Notification>
+}

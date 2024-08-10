@@ -18,7 +18,8 @@ import androidx.room.TypeConverters
     MatchTM::class,
     Tournament::class,
     TournamentType::class,
-    TeamInTm::class
+    TeamInTm::class,
+    Notification::class
 ], version = 1)
 @TypeConverters(Converters::class) // TODO verify if it works
 abstract class AppDatabase : RoomDatabase() {
