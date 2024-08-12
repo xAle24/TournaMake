@@ -48,6 +48,7 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.theme.getThemeColors
 import com.example.tournaMake.utils.Coordinates
 import com.example.tournaMake.utils.LocationService
+import com.example.tournaMake.utils.rememberCameraLauncher
 
 @Composable
 fun RegistrationPhotoScreen(
@@ -64,6 +65,8 @@ fun RegistrationPhotoScreen(
     // val screenHeight = configuration.screenHeightDp
     val screenWidth = configuration.screenWidthDp
     val coordinates = coordinatesLiveData.observeAsState()
+    // Camera launcher; code taken from tutor Gianni
+    val cameraLauncher = rememberCameraLauncher()
 
     BasicScreenWithTheme(state = state) {
         Column(
@@ -112,6 +115,22 @@ fun RegistrationPhotoScreen(
             ) {
                 Text(
                     text = "Upload Photo",
+                    fontSize = 30.sp
+                )
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Adding button to take picture with Camera
+            Button(
+                onClick = {
+                          cameraLauncher.captureImage()
+                },
+                modifier = Modifier
+                    .width((screenWidth * 0.8).dp)
+                    .height(85.dp)
+            ) {
+                Text(
+                    text = "Take picture",
                     fontSize = 30.sp
                 )
             }

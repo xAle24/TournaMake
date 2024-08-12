@@ -1,8 +1,7 @@
-package com.example.tournaMake.picturetaker
+package com.example.tournaMake.utils
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
@@ -14,37 +13,34 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
 import java.io.File
 
-interface PictureTaker {
-    val chosenImageUri: Uri
-    fun selectPicture()
+interface CameraLauncher {
+    val capturedImageUri: Uri
+    fun captureImage()
 }
 
 @Composable
-fun rememberPictureTaker(
-    onPictureTaken: (imageUri: Uri) -> Unit = {}
-): PictureTaker {
+fun rememberCameraLauncher(): CameraLauncher {
     val ctx = LocalContext.current
     val imageUri = remember {
         val imageFile = File.createTempFile("tmp_image", ".jpg", ctx.externalCacheDir)
         FileProvider.getUriForFile(ctx, ctx.packageName + ".provider", imageFile)
     }
     var capturedImageUri by remember { mutableStateOf(Uri.EMPTY) }
-    val pictureTakerLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.PickVisualMedia(),
-        ) { pictureTakenUri ->
-            if (pictureTakenUri != null) {
+    val cameraActivityLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { pictureTaken ->
+            if (pictureTaken) {
                 capturedImageUri = imageUri
-                onPictureTaken(capturedImageUri)
+                //saveImageToStorage(capturedImageUri, ctx.applicationContext.contentResolver)
             }
         }
-    val pictureTaker by remember {
+
+    val cameraLauncher by remember {
         derivedStateOf {
-            object: PictureTaker {
-                override val chosenImageUri = capturedImageUri
-                override fun selectPicture() = pictureTakerLauncher.launch(PickVisualMediaRequest())
+            object : CameraLauncher {
+                override val capturedImageUri = capturedImageUri
+                override fun captureImage() = cameraActivityLauncher.launch((imageUri))
             }
         }
     }
-    return pictureTaker
+    return cameraLauncher
 }

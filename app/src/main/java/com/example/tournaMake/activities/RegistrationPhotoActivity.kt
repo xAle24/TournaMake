@@ -65,7 +65,7 @@ class RegistrationPhotoActivity : ComponentActivity() {
             * https://www.youtube.com/watch?v=uHX5NB6wHao
             * */
             var selectedImageURI by remember {
-                mutableStateOf<Uri?>(
+                mutableStateOf(
                     if (doesDirectoryContainFile(
                             AppDirectoryNames.profileImageDirectoryName,
                             PROFILE_PICTURE_NAME,
@@ -242,7 +242,6 @@ class RegistrationPhotoActivity : ComponentActivity() {
         loggedEmail: String
     ) {
         Log.d("DEV", "Got logged email: $loggedEmail")
-        // TODO: add database uri uploading
         lifecycleScope.launch(Dispatchers.IO) {
             val mainProfile = appDatabase.mainProfileDao().getProfileByEmail(loggedEmail)
             val updatedMainProfile = MainProfile(
