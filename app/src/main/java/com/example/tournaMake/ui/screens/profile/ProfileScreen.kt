@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -64,6 +66,7 @@ import com.example.tournaMake.sampledata.AchievementResult
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.theme.getThemeColors
+import com.example.tournaMake.utils.CameraLauncher
 
 /**
  * The screen seen when clicking on a specific profile.
@@ -79,7 +82,8 @@ fun ProfileScreen(
     navigateToChart: () -> Unit,
     navigateToPlayerActivity: () -> Unit,
     selectedImage: Uri?,
-    photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>
+    photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
+    cameraLauncher: CameraLauncher
 ) {
     /*
     * This extension function was imported with:
@@ -143,7 +147,23 @@ fun ProfileScreen(
                                 .fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            ProfileImage(selectedImage = selectedImage, photoPickerLauncher = photoPickerLauncher)
+                            Column(
+                                modifier = Modifier
+                                    .padding(start = 10.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                ProfileImage(selectedImage = selectedImage, photoPickerLauncher = photoPickerLauncher)
+                                Button(
+                                    onClick = {
+                                          cameraLauncher.captureImage()
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.secondary
+                                    )
+                                ) {
+                                    Text("Take picture")
+                                }
+                            }
                             Column(
                                 modifier = Modifier
                                     .padding(start = 10.dp)

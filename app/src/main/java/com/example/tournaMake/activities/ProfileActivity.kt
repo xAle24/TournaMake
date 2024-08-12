@@ -30,6 +30,7 @@ import com.example.tournaMake.sampledata.AchievementResult
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.profile.ProfileScreen
+import com.example.tournaMake.utils.rememberCameraLauncher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
@@ -112,6 +113,37 @@ class ProfileActivity : ComponentActivity() {
                     "DEV", "In onResult function in ProfileActivity.kt: everything went fine!"
                 )
             }
+
+            // To update profile picture by means of camera
+            val cameraLauncher = rememberCameraLauncher { uri ->
+                if (loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
+                    val uriForInternallySavedFile =
+                        profilePictureHelper.storeProfilePictureImmediately(
+                            profileImageUri = uri,
+                            email = loggedEmail.value.loggedProfileEmail,
+                            contentResolver = contentResolver,
+                            context = baseContext,
+                            databaseUpdaterCallback = this::uploadPhotoToDatabase
+                        )
+                    selectedImageURI = uriForInternallySavedFile
+                    recreate() // I'm sorry but without this line I don't see changes take effect
+                } else if (loggedEmail.value.loggedProfileEmail.isEmpty()) {
+                    profilePictureHelper.waitForEmailThenStoreProfilePicture(
+                        loggedEmailStateFlow = authenticationViewModel.loggedEmail,
+                        profileImageUri = uri,
+                        context = baseContext,
+                        databaseUpdaterCallback = this::uploadPhotoToDatabase,
+                        lifecycleCoroutineScope = lifecycleScope,
+                        lifecycleOwner = this,
+                        stateChangerCallback = { resultUri ->
+                            selectedImageURI = resultUri
+                            recreate()
+                        },
+                        contentResolver = contentResolver
+                    )
+                }
+            }
+
             fetchAndUpdateProfile(
                 loggedEmail.value.loggedProfileEmail, profileViewModel
             ) {
@@ -126,7 +158,8 @@ class ProfileActivity : ComponentActivity() {
                 navigateToChart = this::navigateToChart,
                 navigateToPlayerActivity = this::navigateToPlayerActivity,
                 selectedImage = selectedImageURI,
-                photoPickerLauncher = singlePhotoPickerLauncher
+                photoPickerLauncher = singlePhotoPickerLauncher,
+                cameraLauncher = cameraLauncher
             )
         }
     }
