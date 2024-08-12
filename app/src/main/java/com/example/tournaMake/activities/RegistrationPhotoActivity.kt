@@ -41,6 +41,7 @@ import com.example.tournaMake.utils.Coordinates
 import com.example.tournaMake.utils.LocationService
 import com.example.tournaMake.utils.PermissionStatus
 import com.example.tournaMake.utils.StartMonitoringResult
+import com.example.tournaMake.utils.rememberCameraLauncher
 import com.example.tournaMake.utils.rememberPermission
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -115,6 +116,37 @@ class RegistrationPhotoActivity : ComponentActivity() {
                 )
             }
 
+            // Camera launcher; code taken from tutor Gianni
+            // The code inside here is a duplicate of the one above... maybe there's a way to refactor this
+            val cameraLauncher = rememberCameraLauncher { uri ->
+                if (loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
+                    val uriForInternallySavedFile =
+                        profileImageHelper.storeProfilePictureImmediately(
+                            profileImageUri = uri,
+                            email = loggedEmail.value.loggedProfileEmail,
+                            contentResolver = contentResolver,
+                            context = baseContext,
+                            databaseUpdaterCallback = this::updateDatabaseWithPhotoUri
+                        )
+                    selectedImageURI = uriForInternallySavedFile
+                    recreate() // I'm sorry but without this line I don't see changes take effect
+                } else if (loggedEmail.value.loggedProfileEmail.isEmpty()) {
+                    profileImageHelper.waitForEmailThenStoreProfilePicture(
+                        loggedEmailStateFlow = authenticationViewModel.loggedEmail,
+                        profileImageUri = uri,
+                        context = baseContext,
+                        databaseUpdaterCallback = this::updateDatabaseWithPhotoUri,
+                        lifecycleCoroutineScope = lifecycleScope,
+                        lifecycleOwner = this,
+                        stateChangerCallback = { resultUri ->
+                            selectedImageURI = resultUri
+                            recreate()
+                        },
+                        contentResolver = contentResolver
+                    )
+                }
+            }
+
             // GPS variables
             val snackbarHostState = remember { SnackbarHostState() }
             var showLocationDisabledAlert by remember { mutableStateOf(false) }
@@ -169,7 +201,8 @@ class RegistrationPhotoActivity : ComponentActivity() {
                 photoPickerLauncher = singlePhotoPickerLauncher,
                 snackbarHostState = snackbarHostState,
                 requestLocation = ::requestLocation,
-                coordinatesLiveData = coordinatesViewModel.coordinatesLiveData
+                coordinatesLiveData = coordinatesViewModel.coordinatesLiveData,
+                cameraLauncher = cameraLauncher
             )
 
             if (showLocationDisabledAlert) {

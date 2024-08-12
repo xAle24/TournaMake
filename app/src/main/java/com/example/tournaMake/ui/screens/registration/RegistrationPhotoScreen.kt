@@ -46,6 +46,7 @@ import com.example.tournaMake.R
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.theme.getThemeColors
+import com.example.tournaMake.utils.CameraLauncher
 import com.example.tournaMake.utils.Coordinates
 import com.example.tournaMake.utils.LocationService
 import com.example.tournaMake.utils.rememberCameraLauncher
@@ -59,14 +60,13 @@ fun RegistrationPhotoScreen(
     photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
     snackbarHostState: SnackbarHostState,
     requestLocation: () -> Unit,
-    coordinatesLiveData: LiveData<Coordinates>
+    coordinatesLiveData: LiveData<Coordinates>,
+    cameraLauncher: CameraLauncher
 ) {
     val configuration = LocalConfiguration.current // used to find screen size
     // val screenHeight = configuration.screenHeightDp
     val screenWidth = configuration.screenWidthDp
     val coordinates = coordinatesLiveData.observeAsState()
-    // Camera launcher; code taken from tutor Gianni
-    val cameraLauncher = rememberCameraLauncher()
 
     BasicScreenWithTheme(state = state) {
         Column(
@@ -123,7 +123,7 @@ fun RegistrationPhotoScreen(
             // Adding button to take picture with Camera
             Button(
                 onClick = {
-                          cameraLauncher.captureImage()
+                    cameraLauncher.captureImage()
                 },
                 modifier = Modifier
                     .width((screenWidth * 0.8).dp)
