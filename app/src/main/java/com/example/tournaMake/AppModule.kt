@@ -10,6 +10,7 @@ import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.CoordinatesViewModel
 import com.example.tournaMake.data.models.GamesListViewModel
 import com.example.tournaMake.data.models.GraphViewModel
+import com.example.tournaMake.data.models.MatchCreationViewModel
 import com.example.tournaMake.data.models.MatchListViewModel
 import com.example.tournaMake.data.models.ProfileListViewModel
 import com.example.tournaMake.data.models.ProfileViewModel
@@ -36,6 +37,7 @@ val appModule = module {
     viewModel { ProfileViewModel() }
     viewModel { ProfileListViewModel() }
     viewModel { MatchListViewModel() }
+    viewModel { MatchCreationViewModel() }
     viewModel { GraphViewModel() }
     viewModel { GamesListViewModel() }
     viewModel { TournamentListViewModel() }

@@ -36,7 +36,7 @@ class MatchListActivity : ComponentActivity() {
     private fun fetchAndUpdateMatches(vm: MatchListViewModel, db: AppDatabase) {
         lifecycleScope.launch (Dispatchers.IO) {
             try {
-                val matches = db.matchDao().getAll() ?: emptyList()
+                val matches = db.matchDao().getAll()
                 vm.changeMatchesList(matches)
             } catch (e: Exception) {
                 e.printStackTrace()

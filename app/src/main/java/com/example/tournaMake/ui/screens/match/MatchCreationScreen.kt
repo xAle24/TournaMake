@@ -30,6 +30,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,9 +41,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
 import com.example.tournaMake.R
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.sampledata.Game
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.theme.getThemeColors
@@ -51,7 +55,8 @@ import com.example.tournaMake.ui.theme.getThemeColors
 fun MatchCreationScreen(
     state: ThemeState,
     backFunction: () -> Unit,
-    navigateToMatch: () -> Unit
+    navigateToMatch: () -> Unit,
+    gamesListLiveData: LiveData<List<Game>>
 ) {
     val imageLogoId =
         if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
@@ -69,7 +74,7 @@ fun MatchCreationScreen(
                     .align(Alignment.CenterHorizontally)
                     .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f))
             ) {
-                SelectionMenu()
+                SelectionMenu(gamesListLiveData)
                 TeamContainer(teamsSet = setOf(testTeam1, testTeam2),
                     mainProfileListFromDatabase =  emptyList(),
                     guestProfileListFromDatabase =  emptyList(),
@@ -149,11 +154,11 @@ fun Logo(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectionMenu() {
-    val gamesNames =
-        arrayOf("Tzolk'In", "Call of Duty: Black Ops", "Football", "Mario Kart", "Monster Hunter")
+fun SelectionMenu(gamesList: LiveData<List<Game>>) {
+    val gamesListLiveData = gamesList.observeAsState()
+    val gamesNames = gamesListLiveData.value?.map { game -> game.name }
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(gamesNames[0]) }
+    var selectedText by remember { mutableStateOf("No game selected") }
 
     Box(
         modifier = Modifier
@@ -191,7 +196,7 @@ fun SelectionMenu() {
                 onDismissRequest = { expanded = false },
                 modifier = Modifier.background(MaterialTheme.colorScheme.primary)
             ) {
-                gamesNames.forEach { item ->
+                gamesNames?.forEach { item ->
                     DropdownMenuItem(
                         text = { Text(text = item) },
                         onClick = {
@@ -216,6 +221,7 @@ fun PreviewMatchCreationScreen() {
     MatchCreationScreen(
         state = ThemeState(ThemeEnum.Light),
         backFunction = {},
-        {}
+        {},
+        liveData { emptyList<Game>() },
     )
 }
