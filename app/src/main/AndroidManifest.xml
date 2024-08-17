@@ -47,7 +47,9 @@
         <activity android:name=".activities.MatchListActivity" />
         <activity android:name=".activities.GamesChartActivity" />
         <activity android:name=".activities.PlayerActActivity" />
-        <activity android:name=".activities.MatchCreationActivity" />
+        <activity
+            android:name=".activities.MatchCreationActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".activities.TournamentCreationActivity" />
         <activity android:name=".activities.TournamentActivity" />
         <activity android:name=".activities.MatchActivity" />

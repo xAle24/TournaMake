@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
@@ -42,6 +43,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainProfile
@@ -203,7 +206,6 @@ fun TeamElement(
     guestProfileListFromDatabase: List<GuestProfile>,
     removeTeam: (TeamUI) -> Unit
 ) {
-    var teamNameState by remember { mutableStateOf(team.getTeamName()) }
     var mainProfilesState by remember { mutableStateOf(emptySet<MainProfile>()) }
     var guestProfilesState by remember { mutableStateOf(emptySet<GuestProfile>()) }
 
@@ -246,7 +248,7 @@ fun TeamElement(
 
             // Team name
             TeamOutlinedTextField(
-                changeTeamName = { teamNameState = it; team.setTeamName(it) }
+                team = team
             )
 
             Spacer(modifier = Modifier.height(spacerHeight))
@@ -276,7 +278,7 @@ fun TeamElement(
             // then GuestProfiles
             key(guestProfilesState) {
                 team.getGuestProfiles().forEach { profile ->
-                    TeamGuestMemberBubble(teamMember = profile, team, { guestProfilesState = it })
+                    TeamGuestMemberBubble(teamMember = profile, team) { guestProfilesState = it }
                     Spacer(modifier = Modifier.height(spacerHeight))
                 }
             }
@@ -285,29 +287,64 @@ fun TeamElement(
 }
 
 @Composable
-fun TeamOutlinedTextField(changeTeamName: (String) -> Unit) {
-    var currentText by remember { mutableStateOf("") }
-    OutlinedTextField(
-        value = currentText,
-        onValueChange = { currentText = it; changeTeamName(it) },
-        label = {
+fun TeamOutlinedTextField(team: TeamUI) {
+    var currentText by remember { mutableStateOf(team.getTeamName()) }
+    var bigDisplayedText by remember { mutableStateOf(currentText) }
+    val focusManager = LocalFocusManager.current
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (bigDisplayedText.isNotEmpty()) {
             Text(
-                text = "Team Name",
-                style = MaterialTheme.typography.headlineSmall
+                text = bigDisplayedText,
+                style = MaterialTheme.typography.headlineMedium
             )
-        },
-        modifier = Modifier
-            .fillMaxWidth(),
-        placeholder = {
-            Text(
-                text = "Insert Team Name"
+        }
+        Spacer(modifier = Modifier.height(20.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = currentText,
+                onValueChange = { currentText = it; team.setTeamName(it) },
+                label = {
+                    Text(
+                        text = "Team Name",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                },
+                modifier = Modifier
+                    .fillMaxWidth(0.85f),
+                placeholder = {
+                    Text(
+                        text = "Insert Team Name"
+                    )
+                },
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedBorderColor = MaterialTheme.colorScheme.onPrimary
+                )
             )
-        },
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-            focusedBorderColor = MaterialTheme.colorScheme.onPrimary
-        )
-    )
+            IconButton(
+                onClick = {
+                    bigDisplayedText = currentText
+                    focusManager.clearFocus()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.CheckCircle,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun MyTeamTextField() {
+    TeamOutlinedTextField(team = testTeam1)
 }
 
 @Composable
