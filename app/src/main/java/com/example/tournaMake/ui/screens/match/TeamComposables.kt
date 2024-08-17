@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -225,26 +226,7 @@ fun TeamElement(
                 .fillMaxWidth()
                 .padding(5.dp)
         ) {
-            IconButton(
-                onClick = { removeTeam(team) },
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .width(50.dp)
-                    .height(50.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .padding(3.dp)
-                    .border(BorderStroke(3.dp, MaterialTheme.colorScheme.onPrimary))
-                //.background(Color.Red)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "Delete team",
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(30.dp)
-                )
-            }
-
-            Spacer(Modifier.height(spacerHeight))
+            Spacer(modifier = Modifier.height(spacerHeight))
 
             // Team name
             TeamOutlinedTextField(
@@ -282,6 +264,24 @@ fun TeamElement(
                     Spacer(modifier = Modifier.height(spacerHeight))
                 }
             }
+
+            // Delete team button
+            IconButton(
+                onClick = { removeTeam(team) },
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .width(50.dp)
+                    .height(50.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .padding(3.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = "Delete team",
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
         }
     }
 }
@@ -290,52 +290,60 @@ fun TeamElement(
 fun TeamOutlinedTextField(team: TeamUI) {
     var currentText by remember { mutableStateOf(team.getTeamName()) }
     var bigDisplayedText by remember { mutableStateOf(currentText) }
+    var shouldDisplayTextField by remember { mutableStateOf(bigDisplayedText.isEmpty()) }
     val focusManager = LocalFocusManager.current
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
     ) {
         if (bigDisplayedText.isNotEmpty()) {
             Text(
                 text = bigDisplayedText,
-                style = MaterialTheme.typography.headlineMedium
-            )
-        }
-        Spacer(modifier = Modifier.height(20.dp))
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            OutlinedTextField(
-                value = currentText,
-                onValueChange = { currentText = it; team.setTeamName(it) },
-                label = {
-                    Text(
-                        text = "Team Name",
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth(0.85f),
-                placeholder = {
-                    Text(
-                        text = "Insert Team Name"
-                    )
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-                    focusedBorderColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
-            IconButton(
-                onClick = {
-                    bigDisplayedText = currentText
-                    focusManager.clearFocus()
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.clickable {
+                    shouldDisplayTextField = !shouldDisplayTextField
                 }
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+        if (shouldDisplayTextField) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Filled.CheckCircle,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
+                OutlinedTextField(
+                    value = currentText,
+                    onValueChange = { currentText = it; team.setTeamName(it) },
+                    label = {
+                        Text(
+                            text = "Team Name",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f),
+                    placeholder = {
+                        Text(
+                            text = "Insert Team Name"
+                        )
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedBorderColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 )
+                IconButton(
+                    onClick = {
+                        bigDisplayedText = currentText
+                        shouldDisplayTextField = currentText.isEmpty()
+                        focusManager.clearFocus()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CheckCircle,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
