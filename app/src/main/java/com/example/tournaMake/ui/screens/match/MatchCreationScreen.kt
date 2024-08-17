@@ -47,16 +47,24 @@ import com.example.tournaMake.R
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.sampledata.Game
+import com.example.tournaMake.sampledata.GuestProfile
+import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.theme.getThemeColors
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun MatchCreationScreen(
     state: ThemeState,
     backFunction: () -> Unit,
     navigateToMatch: () -> Unit,
-    gamesListLiveData: LiveData<List<Game>>
+    gamesListLiveData: LiveData<List<Game>>,
+    teamsSetStateFlow: StateFlow<Set<TeamUI>>,
+    mainProfilesLiveData: LiveData<List<MainProfile>>,
+    guestProfilesLiveData: LiveData<List<GuestProfile>>,
+    addTeam: (TeamUI) -> Unit,
+    removeTeam: (TeamUI) -> Unit
 ) {
     val imageLogoId =
         if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
@@ -75,10 +83,12 @@ fun MatchCreationScreen(
                     .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f))
             ) {
                 SelectionMenu(gamesListLiveData)
-                TeamContainer(teamsSet = setOf(testTeam1, testTeam2),
-                    mainProfileListFromDatabase =  emptyList(),
-                    guestProfileListFromDatabase =  emptyList(),
-                    removeTeam = {/*TODO palle di palle*/}) //TODO palle
+                TeamContainer(
+                    teamsSetStateFlow = teamsSetStateFlow,
+                    mainProfileListFromDatabase = mainProfilesLiveData,
+                    guestProfileListFromDatabase = guestProfilesLiveData,
+                    removeTeam = removeTeam
+                )
                 Spacer(Modifier.height(20.dp))
                 Row(
                     modifier = Modifier
@@ -86,9 +96,15 @@ fun MatchCreationScreen(
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
+                    // TODO: find out why these buttons don't appear
                     BottomTeamScreenButton(
                         state = state,
                         //.fillMaxWidth(0.3f)
+                        /**
+                         * This is the function that calls the addTeam() callback,
+                         * creating a new empty team.
+                         * */
+                        onClick = { addTeam(TeamUIImpl(emptySet(), emptySet(), "")) },
                         text = "Add Team"
                     )
                     Spacer(modifier = Modifier.width(10.dp))
@@ -215,6 +231,7 @@ fun SelectionMenu(gamesList: LiveData<List<Game>>) {
     }
 }
 
+/*
 @Preview
 @Composable
 fun PreviewMatchCreationScreen() {
@@ -224,4 +241,4 @@ fun PreviewMatchCreationScreen() {
         {},
         liveData { emptyList<Game>() },
     )
-}
+}*/

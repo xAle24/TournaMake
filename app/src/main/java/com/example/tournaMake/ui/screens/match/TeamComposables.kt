@@ -33,8 +33,10 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,11 +49,16 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.screens.tournament.FilteredProfiles
 import com.example.tournaMake.ui.screens.tournament.ProfileUtils
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import java.util.stream.Collectors
 
 interface TeamUI {
@@ -161,12 +168,16 @@ val testTeam2 = TeamUIImpl(
 
 @Composable
 fun TeamContainer(
-    teamsSet: Set<TeamUI>,
+    teamsSetStateFlow: StateFlow<Set<TeamUI>>,
     modifier: Modifier = Modifier,
-    mainProfileListFromDatabase: List<MainProfile>,
-    guestProfileListFromDatabase: List<GuestProfile>,
+    mainProfileListFromDatabase: LiveData<List<MainProfile>>,
+    guestProfileListFromDatabase: LiveData<List<GuestProfile>>,
     removeTeam: (TeamUI) -> Unit
 ) {
+    val mainProfiles = mainProfileListFromDatabase.observeAsState()
+    val guestProfiles = guestProfileListFromDatabase.observeAsState()
+    val teamsSet by teamsSetStateFlow.collectAsState()
+
     val screenHeight = LocalConfiguration.current.screenHeightDp
     RectangleContainer(
         modifier = if (teamsSet.isNotEmpty())
@@ -187,9 +198,9 @@ fun TeamContainer(
                         team = team,
                         backgroundColor = null,
                         backgroundBrush = null,
-                        mainProfileListFromDatabase = mainProfileListFromDatabase,
-                        guestProfileListFromDatabase = guestProfileListFromDatabase,
-                        removeTeam = removeTeam
+                        mainProfileListFromDatabase = mainProfiles.value ?: emptyList(),
+                        guestProfileListFromDatabase = guestProfiles.value ?: emptyList(),
+                        removeTeam = removeTeam,
                     )
                     Spacer(modifier = Modifier.height(spacerHeight))
                 }

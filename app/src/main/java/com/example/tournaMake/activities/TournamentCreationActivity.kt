@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.example.tournaMake.data.models.MatchCreationViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.models.TournamentCreationViewModel
 import com.example.tournaMake.data.models.TournamentIDViewModel
@@ -38,12 +39,17 @@ class TournamentCreationActivity : ComponentActivity() {
             val themeViewModel = koinViewModel<ThemeViewModel>()
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val tournamentCreationViewModel = koinViewModel<TournamentCreationViewModel>()
+            val matchCreationViewModel = koinViewModel<MatchCreationViewModel>()
             fetchAndUpdateGamesList(tournamentCreationViewModel)
             fetchAndUpdateTournamentTypeList(tournamentCreationViewModel)
             fetchAndUpdateGuestProfileList(tournamentCreationViewModel)
             fetchAndUpdateMainProfileList(tournamentCreationViewModel)
+            fetchData(matchCreationViewModel)
             TournamentCreationScreen(
                 state = state.value,
+                teamsStateFlow = matchCreationViewModel.teamsSet,
+                addTeam = matchCreationViewModel::addTeam,
+                removeTeam = matchCreationViewModel::removeTeam,
                 tournamentCreationViewModel.gamesListLiveData,
                 tournamentCreationViewModel.tournamentListLiveData,
                 tournamentCreationViewModel.mainProfileListLiveData,
@@ -51,6 +57,21 @@ class TournamentCreationActivity : ComponentActivity() {
                 navigateToTournament = this::navigateToTournament,
                 backFunction = this::finish
             )
+        }
+    }
+
+    private fun fetchData(vm: MatchCreationViewModel) {
+        lifecycleScope.launch (Dispatchers.IO) {
+            try {
+                val games = appDatabase?.gameDao()?.getAll()
+                val mainProfiles = appDatabase?.mainProfileDao()?.getAll()
+                val guestProfiles = appDatabase?.guestProfileDao()?.getAll()
+                vm.changeGamesList(games ?: emptyList())
+                vm.changeMainProfiles(mainProfiles ?: emptyList())
+                vm.changeGuestProfiles(guestProfiles ?: emptyList())
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 

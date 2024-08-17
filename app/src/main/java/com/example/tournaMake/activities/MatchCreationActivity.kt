@@ -28,7 +28,12 @@ class MatchCreationActivity : ComponentActivity() {
                 state = state.value,
                 backFunction = this::goBack,
                 navigateToMatch = this::navigateToMatch,
-                gamesListLiveData = matchCreationViewModel.games
+                gamesListLiveData = matchCreationViewModel.games,
+                teamsSetStateFlow = matchCreationViewModel.teamsSet,
+                mainProfilesLiveData = matchCreationViewModel.mainProfiles,
+                guestProfilesLiveData = matchCreationViewModel.guestProfiles,
+                addTeam = matchCreationViewModel::addTeam,
+                removeTeam = matchCreationViewModel::removeTeam
             )
         }
     }
