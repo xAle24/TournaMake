@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -29,9 +30,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
 import com.example.tournaMake.R
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.sampledata.Notification
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.theme.getThemeColors
 
@@ -43,8 +46,10 @@ fun MenuScreen(
     navigateToTournament: () -> Unit,
     navigateToGamesList: () -> Unit,
     navigateToMatchesList: () -> Unit,
-    logout: () -> Unit
+    logout: () -> Unit,
+    notificationLiveData: LiveData<List<Notification>>
 ) {
+    val notification = notificationLiveData.observeAsState()
     BasicScreenWithTheme(
         state = state,
     ) {
@@ -61,7 +66,7 @@ fun MenuScreen(
             ShowNotification(
                 openDialog = showDialog,
                 onDismiss = { showDialog.value = false },
-                listItems = listOf("Notification 1", "Notification 1", "Notification 3")
+                listItems = notification.value?.map { it.description } ?: emptyList()
             )
         }
         Column(
