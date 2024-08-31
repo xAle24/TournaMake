@@ -10,9 +10,7 @@ import com.example.tournaMake.data.models.MatchCreationViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.GuestParticipant
-import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainParticipant
-import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.sampledata.Team
 import com.example.tournaMake.sampledata.TeamInTm

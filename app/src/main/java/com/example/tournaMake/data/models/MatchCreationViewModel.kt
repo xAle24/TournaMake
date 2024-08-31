@@ -46,26 +46,6 @@ class MatchCreationViewModel: ViewModel() {
         Log.d("DEV-MATCH-CREATION", "Content of teams set after addition: ${_teamsSet.value}")
     }
 
-    /*fun addMemberToTeam(team: TeamUI, profile: MainProfile) {
-        val indexOfTeam = this._teamsSet.value.indexOf(team)
-        this._teamsSet.value.elementAt(indexOfTeam).addMainProfile(profile)
-    }
-
-    fun addMemberToTeam(team: TeamUI, profile: GuestProfile) {
-        val indexOfTeam = this._teamsSet.value.indexOf(team)
-        this._teamsSet.value.elementAt(indexOfTeam).addGuestProfile(profile)
-    }
-
-    fun removeMemberFromTeam(team: TeamUI, profile: MainProfile) {
-        val indexOfTeam = this._teamsSet.value.indexOf(team)
-        this._teamsSet.value.elementAt(indexOfTeam).removeMainProfile(profile)
-    }
-
-    fun removeMemberFromTeam(team: TeamUI, profile: GuestProfile) {
-        val indexOfTeam = this._teamsSet.value.indexOf(team)
-        this._teamsSet.value.elementAt(indexOfTeam).removeGuestProfile(profile)
-    }*/
-
     fun removeTeam(team: TeamUI) {
         _teamsSet.value = _teamsSet.value.filter { it != team }.toSet()
         Log.d("DEV-MATCH-CREATION", "Content of teams set after deletion: ${_teamsSet.value.toString()}")
