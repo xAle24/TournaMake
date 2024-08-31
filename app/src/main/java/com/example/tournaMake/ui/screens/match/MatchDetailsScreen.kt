@@ -33,12 +33,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -48,8 +50,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.tournaMake.R
+import com.example.tournaMake.data.models.MatchDetailsViewModel
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.data.repositories.MatchDetailsRepository
+import com.example.tournaMake.dataStore
+import com.example.tournaMake.sampledata.Team
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.screens.common.RectangleContainer
 
@@ -59,8 +65,12 @@ fun MatchDetailsScreen(
     state: ThemeState,
     gameImage: Uri?,
     teamsSet: Set<TeamUI>,
-    backFunction: () -> Unit
+    backFunction: () -> Unit,
+    vm: MatchDetailsViewModel
 ) {
+    val match = vm.match.observeAsState()
+    val playedGameLiveData = vm.playedGame.observeAsState()
+    val teamsLiveData = vm.teams.observeAsState()
     BasicScreenWithAppBars(
         state = state,
         backFunction = backFunction,
@@ -72,10 +82,15 @@ fun MatchDetailsScreen(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
         ) {
-            MatchDetailsHeading(gameImage = gameImage)
+            MatchDetailsHeading(
+                gameImage = gameImage,
+                gameName = playedGameLiveData.value?.name ?: "Loading..."
+            )
             Spacer(Modifier.height(spacerHeight))
             teamsSet.forEach { team ->
-                TeamElementInMatchDetailsScreen(team = team)
+                // TODO: CORRECT THIS CODE, TEAM NAMES MIGHT BE REPEATED
+                val databaseTeam = teamsLiveData.value?.first { dbTeam -> team.getTeamName() == dbTeam.name }
+                TeamElementInMatchDetailsScreen(databaseTeam = databaseTeam!!, team = team, vm = vm)
                 Spacer(modifier = Modifier.height(spacerHeight))
             }
         }
@@ -84,7 +99,8 @@ fun MatchDetailsScreen(
 
 @Composable
 fun MatchDetailsHeading(
-    gameImage: Uri?
+    gameImage: Uri?,
+    gameName: String
 ) {
     Box(
         modifier = Modifier
@@ -126,7 +142,6 @@ fun MatchDetailsHeading(
                 ) {
                     Text("Match", style = MaterialTheme.typography.headlineSmall)
                     Text("Game name here")
-                    Text("Game status here")
                 }
                 IconButton(
                     onClick = { /*TODO*/ },
@@ -144,8 +159,15 @@ fun MatchDetailsHeading(
 
 @Composable
 fun TeamElementInMatchDetailsScreen(
-    team: TeamUI
+    databaseTeam: Team,
+    team: TeamUI,
+    vm: MatchDetailsViewModel
 ) {
+    val teamsInTmLiveData = vm.teamsInMatch.observeAsState()
+    var teamScore = teamsInTmLiveData.value
+        ?.filter { teamInTm -> teamInTm.teamID == databaseTeam.teamID }
+        ?.map { teamInTm -> teamInTm.score }
+        ?.first()
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -158,7 +180,7 @@ fun TeamElementInMatchDetailsScreen(
                 .fillMaxWidth(0.9f)
                 .align(Alignment.Center)
         ) {
-            Text("Team1", // TODO: get team name from db
+            Text(team.getTeamName(),
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier
                     .padding(start = 10.dp)
@@ -211,6 +233,7 @@ fun MatchDetailsScreenPreview() {
         state = ThemeState(ThemeEnum.Light),
         null,
         setOf(testTeam1, testTeam2),
-        backFunction = {}
+        backFunction = {},
+        vm = MatchDetailsViewModel(MatchDetailsRepository(LocalContext.current.dataStore))
     )
 }

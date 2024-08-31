@@ -65,6 +65,8 @@ interface GameDao {
     """)
     fun getPlayedGames(email: String): List<PlayedGame>
 
+    @Query("SELECT * FROM GAME WHERE gameID = :gameID")
+    fun getGameFromID(gameID: String): Game
 
     @Insert
     fun insertAll(vararg games: Game)
@@ -83,13 +85,16 @@ interface MatchDao {
             JOIN TEAM_IN_TM ON MATCH_TM.matchTmID = TEAM_IN_TM.matchTmID
             JOIN MAIN_PARTICIPANT ON TEAM_IN_TM.teamID = MAIN_PARTICIPANT.teamID
             WHERE MAIN_PARTICIPANT.email = :email""")
-    fun getMyMatch(email: String): List<MatchTM>
+    fun getMyMatches(email: String): List<MatchTM>
 
     @Query("""SELECT * FROM MATCH_TM WHERE favorites = '1'""")
     fun getFavoritesMatch(): List<MatchTM>
 
     @Query("""UPDATE MATCH_TM SET favorites = '1' WHERE matchTmID = :matchTmID""")
     fun setMatchFavorites(matchTmID: String)
+
+    @Query("SELECT * FROM MATCH_TM WHERE matchTmID = :matchID")
+    fun getMatchFromID(matchID: String): MatchTM
 
     @Insert
     fun insertAll(vararg matches: MatchTM)
@@ -102,6 +107,9 @@ interface MatchDao {
 interface GuestParticipantsDao {
     @Query("SELECT * FROM GUEST_PARTICIPANT")
     fun getAll(): List<GuestParticipant>
+
+    @Query("SELECT * FROM GUEST_PARTICIPANT WHERE teamID = :teamID")
+    fun getAllGuestParticipantsFromTeam(teamID: String): List<GuestParticipant>
 
     @Insert
     fun insertAll(matchScoreGuests: List<GuestParticipant>)
@@ -117,6 +125,9 @@ interface GuestParticipantsDao {
 interface MainParticipantsDao {
     @Query("SELECT * FROM MAIN_PARTICIPANT")
     fun getAll(): List<MainParticipant>
+
+    @Query("SELECT * FROM MAIN_PARTICIPANT WHERE teamID = :teamID")
+    fun getAllMainParticipantsFromTeam(teamID: String): List<MainParticipant>
 
     @Insert
     fun insertAll(matchScoreMains: List<MainParticipant>)
@@ -202,6 +213,9 @@ interface GuestProfileDao {
     @Query("SELECT * FROM GUEST_PROFILE")
     fun getAll(): List<GuestProfile>
 
+    @Query("SELECT * FROM GUEST_PROFILE WHERE username = :username")
+    fun getFromUsername(username: String): GuestProfile
+
     @Insert
     fun insert(guestProfile: GuestProfile)
 
@@ -212,6 +226,9 @@ interface GuestProfileDao {
 interface TeamDao {
     @Query("SELECT * FROM TEAM")
     fun getAll(): List<Team>
+
+    @Query("SELECT * FROM TEAM WHERE teamID = :teamID")
+    fun getTeamsFromTeamInTm(teamID: String): List<Team>
 
     @Insert
     fun insertAll(teams: List<Team>)
@@ -233,6 +250,9 @@ interface TeamInTmDao {
 
     @Query("SELECT * FROM TEAM_IN_TM WHERE teamID = :teamID AND matchTmID = :matchTmID")
     suspend fun findByID(teamID: String, matchTmID: String): TeamInTm
+
+    @Query("SELECT * FROM TEAM_IN_TM WHERE matchTmID = :matchTmID")
+    fun getTeamsInTmFromMatch(matchTmID: String): List<TeamInTm>
 
     @Delete
     suspend fun delete(teamInTm: TeamInTm)

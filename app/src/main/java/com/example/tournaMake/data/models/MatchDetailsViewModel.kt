@@ -10,10 +10,11 @@ import com.example.tournaMake.sampledata.GuestParticipant
 import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainParticipant
 import com.example.tournaMake.sampledata.MainProfile
+import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.sampledata.Team
 import com.example.tournaMake.sampledata.TeamInTm
+import com.example.tournaMake.ui.screens.match.TeamUI
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 /**
@@ -29,6 +30,9 @@ class MatchDetailsViewModel(private val repository: MatchDetailsRepository) : Vi
         started = SharingStarted.WhileSubscribed(),
         initialValue = ""
     )
+
+    private val _match = MutableLiveData<MatchTM>()
+    val match : LiveData<MatchTM> = _match
 
     private val _playedGame = MutableLiveData<Game>()
     val playedGame : LiveData<Game> = _playedGame
@@ -50,6 +54,17 @@ class MatchDetailsViewModel(private val repository: MatchDetailsRepository) : Vi
 
     private val _guestParticipants = MutableLiveData<List<GuestParticipant>>()
     val guestParticipants : LiveData<List<GuestParticipant>> = _guestParticipants
+
+    /**
+     * Maybe the other fields are useless.
+     * */
+    private val _teamUIs = MutableLiveData<List<TeamUI>>()
+    val teamUIs : LiveData<List<TeamUI>> = _teamUIs
+
+    fun changeMatch(match: MatchTM) {
+        this._match.postValue(match)
+    }
+
     fun changePlayedGame(game: Game) {
         this._playedGame.postValue(game)
     }
@@ -76,5 +91,9 @@ class MatchDetailsViewModel(private val repository: MatchDetailsRepository) : Vi
 
     fun changeGuestParticipants(participations: List<GuestParticipant>) {
         this._guestParticipants.postValue(participations)
+    }
+
+    fun changeTeamUIs(teamUIs: List<TeamUI>) {
+        this._teamUIs.postValue(teamUIs)
     }
 }
