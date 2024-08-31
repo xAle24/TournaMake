@@ -52,7 +52,9 @@ class MatchCreationActivity : ComponentActivity() {
             }
         }
     }
+    private fun createMatch(){
 
+    }
     private fun navigateToMatch() {
         val intent = Intent(this, MatchActivity::class.java)
         startActivity(intent)

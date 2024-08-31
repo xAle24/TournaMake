@@ -1,9 +1,7 @@
 package com.example.tournaMake.ui.screens.match
 
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -50,15 +48,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.screens.tournament.FilteredProfiles
 import com.example.tournaMake.ui.screens.tournament.ProfileUtils
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import java.util.stream.Collectors
 
 interface TeamUI {
@@ -185,7 +180,8 @@ fun TeamContainer(
                 .height((0.4 * screenHeight).dp)
         else
             modifier
-        //.background(MaterialTheme.colorScheme.tertiaryContainer),
+                .height(0.dp)
+                .background(MaterialTheme.colorScheme.tertiaryContainer),
     ) {
         if (teamsSet.isNotEmpty()) {
             LazyColumn(
@@ -218,8 +214,8 @@ fun TeamElement(
     guestProfileListFromDatabase: List<GuestProfile>,
     removeTeam: (TeamUI) -> Unit
 ) {
-    var mainProfilesState by remember { mutableStateOf(emptySet<MainProfile>()) }
-    var guestProfilesState by remember { mutableStateOf(emptySet<GuestProfile>()) }
+    var selectedMainProfiles by remember { mutableStateOf(emptySet<MainProfile>()) }
+    var selectedGuestProfiles by remember { mutableStateOf(emptySet<GuestProfile>()) }
 
     RectangleContainer(
         modifier = if (backgroundBrush != null) Modifier
@@ -253,8 +249,8 @@ fun TeamElement(
                 team,
                 mainProfileListFromDatabase,
                 guestProfileListFromDatabase,
-                changeMain = { mainProfilesState = it },
-                changeGuest = { guestProfilesState = it }
+                changeMain = { selectedMainProfiles = it },
+                changeGuest = { selectedGuestProfiles = it }
             )
 
             //HorizontalDivider(thickness = 2.dp)
@@ -262,16 +258,16 @@ fun TeamElement(
 
             // Creating the member bubbles
             // first MainProfiles
-            key(mainProfilesState) {
+            key(selectedMainProfiles) {
                 team.getMainProfiles().forEach { profile ->
-                    TeamMainMemberBubble(teamMember = profile, team, { mainProfilesState = it })
+                    TeamMainMemberBubble(teamMember = profile, team, { selectedMainProfiles = it })
                     Spacer(modifier = Modifier.height(spacerHeight))
                 }
             }
             // then GuestProfiles
-            key(guestProfilesState) {
+            key(selectedGuestProfiles) {
                 team.getGuestProfiles().forEach { profile ->
-                    TeamGuestMemberBubble(teamMember = profile, team) { guestProfilesState = it }
+                    TeamGuestMemberBubble(teamMember = profile, team) { selectedGuestProfiles = it }
                     Spacer(modifier = Modifier.height(spacerHeight))
                 }
             }
