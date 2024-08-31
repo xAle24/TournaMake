@@ -55,8 +55,8 @@ val appModule = module {
         ).addCallback(object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
-                db.execSQL("INSERT INTO ACHIEVEMENT (achievementID, name, description, imagePath, achievementsPlayerID) VALUES ('1', 'Welcome', 'Welcome in TournaMake', '', '1');")
-                db.execSQL("CREATE TRIGGER IF NOT EXISTS create_achievement_player AFTER INSERT ON MAIN_PROFILE BEGIN INSERT INTO ACHIEVEMENT_PLAYER (achievementsPlayerID, achievementID, status, email) VALUES (NEW.email, '1', 'C', NEW.email); END;")
+                db.execSQL("INSERT INTO ACHIEVEMENT (achievementID, name, description, imagePath) VALUES ('1', 'Welcome', 'Welcome in TournaMake', '');")
+                db.execSQL("CREATE TRIGGER IF NOT EXISTS create_achievement_player AFTER INSERT ON MAIN_PROFILE BEGIN INSERT INTO ACHIEVEMENT_PLAYER (achievementID, status, email) VALUES ('1', '1', NEW.email); END;")
                 db.execSQL("CREATE TRIGGER IF NOT EXISTS create_notification AFTER INSERT ON MAIN_PROFILE BEGIN INSERT INTO NOTIFICATION (notificationID, description, email) VALUES (NEW.email, 'You have completed the Welcome achievement!', NEW.email); END;")
             }
         }).build()

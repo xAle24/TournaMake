@@ -22,7 +22,6 @@ data class AchievementResult(
     val name: String,
     val description: String,
     val imagePath: String,
-    val achievementsPlayerID: String,
     val status: Char,
     val email: String
 )
@@ -208,16 +207,11 @@ interface TeamDao {
     @Query("SELECT * FROM TEAM")
     fun getAll(): List<Team>
 
-    /**
-     * Checks if the TEAM entity exists, based on the team members
-     * */
-    /*@Query("""
-        
-    """)
-    fun getTeamFromMembers(mainProfiles: List<MainProfile>, guestProfiles: List<GuestProfile>): String*/
-
     @Insert
     fun insertAll(teams: List<Team>)
+
+    @Insert
+    fun insert(team: Team)
 
     @Delete
     fun delete(teams: Team)

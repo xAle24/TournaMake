@@ -11,6 +11,8 @@ import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainProfile
+import com.example.tournaMake.sampledata.MatchTM
+import com.example.tournaMake.sampledata.Team
 import com.example.tournaMake.ui.screens.match.MatchCreationScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -56,15 +58,29 @@ class MatchCreationActivity : ComponentActivity() {
         }
     }
     private fun createMatch(
-        gameId: UUID,
+        gameId: String,
         matchCreationViewModel: MatchCreationViewModel
     ){
         /**
-         * - See if a team with all the guest profiles and main profiles already exists
-         * - If yes, retrieve its teamID. Otherwise, create a new team entry.
+         * - Create a new team entry.
          * - Create a unique match.
          * - Create a TEAM_IN_TM entity for each team variable.
          * */
+        val matchUUID = UUID.randomUUID().toString()
+        appDatabase.value.matchDao().insertAll(MatchTM(
+            matchTmID = matchUUID,
+            favorites = '0',
+            date = System.currentTimeMillis(),
+            duration = 0,
+            status = '0',
+            gameID = gameId,
+            tournamentID = null
+        ))
+        matchCreationViewModel.teamsSet.value.forEach {
+            val teamUUID = UUID.randomUUID().toString()
+            appDatabase.value.teamDao().insert(Team(teamUUID, it.getTeamName()))
+            appDatabase.value.teamInTmDao()
+        }
     }
 
     // TODO: modify team entity, it cannot contain "isWinner" and "score" fields

@@ -88,8 +88,6 @@ class TournamentCreationActivity : ComponentActivity() {
                 tournamentID = tournamentID,
                 name = selectedTournamentName,
                 favorites = '0',
-                locationLatitude = 0.0f,
-                locationLongitude = 0.0f,
                 scheduledDate = 0,
                 status = 0,
                 tournamentTypeID = selectedTournamentType.tournamentTypeID
@@ -134,9 +132,9 @@ class TournamentCreationActivity : ComponentActivity() {
                         matchTmID = matchID,
                         date = 0,
                         duration = 0,
-                        favorites = "F",
+                        favorites = 'F',
                         gameID = selectedGame.gameID,
-                        status = 0,
+                        status = '0',
                         tournamentID = tournamentID
                     )
                     appDatabase?.matchDao()?.insertAll(matchCurr)

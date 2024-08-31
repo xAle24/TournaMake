@@ -36,13 +36,25 @@ data class Achievement(
     val name: String,
     val description: String,
     val imagePath: String,
-    val achievementsPlayerID: String
 )
 
-@Entity(tableName = "ACHIEVEMENT_PLAYER", primaryKeys = ["achievementsPlayerID"])
+@Entity(
+    tableName = "ACHIEVEMENT_PLAYER",
+    primaryKeys = ["achievementID", "email"],
+    foreignKeys = [
+        ForeignKey(
+            entity = Achievement::class,
+            parentColumns = ["achievementID"],
+            childColumns = ["achievementID"]
+        ),
+        ForeignKey(
+            entity = MainProfile::class,
+            parentColumns = ["email"],
+            childColumns = ["email"]
+        )
+    ])
 data class AchievementPlayer(
-    val achievementsPlayerID: String,
-    val achievementID: String?,
+    val achievementID: String,
     val status: Char,
     val email: String
 )
@@ -58,7 +70,21 @@ data class Game(
     val maxPlayers: Int
 )
 
-@Entity(tableName = "GUEST_PARTICIPANT", primaryKeys = ["teamID", "username"])
+@Entity(
+    tableName = "GUEST_PARTICIPANT",
+    primaryKeys = ["teamID", "username"],
+    foreignKeys = [
+        ForeignKey(
+            entity = Team::class,
+            parentColumns = ["teamID"],
+            childColumns = ["teamID"]
+        ),
+        ForeignKey(
+            entity = GuestProfile::class,
+            parentColumns = ["username"],
+            childColumns = ["username"]
+        )
+    ])
 data class GuestParticipant(
     val username: String,
     val teamID: String
@@ -80,7 +106,21 @@ data class MainProfile(
     val locationLongitude: Double?
 )
 
-@Entity(tableName = "MAIN_PARTICIPANT", primaryKeys = ["teamID", "email"])
+@Entity(
+    tableName = "MAIN_PARTICIPANT",
+    primaryKeys = ["teamID", "email"],
+    foreignKeys = [
+        ForeignKey(
+            entity = Team::class,
+            parentColumns = ["teamID"],
+            childColumns = ["teamID"]
+        ),
+        ForeignKey(
+            entity = MainProfile::class,
+            parentColumns = ["email"],
+            childColumns = ["email"]
+        )
+    ])
 data class MainParticipant(
     val teamID: String,
     val email: String
@@ -104,10 +144,10 @@ data class MainParticipant(
 )
 data class MatchTM(
     @ColumnInfo(name = "matchTmID") val matchTmID: String,
-    @ColumnInfo(name = "favorites") val favorites: String,
+    @ColumnInfo(name = "favorites") val favorites: Char,
     @ColumnInfo(name = "date") val date: Long,
     @ColumnInfo(name = "duration") val duration: Int,
-    @ColumnInfo(name = "status") val status: Int,
+    @ColumnInfo(name = "status") val status: Char,
     @ColumnInfo(name = "gameID") val gameID: String,
     @ColumnInfo(name = "tournamentID") val tournamentID: String?
 )
@@ -147,8 +187,6 @@ data class Tournament(
     val name: String,
     val favorites: Char,
     val status: Int,
-    val locationLatitude: Float?,
-    val locationLongitude: Float?,
     val scheduledDate: Long?,
     val tournamentTypeID: String
 )
