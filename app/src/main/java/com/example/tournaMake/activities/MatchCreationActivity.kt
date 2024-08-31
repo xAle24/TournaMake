@@ -9,10 +9,13 @@ import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.MatchCreationViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.AppDatabase
+import com.example.tournaMake.sampledata.GuestParticipant
 import com.example.tournaMake.sampledata.GuestProfile
+import com.example.tournaMake.sampledata.MainParticipant
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.sampledata.Team
+import com.example.tournaMake.sampledata.TeamInTm
 import com.example.tournaMake.ui.screens.match.MatchCreationScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,13 +35,16 @@ class MatchCreationActivity : ComponentActivity() {
             MatchCreationScreen(
                 state = state.value,
                 backFunction = this::goBack,
-                navigateToMatch = this::navigateToMatch,
                 gamesListLiveData = matchCreationViewModel.games,
                 teamsSetStateFlow = matchCreationViewModel.teamsSet,
                 mainProfilesLiveData = matchCreationViewModel.mainProfiles,
                 guestProfilesLiveData = matchCreationViewModel.guestProfiles,
                 addTeam = matchCreationViewModel::addTeam,
-                removeTeam = matchCreationViewModel::removeTeam
+                removeTeam = matchCreationViewModel::removeTeam,
+                createMatchCallback = { gameId ->
+                    this.createMatch(gameId, matchCreationViewModel)
+                    navigateToMatch()
+                }
             )
         }
     }
@@ -66,31 +72,31 @@ class MatchCreationActivity : ComponentActivity() {
          * - Create a unique match.
          * - Create a TEAM_IN_TM entity for each team variable.
          * */
-        val matchUUID = UUID.randomUUID().toString()
-        appDatabase.value.matchDao().insertAll(MatchTM(
-            matchTmID = matchUUID,
-            favorites = '0',
-            date = System.currentTimeMillis(),
-            duration = 0,
-            status = '0',
-            gameID = gameId,
-            tournamentID = null
-        ))
-        matchCreationViewModel.teamsSet.value.forEach {
-            val teamUUID = UUID.randomUUID().toString()
-            appDatabase.value.teamDao().insert(Team(teamUUID, it.getTeamName()))
-            appDatabase.value.teamInTmDao()
+        lifecycleScope.launch (Dispatchers.IO) {
+            val matchUUID = UUID.randomUUID().toString()
+            appDatabase.value.matchDao().insertAll(MatchTM(
+                matchTmID = matchUUID,
+                favorites = '0',
+                date = System.currentTimeMillis(),
+                duration = 0,
+                status = '0',
+                gameID = gameId,
+                tournamentID = null
+            ))
+            matchCreationViewModel.teamsSet.value.forEach {
+                val teamUUID = UUID.randomUUID().toString()
+                appDatabase.value.teamDao().insert(Team(teamUUID, it.getTeamName()))
+                appDatabase.value.teamInTmDao().insert(TeamInTm(teamUUID, matchUUID, 0, '0'))
+                appDatabase.value.mainParticipantsDao()
+                    .insertAll(it.getMainProfiles()
+                        .map { mainProfile -> MainParticipant(email = mainProfile.email, teamID = teamUUID) }
+                    )
+                appDatabase.value.guestParticipantsDao()
+                    .insertAll(it.getGuestProfiles()
+                        .map { guestProfile -> GuestParticipant(username = guestProfile.username, teamID = teamUUID) }
+                    )
+            }
         }
-    }
-
-    // TODO: modify team entity, it cannot contain "isWinner" and "score" fields
-    private fun createTeam(
-        teamName: String,
-        mainProfiles: List<MainProfile>,
-        guestProfiles: List<GuestProfile>
-    ): String {
-        val teamID = UUID.randomUUID().toString()
-        return teamID
     }
     private fun navigateToMatch() {
         val intent = Intent(this, MatchActivity::class.java)

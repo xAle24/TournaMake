@@ -99,24 +99,30 @@ interface MatchDao {
 }
 
 @Dao
-interface MatchScoreGuestDao {
+interface GuestParticipantsDao {
     @Query("SELECT * FROM GUEST_PARTICIPANT")
     fun getAll(): List<GuestParticipant>
 
     @Insert
-    fun insertAll(vararg matchScoreGuests: GuestParticipant)
+    fun insertAll(matchScoreGuests: List<GuestParticipant>)
+
+    @Insert
+    fun insertAll(vararg matchScoreGuest: GuestParticipant)
 
     @Delete
     fun delete(matchScoreGuest: GuestParticipant)
 }
 
 @Dao
-interface MatchScoreMainDao {
+interface MainParticipantsDao {
     @Query("SELECT * FROM MAIN_PARTICIPANT")
     fun getAll(): List<MainParticipant>
 
     @Insert
-    fun insertAll(vararg matchScoreMains: MainParticipant)
+    fun insertAll(matchScoreMains: List<MainParticipant>)
+
+    @Insert
+    fun insertAll(vararg mainParticipants: MainParticipant)
 
     @Delete
     fun delete(matchScoreMain: MainParticipant)

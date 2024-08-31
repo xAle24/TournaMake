@@ -29,8 +29,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun guestProfileDao(): GuestProfileDao
     abstract fun mainProfileDao(): MainProfileDao
     abstract fun matchDao(): MatchDao
-    abstract fun matchScoreGuestDao(): MatchScoreGuestDao
-    abstract fun matchScoreMainDao(): MatchScoreMainDao
+    abstract fun guestParticipantsDao(): GuestParticipantsDao
+    abstract fun mainParticipantsDao(): MainParticipantsDao
     abstract fun tournamentDao(): TournamentDao
     abstract fun tournamentTypeDao(): TournamentTypeDao
     abstract fun teamDao(): TeamDao

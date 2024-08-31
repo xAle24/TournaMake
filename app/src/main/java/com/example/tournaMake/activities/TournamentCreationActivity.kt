@@ -147,28 +147,28 @@ class TournamentCreationActivity : ComponentActivity() {
                             username = profile.username,
                             teamID = firstTeamID
                         )
-                        appDatabase?.matchScoreGuestDao()?.insertAll(guestProfile)
+                        appDatabase?.guestParticipantsDao()?.insertAll(guestProfile)
                     }
                     match.first.getMainProfiles().forEach {profile ->
                         val mainProfile = MainParticipant(
                             email = profile.email,
                             teamID = firstTeamID
                         )
-                        appDatabase?.matchScoreMainDao()?.insertAll(mainProfile)
+                        appDatabase?.mainParticipantsDao()?.insertAll(mainProfile)
                     }
                     match.second.getMainProfiles().forEach {profile ->
                         val mainProfile = MainParticipant(
                             email = profile.username,
                             teamID = secondTeamID
                         )
-                        appDatabase?.matchScoreMainDao()?.insertAll(mainProfile)
+                        appDatabase?.mainParticipantsDao()?.insertAll(mainProfile)
                     }
                     match.second.getGuestProfiles().forEach {profile ->
                         val guestProfile = GuestParticipant(
                             username = profile.username,
                             teamID = secondTeamID
                         )
-                        appDatabase?.matchScoreGuestDao()?.insertAll(guestProfile)
+                        appDatabase?.guestParticipantsDao()?.insertAll(guestProfile)
                     }
                 }
             }
