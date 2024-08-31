@@ -60,8 +60,8 @@ interface GameDao {
         FROM GAME
         JOIN MATCH_TM ON GAME.gameID = MATCH_TM.matchTmID
         JOIN TEAM ON MATCH_TM.matchTmID = TEAM.teamID
-        JOIN MAIN_PARTICIPANT_SCORE ON TEAM.teamID = MAIN_PARTICIPANT_SCORE.teamID
-        WHERE MAIN_PARTICIPANT_SCORE.email = :email
+        JOIN MAIN_PARTICIPANT ON TEAM.teamID = MAIN_PARTICIPANT.teamID
+        WHERE MAIN_PARTICIPANT.email = :email
         GROUP BY GAME.name;
     """)
     fun getPlayedGames(email: String): List<PlayedGame>
@@ -82,8 +82,8 @@ interface MatchDao {
     @Query("""SELECT MATCH_TM.*
             FROM MATCH_TM
             JOIN TEAM_IN_TM ON MATCH_TM.matchTmID = TEAM_IN_TM.matchTmID
-            JOIN MAIN_PARTICIPANT_SCORE ON TEAM_IN_TM.teamID = MAIN_PARTICIPANT_SCORE.teamID
-            WHERE MAIN_PARTICIPANT_SCORE.email = :email""")
+            JOIN MAIN_PARTICIPANT ON TEAM_IN_TM.teamID = MAIN_PARTICIPANT.teamID
+            WHERE MAIN_PARTICIPANT.email = :email""")
     fun getMyMatch(email: String): List<MatchTM>
 
     @Query("""SELECT * FROM MATCH_TM WHERE favorites = '1'""")
@@ -101,26 +101,26 @@ interface MatchDao {
 
 @Dao
 interface MatchScoreGuestDao {
-    @Query("SELECT * FROM GUEST_PARTICIPANT_SCORE")
-    fun getAll(): List<GuestParticipantScore>
+    @Query("SELECT * FROM GUEST_PARTICIPANT")
+    fun getAll(): List<GuestParticipant>
 
     @Insert
-    fun insertAll(vararg matchScoreGuests: GuestParticipantScore)
+    fun insertAll(vararg matchScoreGuests: GuestParticipant)
 
     @Delete
-    fun delete(matchScoreGuest: GuestParticipantScore)
+    fun delete(matchScoreGuest: GuestParticipant)
 }
 
 @Dao
 interface MatchScoreMainDao {
-    @Query("SELECT * FROM MAIN_PARTICIPANT_SCORE")
-    fun getAll(): List<MainParticipantScore>
+    @Query("SELECT * FROM MAIN_PARTICIPANT")
+    fun getAll(): List<MainParticipant>
 
     @Insert
-    fun insertAll(vararg matchScoreMains: MainParticipantScore)
+    fun insertAll(vararg matchScoreMains: MainParticipant)
 
     @Delete
-    fun delete(matchScoreMain: MainParticipantScore)
+    fun delete(matchScoreMain: MainParticipant)
 }
 
 data class TournamentMatchData(
@@ -148,7 +148,8 @@ interface TournamentDao {
         MATCH_TM.matchTmID, 
         MATCH_TM.gameID, 
         MATCH_TM.tournamentID,
-        TEAM.*
+        TEAM.*,
+        TEAM_IN_TM.*
     FROM
         MATCH_TM
     JOIN
@@ -207,8 +208,13 @@ interface TeamDao {
     @Query("SELECT * FROM TEAM")
     fun getAll(): List<Team>
 
-    @Query("UPDATE TEAM SET isWinner = :isWinner, score = :score WHERE teamID = :teamID")
-    suspend fun updateTeam(teamID: String, isWinner: Char, score: Int)
+    /**
+     * Checks if the TEAM entity exists, based on the team members
+     * */
+    /*@Query("""
+        
+    """)
+    fun getTeamFromMembers(mainProfiles: List<MainProfile>, guestProfiles: List<GuestProfile>): String*/
 
     @Insert
     fun insertAll(teams: List<Team>)

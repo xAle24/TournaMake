@@ -12,9 +12,9 @@ import com.example.tournaMake.data.models.TournamentCreationViewModel
 import com.example.tournaMake.data.models.TournamentIDViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.Game
-import com.example.tournaMake.sampledata.GuestParticipantScore
+import com.example.tournaMake.sampledata.GuestParticipant
 import com.example.tournaMake.sampledata.GuestProfile
-import com.example.tournaMake.sampledata.MainParticipantScore
+import com.example.tournaMake.sampledata.MainParticipant
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.sampledata.Team
@@ -87,7 +87,7 @@ class TournamentCreationActivity : ComponentActivity() {
             val tournament = Tournament(
                 tournamentID = tournamentID,
                 name = selectedTournamentName,
-                favorites = 'F',
+                favorites = '0',
                 locationLatitude = 0.0f,
                 locationLongitude = 0.0f,
                 scheduledDate = 0,
@@ -118,14 +118,14 @@ class TournamentCreationActivity : ComponentActivity() {
                         Team(
                             teamID = firstTeamID,
                             name = match.first.getTeamName(),
-                            isWinner = 'F',
-                            score = 0
+                            /*isWinner = 'F',
+                            score = 0*/
                         ),
                         Team(
                             teamID = secondTeamID,
                             name = match.second.getTeamName(),
-                            isWinner = 'F',
-                            score = 0
+                            /*isWinner = 'F',
+                            score = 0*/
                         )
                     )
                     appDatabase?.teamDao()?.insertAll(teams)
@@ -141,38 +141,34 @@ class TournamentCreationActivity : ComponentActivity() {
                     )
                     appDatabase?.matchDao()?.insertAll(matchCurr)
                     teams.forEach { team ->
-                        val teamTm = TeamInTm(teamID = team.teamID, matchTmID = matchID)
+                        val teamTm = TeamInTm(teamID = team.teamID, matchTmID = matchID, isWinner = '0', score = 0)
                         appDatabase?.teamInTmDao()?.insert(teamTm)
                     }
                     match.first.getGuestProfiles().forEach { profile ->
-                        val guestProfile = GuestParticipantScore(
+                        val guestProfile = GuestParticipant(
                             username = profile.username,
-                            teamID = firstTeamID,
-                            score = 0
+                            teamID = firstTeamID
                         )
                         appDatabase?.matchScoreGuestDao()?.insertAll(guestProfile)
                     }
                     match.first.getMainProfiles().forEach {profile ->
-                        val mainProfile = MainParticipantScore(
+                        val mainProfile = MainParticipant(
                             email = profile.email,
-                            teamID = firstTeamID,
-                            score = 0
+                            teamID = firstTeamID
                         )
                         appDatabase?.matchScoreMainDao()?.insertAll(mainProfile)
                     }
                     match.second.getMainProfiles().forEach {profile ->
-                        val mainProfile = MainParticipantScore(
+                        val mainProfile = MainParticipant(
                             email = profile.username,
-                            teamID = secondTeamID,
-                            score = 0
+                            teamID = secondTeamID
                         )
                         appDatabase?.matchScoreMainDao()?.insertAll(mainProfile)
                     }
                     match.second.getGuestProfiles().forEach {profile ->
-                        val guestProfile = GuestParticipantScore(
+                        val guestProfile = GuestParticipant(
                             username = profile.username,
-                            teamID = secondTeamID,
-                            score = 0
+                            teamID = secondTeamID
                         )
                         appDatabase?.matchScoreGuestDao()?.insertAll(guestProfile)
                     }

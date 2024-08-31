@@ -170,6 +170,10 @@ val testTeam2 = TeamUIImpl(
     teamName = "The Noobs"
 )
 
+/**
+ * A team container is just the rectangle drawn in the middle of the screen,
+ * containing the team elements.
+ * */
 @Composable
 fun TeamContainer(
     teamsSetStateFlow: StateFlow<Set<TeamUI>>,
@@ -214,6 +218,10 @@ fun TeamContainer(
     }
 }
 
+/**
+ * A team element represents an individual team, with all of the
+ * profiles involved as teammates.
+ * */
 @Composable
 fun TeamElement(
     team: TeamUI,
@@ -482,6 +490,9 @@ fun DeleteTeamMemberButton(
     }
 }
 
+/**
+ * The modal dialog that allows the user to select a new member
+ * */
 @Composable
 fun ShowAddMember(
     openDialog: MutableState<Boolean>,

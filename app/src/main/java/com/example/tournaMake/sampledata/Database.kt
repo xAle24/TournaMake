@@ -58,11 +58,10 @@ data class Game(
     val maxPlayers: Int
 )
 
-@Entity(tableName = "GUEST_PARTICIPANT_SCORE", primaryKeys = ["teamID", "username"])
-data class GuestParticipantScore(
+@Entity(tableName = "GUEST_PARTICIPANT", primaryKeys = ["teamID", "username"])
+data class GuestParticipant(
     val username: String,
-    val teamID: String,
-    val score: Int
+    val teamID: String
 )
 
 @Entity(tableName = "GUEST_PROFILE", primaryKeys = ["username"])
@@ -81,11 +80,10 @@ data class MainProfile(
     val locationLongitude: Double?
 )
 
-@Entity(tableName = "MAIN_PARTICIPANT_SCORE", primaryKeys = ["teamID", "email"])
-data class MainParticipantScore(
+@Entity(tableName = "MAIN_PARTICIPANT", primaryKeys = ["teamID", "email"])
+data class MainParticipant(
     val teamID: String,
-    val email: String,
-    val score: Int
+    val email: String
 )
 
 @Entity(
@@ -132,15 +130,15 @@ data class MatchTM(
 )
 data class TeamInTm(
     @ColumnInfo(name = "teamID") val teamID: String,
-    @ColumnInfo(name = "matchTmID") val matchTmID: String
+    @ColumnInfo(name = "matchTmID") val matchTmID: String,
+    val score: Int,
+    val isWinner: Char
 )
 
 @Entity(tableName = "TEAM", primaryKeys = ["teamID"])
 data class Team(
     val teamID: String,
-    val name: String,
-    val isWinner: Char,
-    val score: Int
+    val name: String
 )
 
 @Entity(tableName = "TOURNAMENT", primaryKeys = ["tournamentID"])

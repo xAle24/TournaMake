@@ -257,7 +257,7 @@ class TournamentActivity : ComponentActivity() {
     ) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                appDatabase.teamDao().updateTeam(
+                /*appDatabase.teamDao().updateTeam(
                     teamID = data.firstTeamID,
                     isWinner = if (data.isFirstTeamWinner) 'Y' else 'N',
                     score = data.firstTeamScore
@@ -266,7 +266,7 @@ class TournamentActivity : ComponentActivity() {
                     teamID = data.secondTeamID,
                     isWinner = if (data.isSecondTeamWinner) 'Y' else 'N',
                     score = data.secondTeamScore
-                )
+                )*/
 
                 // Causes a recomposition to happen
                 fetchStuffForTournament(
