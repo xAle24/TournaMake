@@ -35,6 +35,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun tournamentTypeDao(): TournamentTypeDao
     abstract fun teamDao(): TeamDao
     abstract fun teamInTmDao(): TeamInTmDao
+    abstract fun notificationDao(): NotificationDao
 
     /*companion object {
         @Volatile
