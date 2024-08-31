@@ -93,7 +93,6 @@ fun MatchCreationScreen(
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    // TODO: find out why these buttons don't appear
                     BottomTeamScreenButton(
                         state = state,
                         //.fillMaxWidth(0.3f)
@@ -165,6 +164,9 @@ fun Logo(
     )
 }
 
+/**
+ * Selection dropdown menu for games
+ * */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectionMenu(gamesList: LiveData<List<Game>>) {

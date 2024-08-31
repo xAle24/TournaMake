@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import com.example.tournaMake.sampledata.Game
 import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainProfile
-import com.example.tournaMake.sampledata.Team
 import com.example.tournaMake.ui.screens.match.TeamUI
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,7 +43,27 @@ class MatchCreationViewModel: ViewModel() {
     // Takes teams from UI data
     fun addTeam(team: TeamUI) {
         _teamsSet.value = setOf(setOf(team), _teamsSet.value).flatten().toSet()
-        Log.d("DEV-MATCH-CREATION", "Content of teams set after addition: ${_teamsSet.value.toString()}")
+        Log.d("DEV-MATCH-CREATION", "Content of teams set after addition: ${_teamsSet.value}")
+    }
+
+    fun addMemberToTeam(team: TeamUI, profile: MainProfile) {
+        val indexOfTeam = this._teamsSet.value.indexOf(team)
+        this._teamsSet.value.elementAt(indexOfTeam).addMainProfile(profile)
+    }
+
+    fun addMemberToTeam(team: TeamUI, profile: GuestProfile) {
+        val indexOfTeam = this._teamsSet.value.indexOf(team)
+        this._teamsSet.value.elementAt(indexOfTeam).addGuestProfile(profile)
+    }
+
+    fun removeMemberFromTeam(team: TeamUI, profile: MainProfile) {
+        val indexOfTeam = this._teamsSet.value.indexOf(team)
+        this._teamsSet.value.elementAt(indexOfTeam).removeMainProfile(profile)
+    }
+
+    fun removeMemberFromTeam(team: TeamUI, profile: GuestProfile) {
+        val indexOfTeam = this._teamsSet.value.indexOf(team)
+        this._teamsSet.value.elementAt(indexOfTeam).removeGuestProfile(profile)
     }
 
     fun removeTeam(team: TeamUI) {

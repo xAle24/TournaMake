@@ -65,6 +65,7 @@ interface TeamUI {
     fun removeMainProfile(profile: MainProfile)
     fun addGuestProfile(profile: GuestProfile)
     fun removeGuestProfile(profile: GuestProfile)
+    override fun toString(): String
 }
 
 
@@ -106,6 +107,14 @@ class TeamUIImpl(
 
     override fun removeGuestProfile(profile: GuestProfile) {
         this.guestProfiles = this.guestProfiles.filter { it != profile }.toSet()
+    }
+
+    override fun toString(): String {
+        val profiles = StringBuilder("${this.teamName}: {")
+        this.mainProfiles.map { it -> it.username }.forEach { profiles.append("$it, ")}
+        this.guestProfiles.map { it -> it.username }.forEach { profiles.append("$it, ")}
+        profiles.append("}")
+        return profiles.toString()
     }
 }
 
