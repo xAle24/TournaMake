@@ -61,6 +61,9 @@ class MatchDetailsViewModel(private val repository: MatchDetailsRepository) : Vi
     private val _teamUIs = MutableLiveData<List<TeamUI>>()
     val teamUIs : LiveData<List<TeamUI>> = _teamUIs
 
+    private val _teamDataPackets = MutableLiveData<List<TeamDataPacket>>()
+    val teamDataPackets: LiveData<List<TeamDataPacket>> = _teamDataPackets
+
     fun changeMatch(match: MatchTM) {
         this._match.postValue(match)
     }
@@ -96,4 +99,14 @@ class MatchDetailsViewModel(private val repository: MatchDetailsRepository) : Vi
     fun changeTeamUIs(teamUIs: List<TeamUI>) {
         this._teamUIs.postValue(teamUIs)
     }
+
+    fun changeTeamDataPackets(teamDataPackets: List<TeamDataPacket>) {
+        this._teamDataPackets.postValue(teamDataPackets)
+    }
 }
+
+/**
+ * Stores a TeamUI element associated to other data related to the team's
+ * participation in this match.
+ * */
+data class TeamDataPacket(val teamUI: TeamUI, val teamScore: Int, val teamID: String)

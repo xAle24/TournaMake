@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -48,29 +49,35 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import com.example.tournaMake.R
 import com.example.tournaMake.data.models.MatchDetailsViewModel
+import com.example.tournaMake.data.models.TeamDataPacket
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.data.repositories.MatchDetailsRepository
 import com.example.tournaMake.dataStore
+import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.sampledata.Team
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.screens.common.RectangleContainer
+import com.example.tournaMake.ui.screens.registration.createImageRequest
 
 private val spacerHeight = 20.dp
+
 @Composable
 fun MatchDetailsScreen(
     state: ThemeState,
     gameImage: Uri?,
-    teamsSet: Set<TeamUI>,
     backFunction: () -> Unit,
-    vm: MatchDetailsViewModel
+    vm: MatchDetailsViewModel,
+    addMatchToFavorites: (String) -> Unit,
+    removeMatchFromFavorites: (String) -> Unit,
 ) {
-    val match = vm.match.observeAsState()
     val playedGameLiveData = vm.playedGame.observeAsState()
-    val teamsLiveData = vm.teams.observeAsState()
+    val dataPackets by vm.teamDataPackets.observeAsState()
+    val match by vm.match.observeAsState()
     BasicScreenWithAppBars(
         state = state,
         backFunction = backFunction,
@@ -84,13 +91,14 @@ fun MatchDetailsScreen(
         ) {
             MatchDetailsHeading(
                 gameImage = gameImage,
-                gameName = playedGameLiveData.value?.name ?: "Loading..."
+                gameName = playedGameLiveData.value?.name ?: "Loading...",
+                match,
+                addMatchToFavorites,
+                removeMatchFromFavorites
             )
             Spacer(Modifier.height(spacerHeight))
-            teamsSet.forEach { team ->
-                // TODO: CORRECT THIS CODE, TEAM NAMES MIGHT BE REPEATED
-                val databaseTeam = teamsLiveData.value?.first { dbTeam -> team.getTeamName() == dbTeam.name }
-                TeamElementInMatchDetailsScreen(databaseTeam = databaseTeam!!, team = team, vm = vm)
+            dataPackets?.forEach { team ->
+                TeamElementInMatchDetailsScreen(dataPacket = team)
                 Spacer(modifier = Modifier.height(spacerHeight))
             }
         }
@@ -100,8 +108,12 @@ fun MatchDetailsScreen(
 @Composable
 fun MatchDetailsHeading(
     gameImage: Uri?,
-    gameName: String
+    gameName: String,
+    match: MatchTM?,
+    addMatchToFavorites: (String) -> Unit,
+    removeMatchFromFavorites: (String) -> Unit
 ) {
+    var isFavorite by remember { mutableStateOf(match?.favorites == 1) }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -141,15 +153,26 @@ fun MatchDetailsHeading(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text("Match", style = MaterialTheme.typography.headlineSmall)
-                    Text("Game name here")
+                    Text(gameName)
                 }
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        isFavorite = if (!isFavorite) {
+                            if (match != null) {
+                                addMatchToFavorites(match.matchTmID)
+                            }
+                            true
+                        } else {
+                            if (match != null) {
+                                removeMatchFromFavorites(match.matchTmID)
+                            }
+                            false
+                        }
+                    },
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.FavoriteBorder,
+                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         contentDescription = "Favourite Match indicator",
-                        /*modifier = Modifier*/
                     )
                 }
             }
@@ -159,15 +182,9 @@ fun MatchDetailsHeading(
 
 @Composable
 fun TeamElementInMatchDetailsScreen(
-    databaseTeam: Team,
-    team: TeamUI,
-    vm: MatchDetailsViewModel
+    dataPacket: TeamDataPacket
 ) {
-    val teamsInTmLiveData = vm.teamsInMatch.observeAsState()
-    var teamScore = teamsInTmLiveData.value
-        ?.filter { teamInTm -> teamInTm.teamID == databaseTeam.teamID }
-        ?.map { teamInTm -> teamInTm.score }
-        ?.first()
+    val teamScore = dataPacket.teamScore
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -180,7 +197,8 @@ fun TeamElementInMatchDetailsScreen(
                 .fillMaxWidth(0.9f)
                 .align(Alignment.Center)
         ) {
-            Text(team.getTeamName(),
+            Text(
+                dataPacket.teamUI.getTeamName(),
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier
                     .padding(start = 10.dp)
@@ -197,11 +215,11 @@ fun TeamElementInMatchDetailsScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                items(team.getGuestProfiles().toList()) {
-                    MiniProfileImage()
+                items(dataPacket.teamUI.getGuestProfiles().toList()) {
+                    MiniProfileImageMatchDetails()
                 }
-                items(team.getMainProfiles().toList()) {
-                    MiniProfileImage()
+                items(dataPacket.teamUI.getMainProfiles().toList()) {
+                    MiniProfileImageMatchDetails(imageUri = it.profileImage?.toUri())
                 }
             }
             Column(
@@ -209,7 +227,8 @@ fun TeamElementInMatchDetailsScreen(
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Score",
+                Text(
+                    "Score",
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -217,7 +236,7 @@ fun TeamElementInMatchDetailsScreen(
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = "200", // TODO: retrieve score from db
+                    text = teamScore.toString(),
                     fontSize = 30.sp
                 )
             }
@@ -226,14 +245,51 @@ fun TeamElementInMatchDetailsScreen(
     }
 }
 
+@Composable
+fun MiniProfileImageMatchDetails(
+    imageUri: Uri? = null
+) {
+    OutlinedCard(
+        modifier = Modifier
+            //.background(Color.White)
+            .width(80.dp)
+            .height(80.dp)
+            .padding(4.dp),
+        shape = MaterialTheme.shapes.medium,
+        border = BorderStroke(width = 2.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        // Load your image here using imageResId
+        // Example: Image(painter = painterResource(id = imageResId), contentDescription = null)
+        // Text(username, modifier = Modifier.padding(4.dp))
+        if (imageUri == null) {
+            Image(
+                painterResource(id = R.drawable.no_profile_picture_icon),
+                contentDescription = null
+            )
+        } else {
+            AsyncImage(
+                model = createImageRequest(LocalContext.current, imageUri),
+                contentDescription = null
+            )
+        }
+    }
+    Spacer(modifier = Modifier.width(8.dp))
+}
+
 @Preview
 @Composable
 fun MatchDetailsScreenPreview() {
+    val vm = MatchDetailsViewModel(MatchDetailsRepository(LocalContext.current.dataStore))
+    vm.changeTeamDataPackets(listOf(
+        TeamDataPacket(testTeam1, 200, "team1ID"),
+        TeamDataPacket(testTeam2, 100, "team2ID")
+    ))
     MatchDetailsScreen(
         state = ThemeState(ThemeEnum.Light),
         null,
-        setOf(testTeam1, testTeam2),
         backFunction = {},
-        vm = MatchDetailsViewModel(MatchDetailsRepository(LocalContext.current.dataStore))
+        vm = vm,
+        addMatchToFavorites = {},
+        removeMatchFromFavorites = {}
     )
 }

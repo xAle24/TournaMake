@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.MatchDetailsViewModel
+import com.example.tournaMake.data.models.TeamDataPacket
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.ui.screens.match.TeamUIImpl
 import kotlinx.coroutines.Dispatchers
@@ -34,17 +35,41 @@ class MatchScreenDetailsActivity: ComponentActivity() {
                     .filter { team -> teamsInTm
                         .map { teamInTm -> teamInTm.teamID }.contains(team.teamID)
                     }
-                val teamUIs = teams.map { team ->
+                val teamDataPackets = teams.map { team ->
                     val mainParticipants = appDatabase.value.mainParticipantsDao().getAllMainParticipantsFromTeam(team.teamID)
                     val guestParticipants = appDatabase.value.guestParticipantsDao().getAllGuestParticipantsFromTeam(team.teamID)
                     val mainProfiles = mainParticipants.map { mainParticipant -> appDatabase.value.mainProfileDao().getProfileByEmail(mainParticipant.email) }
                     val guestProfiles = guestParticipants.map { guestParticipant -> appDatabase.value.guestProfileDao().getFromUsername(guestParticipant.username) }
-                    return@map TeamUIImpl(mainProfiles.toSet(), guestProfiles.toSet(), team.name)
+                    val teamScore = teamsInTm.first { teamInTm -> teamInTm.teamID == team.teamID }.score
+                    return@map TeamDataPacket(
+                        teamUI = TeamUIImpl(mainProfiles.toSet(), guestProfiles.toSet(), team.name),
+                        teamScore = teamScore,
+                        teamID = team.teamID)
                 }
-                matchDetailsViewModel.changeTeamUIs(teamUIs)
+                matchDetailsViewModel.changeTeamDataPackets(teamDataPackets)
+                matchDetailsViewModel.changeTeamUIs(teamDataPackets.map { it.teamUI })
                 matchDetailsViewModel.changePlayedGame(playedGame)
                 matchDetailsViewModel.changeTeams(teams)
                 matchDetailsViewModel.changeTeamsInMatch(teamsInTm)
+            }
+        }
+    }
+
+    private fun addMatchToFavorites(matchTmID: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                appDatabase.value.matchDao().setMatchFavorites(matchTmID)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+    private fun removeMatchToFavorites(matchTmID: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                appDatabase.value.matchDao().removeMatchFavorites(matchTmID)
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
