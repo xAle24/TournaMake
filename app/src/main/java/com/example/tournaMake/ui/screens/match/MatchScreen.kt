@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,12 +26,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -42,20 +45,29 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import com.example.tournaMake.R
 import com.example.tournaMake.data.models.MatchViewModel
+import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.data.repositories.MatchRepository
+import com.example.tournaMake.dataStore
 import com.example.tournaMake.sampledata.MatchTM
-import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
+import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.screens.common.RectangleContainer
+import com.example.tournaMake.ui.screens.common.TournaMakeTopAppBar
 
 private val spacerHeight = 20.dp
+
 @Composable
 fun MatchScreen(
     state: ThemeState,
@@ -68,41 +80,61 @@ fun MatchScreen(
 ) {
     val match by vm.match.observeAsState()
     val playedGameLiveData = vm.playedGame.observeAsState()
-    BasicScreenWithAppBars(
-        state = state,
-        backFunction = backFunction,
-        showTopBar = true,
-        showBottomBar = false
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+
+    val backButtonIcon =
+        if (state.theme == ThemeEnum.Dark) R.drawable.dark_tournamake_triangle_no_outline else R.drawable.light_tournamake_triangle_no_outline
+    val topAppBarBackground =
+        if (state.theme == ThemeEnum.Dark) R.drawable.dark_topbarbackground else R.drawable.light_topbarbackground
+
+    BasicScreenWithTheme(state = state) {
+        Scaffold(
+            containerColor = Color.Transparent,
             modifier = Modifier
-                .verticalScroll(rememberScrollState())
-        ) {
-            MatchHeading(
-                gameImage = gameImage,
-                gameName = playedGameLiveData.value?.name ?: "Loading...",
-                match,
-                addMatchToFavorites,
-                removeMatchFromFavorites
-            )
-            Spacer(Modifier.height(spacerHeight))
-            teamsSet.forEach { team ->
-                TeamElementInMatchScreen(team = team)
-                Spacer(modifier = Modifier.height(spacerHeight))
+                .zIndex(45f)
+                .fillMaxSize(),
+            topBar = {
+                TournaMakeTopAppBar(backButtonIcon = backButtonIcon, topAppBarBackground = topAppBarBackground) {
+                    backFunction()
+                }
+            },
+            bottomBar = {
+                BottomAppBar {
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .zIndex(1f)
+                    ) {
+                        Button(onClick = { /*TODO save */ }) {
+                            Text("Save")
+                        }
+                        Spacer(Modifier.width(16.dp))
+                        Button(onClick = { /*TODO end match*/ }) {
+                            Text("End")
+                        }
+                    }
+                }
             }
-            Spacer(Modifier.height(spacerHeight))
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
+        ) { paddingValues ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(paddingValues)
             ) {
-                Button(onClick = { /*TODO save */ }) {
-                    Text("Button 1")
+                MatchHeading(
+                    gameImage = gameImage,
+                    gameName = playedGameLiveData.value?.name ?: "Loading...",
+                    match,
+                    addMatchToFavorites,
+                    removeMatchFromFavorites
+                )
+                Spacer(Modifier.height(spacerHeight))
+                teamsSet.forEach { team ->
+                    TeamElementInMatchScreen(team = team)
+                    Spacer(modifier = Modifier.height(spacerHeight))
                 }
-                Spacer(Modifier.width(16.dp))
-                Button(onClick = { /*TODO end match*/ }) {
-                    Text("Button 2")
-                }
+                Spacer(Modifier.height(spacerHeight))
             }
         }
     }
@@ -198,7 +230,8 @@ fun TeamElementInMatchScreen(
                 .fillMaxWidth(0.9f)
                 .align(Alignment.Center)
         ) {
-            Text("Team1",
+            Text(
+                "Team1",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier
                     .padding(start = 10.dp)
@@ -227,7 +260,8 @@ fun TeamElementInMatchScreen(
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Current Score",
+                Text(
+                    "Current Score",
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -253,6 +287,7 @@ fun TeamElementInMatchScreen(
         }
     }
 }
+
 @Composable
 fun MiniProfileImage() {
     OutlinedCard(
@@ -273,4 +308,19 @@ fun MiniProfileImage() {
         )
     }
     Spacer(modifier = Modifier.width(8.dp))
+}
+
+@Preview
+@Composable
+fun MyMatchScreenPreview() {
+    MatchScreen(
+        state = ThemeState(ThemeEnum.Light),
+        gameImage = null,
+        teamsSet = setOf(testTeam1, testTeam2),
+        vm = MatchViewModel(MatchRepository(LocalContext.current.dataStore)),
+        addMatchToFavorites = {},
+        removeMatchFromFavorites = {}
+    ) {
+
+    }
 }

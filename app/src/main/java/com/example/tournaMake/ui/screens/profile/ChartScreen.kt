@@ -42,7 +42,7 @@ fun ChartScreen(
     gamesLiveData: LiveData<List<PlayedGame>>,
     backButton: () -> Unit
 ) {
-    val gamesData = gamesLiveData.observeAsState(emptyList())
+    val gamesData = gamesLiveData.observeAsState(listOf())
     /*
         val items = if (list.isNotEmpty()) listOf(
             list[0].name to listOf(list[0].times_played.toFloat(), 8810.34f, 30000.57f),
