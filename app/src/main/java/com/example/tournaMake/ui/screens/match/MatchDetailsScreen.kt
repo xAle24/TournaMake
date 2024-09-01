@@ -216,10 +216,10 @@ fun TeamElementInMatchDetailsScreen(
                 horizontalArrangement = Arrangement.Center
             ) {
                 items(dataPacket.teamUI.getGuestProfiles().toList()) {
-                    MiniProfileImageMatchDetails()
+                    MiniProfileImageMatchDetails(profileName = it.username)
                 }
                 items(dataPacket.teamUI.getMainProfiles().toList()) {
-                    MiniProfileImageMatchDetails(imageUri = it.profileImage?.toUri())
+                    MiniProfileImageMatchDetails(imageUri = it.profileImage?.toUri(), profileName = it.username)
                 }
             }
             Column(
@@ -247,9 +247,12 @@ fun TeamElementInMatchDetailsScreen(
 
 @Composable
 fun MiniProfileImageMatchDetails(
-    imageUri: Uri? = null
+    imageUri: Uri? = null,
+    profileName: String
 ) {
-    Column {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         OutlinedCard(
             modifier = Modifier
                 //.background(Color.White)
@@ -274,8 +277,9 @@ fun MiniProfileImageMatchDetails(
                 )
             }
         }
-        Spacer(modifier = Modifier.width(8.dp))
+        Text(profileName)
     }
+    Spacer(modifier = Modifier.width(8.dp))
 }
 
 @Preview
@@ -283,8 +287,8 @@ fun MiniProfileImageMatchDetails(
 fun MatchDetailsScreenPreview() {
     val vm = MatchDetailsViewModel(MatchDetailsRepository(LocalContext.current.dataStore))
     vm.changeTeamDataPackets(listOf(
-        TeamDataPacket(testTeam1, 200, "team1ID"),
-        TeamDataPacket(testTeam2, 100, "team2ID")
+        TeamDataPacket(testTeam1, 200, "team1ID", true),
+        TeamDataPacket(testTeam2, 100, "team2ID", false)
     ))
     MatchDetailsScreen(
         state = ThemeState(ThemeEnum.Light),

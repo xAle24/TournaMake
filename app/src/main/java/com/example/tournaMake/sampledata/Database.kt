@@ -55,7 +55,7 @@ data class Achievement(
     ])
 data class AchievementPlayer(
     val achievementID: String,
-    val status: Char,
+    val status: Int,
     val email: String
 )
 
@@ -63,7 +63,7 @@ data class AchievementPlayer(
 data class Game(
     val gameID: String,
     val name: String,
-    val favorites: Char,
+    val favorites: Int,
     val description: String?,
     val duration: Int?,
     val minPlayers: Int,
@@ -172,7 +172,7 @@ data class TeamInTm(
     @ColumnInfo(name = "teamID") val teamID: String,
     @ColumnInfo(name = "matchTmID") val matchTmID: String,
     val score: Int,
-    val isWinner: Char
+    val isWinner: Int
 )
 
 @Entity(tableName = "TEAM", primaryKeys = ["teamID"])
@@ -185,7 +185,7 @@ data class Team(
 data class Tournament(
     val tournamentID: String,
     val name: String,
-    val favorites: Char,
+    val favorites: Int,
     val status: Int,
     val scheduledDate: Long?,
     val tournamentTypeID: String

@@ -84,7 +84,7 @@ class MatchCreationActivity : ComponentActivity() {
             matchCreationViewModel.teamsSet.value.forEach {
                 val teamUUID = UUID.randomUUID().toString()
                 appDatabase.value.teamDao().insert(Team(teamUUID, it.getTeamName()))
-                appDatabase.value.teamInTmDao().insert(TeamInTm(teamUUID, matchUUID, 0, '0'))
+                appDatabase.value.teamInTmDao().insert(TeamInTm(teamUUID, matchUUID, 0, 0))
                 appDatabase.value.mainParticipantsDao()
                     .insertAll(it.getMainProfiles()
                         .map { mainProfile -> MainParticipant(email = mainProfile.email, teamID = teamUUID) }

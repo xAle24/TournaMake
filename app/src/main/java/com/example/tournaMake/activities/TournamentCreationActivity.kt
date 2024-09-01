@@ -87,7 +87,7 @@ class TournamentCreationActivity : ComponentActivity() {
             val tournament = Tournament(
                 tournamentID = tournamentID,
                 name = selectedTournamentName,
-                favorites = '0',
+                favorites = 0,
                 scheduledDate = 0,
                 status = 0,
                 tournamentTypeID = selectedTournamentType.tournamentTypeID
@@ -139,7 +139,7 @@ class TournamentCreationActivity : ComponentActivity() {
                     )
                     appDatabase?.matchDao()?.insertAll(matchCurr)
                     teams.forEach { team ->
-                        val teamTm = TeamInTm(teamID = team.teamID, matchTmID = matchID, isWinner = '0', score = 0)
+                        val teamTm = TeamInTm(teamID = team.teamID, matchTmID = matchID, isWinner = 0, score = 0)
                         appDatabase?.teamInTmDao()?.insert(teamTm)
                     }
                     match.first.getGuestProfiles().forEach { profile ->

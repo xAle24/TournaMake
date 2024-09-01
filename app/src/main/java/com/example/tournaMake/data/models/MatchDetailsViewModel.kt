@@ -109,4 +109,4 @@ class MatchDetailsViewModel(private val repository: MatchDetailsRepository) : Vi
  * Stores a TeamUI element associated to other data related to the team's
  * participation in this match.
  * */
-data class TeamDataPacket(val teamUI: TeamUI, val teamScore: Int, val teamID: String)
+data class TeamDataPacket(val teamUI: TeamUI, val teamScore: Int, val teamID: String, val isWinner: Boolean)

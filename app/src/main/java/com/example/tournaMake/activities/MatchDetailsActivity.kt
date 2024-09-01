@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
 
-class MatchScreenDetailsActivity: ComponentActivity() {
+class MatchDetailsActivity: ComponentActivity() {
     private val appDatabase = inject<AppDatabase>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,11 +40,14 @@ class MatchScreenDetailsActivity: ComponentActivity() {
                     val guestParticipants = appDatabase.value.guestParticipantsDao().getAllGuestParticipantsFromTeam(team.teamID)
                     val mainProfiles = mainParticipants.map { mainParticipant -> appDatabase.value.mainProfileDao().getProfileByEmail(mainParticipant.email) }
                     val guestProfiles = guestParticipants.map { guestParticipant -> appDatabase.value.guestProfileDao().getFromUsername(guestParticipant.username) }
-                    val teamScore = teamsInTm.first { teamInTm -> teamInTm.teamID == team.teamID }.score
+                    val teamInTM = teamsInTm.first { teamInTm -> teamInTm.teamID == team.teamID }
+                    val teamScore = teamInTM.score
                     return@map TeamDataPacket(
                         teamUI = TeamUIImpl(mainProfiles.toSet(), guestProfiles.toSet(), team.name),
                         teamScore = teamScore,
-                        teamID = team.teamID)
+                        teamID = team.teamID,
+                        isWinner = teamInTM.isWinner == 1
+                    )
                 }
                 matchDetailsViewModel.changeTeamDataPackets(teamDataPackets)
                 matchDetailsViewModel.changeTeamUIs(teamDataPackets.map { it.teamUI })
