@@ -1,5 +1,6 @@
 package com.example.tournaMake.ui.screens.match
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -57,7 +58,6 @@ import kotlin.reflect.KFunction1
 fun MatchListScreen(
     state: ThemeState,
     matchesListLiveData: LiveData<List<MatchGameData>>,
-    searchbar: Searchbar<MatchGameData>,
     navigationFunction: () -> Unit,
     addFavoritesFunction: KFunction1<String, Unit>,
     removeFavoritesFunction: KFunction1<String, Unit>,
@@ -66,7 +66,10 @@ fun MatchListScreen(
     // Data being fetched from database
     val matchesList = matchesListLiveData.observeAsState(emptyList())
     val colorConstants = getThemeColors(themeState = state)
-    val filteredEntries by remember { mutableStateOf(searchbar.getFilteredEntries()) }
+    val searchbar2 = Searchbar(matchesList.value)
+    val filteredEntries = searchbar2.getFilteredEntries()
+    Log.d("DEV-MATCH-LIST", "matchesList size: ${matchesList.value.size}")
+    Log.d("DEV-MATCH-LIST", "searchbarList size: ${searchbar2.getFilteredEntries().size}")
     BasicScreenWithAppBars(
         state = state,
         backFunction = backFunction,

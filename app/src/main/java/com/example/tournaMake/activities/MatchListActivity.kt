@@ -29,7 +29,6 @@ class MatchListActivity : ComponentActivity() {
             MatchListScreen(
                 state = state.value,
                 matchesListLiveData = matchListViewModel.matchesListLiveData,
-                searchbar = matchListViewModel.searchbar,
                 navigationFunction = this::navigateToMatchCreation,
                 addFavoritesFunction = this::addMatchToFavorites,
                 removeFavoritesFunction = this::removeMatchToFavorites,

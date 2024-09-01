@@ -249,31 +249,33 @@ fun TeamElementInMatchDetailsScreen(
 fun MiniProfileImageMatchDetails(
     imageUri: Uri? = null
 ) {
-    OutlinedCard(
-        modifier = Modifier
-            //.background(Color.White)
-            .width(80.dp)
-            .height(80.dp)
-            .padding(4.dp),
-        shape = MaterialTheme.shapes.medium,
-        border = BorderStroke(width = 2.dp, MaterialTheme.colorScheme.outline)
-    ) {
-        // Load your image here using imageResId
-        // Example: Image(painter = painterResource(id = imageResId), contentDescription = null)
-        // Text(username, modifier = Modifier.padding(4.dp))
-        if (imageUri == null) {
-            Image(
-                painterResource(id = R.drawable.no_profile_picture_icon),
-                contentDescription = null
-            )
-        } else {
-            AsyncImage(
-                model = createImageRequest(LocalContext.current, imageUri),
-                contentDescription = null
-            )
+    Column {
+        OutlinedCard(
+            modifier = Modifier
+                //.background(Color.White)
+                .width(80.dp)
+                .height(80.dp)
+                .padding(4.dp),
+            shape = MaterialTheme.shapes.medium,
+            border = BorderStroke(width = 2.dp, MaterialTheme.colorScheme.outline)
+        ) {
+            // Load your image here using imageResId
+            // Example: Image(painter = painterResource(id = imageResId), contentDescription = null)
+            // Text(username, modifier = Modifier.padding(4.dp))
+            if (imageUri == null) {
+                Image(
+                    painterResource(id = R.drawable.no_profile_picture_icon),
+                    contentDescription = null
+                )
+            } else {
+                AsyncImage(
+                    model = createImageRequest(LocalContext.current, imageUri),
+                    contentDescription = null
+                )
+            }
         }
+        Spacer(modifier = Modifier.width(8.dp))
     }
-    Spacer(modifier = Modifier.width(8.dp))
 }
 
 @Preview
