@@ -147,7 +147,7 @@ data class MatchTM(
     @ColumnInfo(name = "favorites") val favorites: Int,
     @ColumnInfo(name = "date") val date: Long,
     @ColumnInfo(name = "duration") val duration: Int,
-    @ColumnInfo(name = "status") val status: Int,
+    @ColumnInfo(name = "isOver") val isOver: Int,
     @ColumnInfo(name = "gameID") val gameID: String,
     @ColumnInfo(name = "tournamentID") val tournamentID: String?
 )
@@ -186,7 +186,7 @@ data class Tournament(
     val tournamentID: String,
     val name: String,
     val favorites: Int,
-    val status: Int,
+    val isOver: Int,
     val scheduledDate: Long?,
     val tournamentTypeID: String
 )

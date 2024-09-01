@@ -89,7 +89,7 @@ class TournamentCreationActivity : ComponentActivity() {
                 name = selectedTournamentName,
                 favorites = 0,
                 scheduledDate = 0,
-                status = 0,
+                isOver = 0,
                 tournamentTypeID = selectedTournamentType.tournamentTypeID
             )
             lifecycleScope.launch(Dispatchers.IO) {
@@ -134,7 +134,7 @@ class TournamentCreationActivity : ComponentActivity() {
                         duration = 0,
                         favorites = 0,
                         gameID = selectedGame.gameID,
-                        status = 0,
+                        isOver = 0,
                         tournamentID = tournamentID
                     )
                     appDatabase?.matchDao()?.insertAll(matchCurr)

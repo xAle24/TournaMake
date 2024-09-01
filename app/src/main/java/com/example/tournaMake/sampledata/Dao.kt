@@ -79,7 +79,7 @@ data class MatchGameData(
     val favorites: Int,
     val date: Long,
     val duration: Int,
-    val status: Int,
+    val isOver: Int,
     val gameID: String,
     val tournamentID: String?,
     val name: String

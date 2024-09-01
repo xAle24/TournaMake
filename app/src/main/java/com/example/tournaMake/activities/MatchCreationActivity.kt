@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.MatchCreationViewModel
+import com.example.tournaMake.data.models.MatchScreenViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.GuestParticipant
@@ -30,6 +31,7 @@ class MatchCreationActivity : ComponentActivity() {
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val matchCreationViewModel = koinViewModel<MatchCreationViewModel>()
             fetchData(matchCreationViewModel)
+            val matchScreenViewModel = koinViewModel<MatchScreenViewModel>()
             MatchCreationScreen(
                 state = state.value,
                 backFunction = this::goBack,
@@ -40,8 +42,7 @@ class MatchCreationActivity : ComponentActivity() {
                 addTeam = matchCreationViewModel::addTeam,
                 removeTeam = matchCreationViewModel::removeTeam,
                 createMatchCallback = { gameId ->
-                    this.createMatch(gameId, matchCreationViewModel)
-                    navigateToMatch()
+                    this.createMatch(gameId, matchCreationViewModel, matchScreenViewModel)
                 }
             )
         }
@@ -63,7 +64,8 @@ class MatchCreationActivity : ComponentActivity() {
     }
     private fun createMatch(
         gameId: String,
-        matchCreationViewModel: MatchCreationViewModel
+        matchCreationViewModel: MatchCreationViewModel,
+        vmScreen: MatchScreenViewModel
     ){
         /**
          * - Create a new team entry.
@@ -77,7 +79,7 @@ class MatchCreationActivity : ComponentActivity() {
                 favorites = 0,
                 date = System.currentTimeMillis(),
                 duration = 0,
-                status = 0,
+                isOver = 0,
                 gameID = gameId,
                 tournamentID = null
             ))
@@ -94,6 +96,9 @@ class MatchCreationActivity : ComponentActivity() {
                         .map { guestProfile -> GuestParticipant(username = guestProfile.username, teamID = teamUUID) }
                     )
             }
+            vmScreen.changeRepository(matchUUID)
+            val intent = Intent(this@MatchCreationActivity, MatchActivity::class.java)
+            startActivity(intent)
         }
     }
     private fun navigateToMatch() {

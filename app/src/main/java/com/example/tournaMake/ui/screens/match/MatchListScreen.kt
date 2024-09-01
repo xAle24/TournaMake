@@ -262,7 +262,7 @@ fun Content(
                 .padding(0.dp, 30.dp)
         ) {
             DescriptionText(text = "Date: ${match.date}")
-            DescriptionText(text = "Status: ${mapIntegerToMatchStatus(match.status)}")
+            DescriptionText(text = "Status: ${mapIntegerToMatchStatus(match.isOver)}")
         }
     }
 }
