@@ -136,7 +136,7 @@ class TournamentManager {
                         tournamentID = "",
                         teamID = "",
                         name = matchToUpdate.topTeam.name,
-                        isWinner = 'F',
+                        isWinner = '0',
                         score = 0
                     )
                 )
@@ -147,7 +147,7 @@ class TournamentManager {
                         tournamentID = "",
                         teamID = "",
                         name = matchToUpdate.bottomTeam.name,
-                        isWinner = 'F',
+                        isWinner = '0',
                         score = 0
                     )
                 )

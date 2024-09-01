@@ -26,6 +26,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
@@ -51,12 +52,16 @@ import com.example.tournaMake.ui.screens.match.TeamContainer
 import com.example.tournaMake.ui.screens.match.TeamUI
 import com.example.tournaMake.ui.screens.match.TeamUIImpl
 import com.example.tournaMake.ui.theme.getThemeColors
+import kotlinx.coroutines.flow.StateFlow
 import java.util.stream.Collectors
 import kotlin.reflect.KFunction4
 
 @Composable
 fun TournamentCreationScreen(
     state: ThemeState,
+    teamsStateFlow: StateFlow<Set<TeamUI>>,
+    addTeam: (TeamUI) -> Unit,
+    removeTeam: (TeamUI) -> Unit,
     gamesListLiveData: LiveData<List<Game>>,
     tournamentType: LiveData<List<TournamentType>>,
     mainProfilesListLiveData: LiveData<List<MainProfile>>,
@@ -75,7 +80,7 @@ fun TournamentCreationScreen(
             if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
 
         /* Variable containing all the created teams */
-        var teamsSet by remember { mutableStateOf(setOf<TeamUI>()) }
+        val teamsSet by teamsStateFlow.collectAsState()
         var selectedGame by remember { mutableStateOf<Game?>(null) }
         var selectedTournamentType by remember { mutableStateOf<TournamentType?>(null) }
         var selectedTournamentName by remember { mutableStateOf("") }
@@ -118,22 +123,15 @@ fun TournamentCreationScreen(
                 * */
                 key(teamsSet) {
                     TeamContainer(
-                        teamsSet = teamsSet,
-                        mainProfileListFromDatabase = mainProfileListt.value ?: emptyList(),
-                        guestProfileListFromDatabase = guestProfileListt.value ?: emptyList(),
-                        removeTeam = {team -> teamsSet = teamsSet.stream().filter{ t -> t != team }.collect(Collectors.toSet()) }
+                        teamsSetStateFlow = teamsStateFlow,
+                        mainProfileListFromDatabase = mainProfilesListLiveData,
+                        guestProfileListFromDatabase = guestProfilesListLiveData,
+                        removeTeam = removeTeam
                     )
                 }
                 Button(
                     onClick = {
-                        teamsSet = addElement(
-                            teamsSet,
-                            TeamUIImpl(
-                                mainProfiles = emptySet(),
-                                guestProfiles = emptySet(),
-                                teamName = ""
-                            )
-                        )
+                        addTeam(TeamUIImpl(emptySet(), emptySet(), ""))
                     },
                     modifier = Modifier
                         .background(colorConstants.getButtonBackground())
@@ -281,8 +279,3 @@ private fun SelectionMenuTournamentType(list: State<List<TournamentType>?>, type
         }
     }
 }
-
-fun addElement(set: Set<TeamUI>, team: TeamUI): Set<TeamUI> {
-    return setOf(set, setOf(team)).flatten().toSet()
-}
-

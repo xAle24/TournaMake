@@ -10,10 +10,10 @@ fun mapIntegerToMatchStatus(n: Int) : MatchStatus {
     }
 }
 
-fun mapIntegerStatusToString(n: Int) : String {
+fun mapCharStatusToString(n: Char) : String {
     return when (n) {
-        0 -> "Ongoing"
-        1 -> "Ended"
+        '0' -> "Ongoing"
+        '1' -> "Ended"
         else -> "Unknown"
     }
 }

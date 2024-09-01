@@ -46,7 +46,7 @@ class PlayerActActivity : ComponentActivity(){
     private fun fetchAndUpdateMatch(email: String, matchListViewModel: MatchListViewModel) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val myMatch = appDatabase?.matchDao()?.getMyMatch(email) ?: emptyList()
+                val myMatch = appDatabase?.matchDao()?.getMyMatches(email) ?: emptyList()
                 Log.d("DEV", "In getProfile() coroutine, myProfile.email = $myMatch")
                 // Now update the data in the view model, to trigger the onchange method of the attached
                 // observer

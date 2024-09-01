@@ -1,5 +1,7 @@
 package com.example.tournaMake.ui.screens.match
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,8 +30,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,24 +40,36 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
 import com.example.tournaMake.R
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.sampledata.Game
+import com.example.tournaMake.sampledata.GuestProfile
+import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.theme.getThemeColors
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun MatchCreationScreen(
     state: ThemeState,
     backFunction: () -> Unit,
-    navigateToMatch: () -> Unit
+    gamesListLiveData: LiveData<List<Game>>,
+    teamsSetStateFlow: StateFlow<Set<TeamUI>>,
+    mainProfilesLiveData: LiveData<List<MainProfile>>,
+    guestProfilesLiveData: LiveData<List<GuestProfile>>,
+    addTeam: (TeamUI) -> Unit,
+    removeTeam: (TeamUI) -> Unit,
+    createMatchCallback: (String) -> Unit
 ) {
     val imageLogoId =
         if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
+    val context = LocalContext.current
     BasicScreenWithAppBars(
         state = state,
         backFunction = backFunction,
@@ -69,11 +84,16 @@ fun MatchCreationScreen(
                     .align(Alignment.CenterHorizontally)
                     .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f))
             ) {
-                SelectionMenu()
-                TeamContainer(teamsSet = setOf(testTeam1, testTeam2),
-                    mainProfileListFromDatabase =  emptyList(),
-                    guestProfileListFromDatabase =  emptyList(),
-                    removeTeam = {/*TODO palle di palle*/}) //TODO palle
+                var selectedGame: Game? by remember {
+                    mutableStateOf(null)
+                }
+                SelectionMenu(gamesListLiveData, { selectedGame = it })
+                TeamContainer(
+                    teamsSetStateFlow = teamsSetStateFlow,
+                    mainProfileListFromDatabase = mainProfilesLiveData,
+                    guestProfileListFromDatabase = guestProfilesLiveData,
+                    removeTeam = removeTeam
+                )
                 Spacer(Modifier.height(20.dp))
                 Row(
                     modifier = Modifier
@@ -84,6 +104,11 @@ fun MatchCreationScreen(
                     BottomTeamScreenButton(
                         state = state,
                         //.fillMaxWidth(0.3f)
+                        /**
+                         * This is the function that calls the addTeam() callback,
+                         * creating a new empty team.
+                         * */
+                        onClick = { addTeam(TeamUIImpl(emptySet(), emptySet(), "")) },
                         text = "Add Team"
                     )
                     Spacer(modifier = Modifier.width(10.dp))
@@ -91,7 +116,14 @@ fun MatchCreationScreen(
                         state = state,
                         iconEnabled = false,
                         text = "Create Match",
-                        onClick = navigateToMatch
+                        onClick = {
+                            if (selectedGame != null) {
+                                createMatchCallback(selectedGame!!.gameID)
+                                Log.d("DEV-MATCH-CREATION", "Clicked create match!")
+                            } else {
+                                Toast.makeText(context, "Must choose a game first!", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     )
                 }
             }
@@ -147,13 +179,19 @@ fun Logo(
     )
 }
 
+/**
+ * Selection dropdown menu for games
+ * */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelectionMenu() {
-    val gamesNames =
-        arrayOf("Tzolk'In", "Call of Duty: Black Ops", "Football", "Mario Kart", "Monster Hunter")
+fun SelectionMenu(
+    gamesList: LiveData<List<Game>>,
+    updateCurrentlySelectedGame: (Game?) -> Unit
+) {
+    val gamesListLiveData = gamesList.observeAsState()
+    val gamesNames = gamesListLiveData.value
     var expanded by remember { mutableStateOf(false) }
-    var selectedText by remember { mutableStateOf(gamesNames[0]) }
+    var selectedText by remember { mutableStateOf("No game selected") }
 
     Box(
         modifier = Modifier
@@ -191,14 +229,13 @@ fun SelectionMenu() {
                 onDismissRequest = { expanded = false },
                 modifier = Modifier.background(MaterialTheme.colorScheme.primary)
             ) {
-                gamesNames.forEach { item ->
+                gamesNames?.forEach { item ->
                     DropdownMenuItem(
-                        text = { Text(text = item) },
+                        text = { Text(text = item.name) },
                         onClick = {
-                            selectedText = item
+                            selectedText = item.name
                             expanded = false
-                            //Toast.makeText(context, item, Toast.LENGTH_SHORT).show()
-                            // TODO: add update for the form to complete
+                            updateCurrentlySelectedGame(item)
                         },
                         colors = MenuDefaults.itemColors(
                             textColor = MaterialTheme.colorScheme.onPrimary
@@ -210,12 +247,14 @@ fun SelectionMenu() {
     }
 }
 
+/*
 @Preview
 @Composable
 fun PreviewMatchCreationScreen() {
     MatchCreationScreen(
         state = ThemeState(ThemeEnum.Light),
         backFunction = {},
-        {}
+        {},
+        liveData { emptyList<Game>() },
     )
-}
+}*/

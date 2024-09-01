@@ -6,14 +6,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import com.example.tournaMake.data.models.MatchCreationViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.models.TournamentCreationViewModel
 import com.example.tournaMake.data.models.TournamentIDViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.Game
-import com.example.tournaMake.sampledata.GuestParticipantScore
+import com.example.tournaMake.sampledata.GuestParticipant
 import com.example.tournaMake.sampledata.GuestProfile
-import com.example.tournaMake.sampledata.MainParticipantScore
+import com.example.tournaMake.sampledata.MainParticipant
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.sampledata.Team
@@ -38,12 +39,17 @@ class TournamentCreationActivity : ComponentActivity() {
             val themeViewModel = koinViewModel<ThemeViewModel>()
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val tournamentCreationViewModel = koinViewModel<TournamentCreationViewModel>()
+            val matchCreationViewModel = koinViewModel<MatchCreationViewModel>()
             fetchAndUpdateGamesList(tournamentCreationViewModel)
             fetchAndUpdateTournamentTypeList(tournamentCreationViewModel)
             fetchAndUpdateGuestProfileList(tournamentCreationViewModel)
             fetchAndUpdateMainProfileList(tournamentCreationViewModel)
+            fetchData(matchCreationViewModel)
             TournamentCreationScreen(
                 state = state.value,
+                teamsStateFlow = matchCreationViewModel.teamsSet,
+                addTeam = matchCreationViewModel::addTeam,
+                removeTeam = matchCreationViewModel::removeTeam,
                 tournamentCreationViewModel.gamesListLiveData,
                 tournamentCreationViewModel.tournamentListLiveData,
                 tournamentCreationViewModel.mainProfileListLiveData,
@@ -51,6 +57,21 @@ class TournamentCreationActivity : ComponentActivity() {
                 navigateToTournament = this::navigateToTournament,
                 backFunction = this::finish
             )
+        }
+    }
+
+    private fun fetchData(vm: MatchCreationViewModel) {
+        lifecycleScope.launch (Dispatchers.IO) {
+            try {
+                val games = appDatabase?.gameDao()?.getAll()
+                val mainProfiles = appDatabase?.mainProfileDao()?.getAll()
+                val guestProfiles = appDatabase?.guestProfileDao()?.getAll()
+                vm.changeGamesList(games ?: emptyList())
+                vm.changeMainProfiles(mainProfiles ?: emptyList())
+                vm.changeGuestProfiles(guestProfiles ?: emptyList())
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -66,9 +87,7 @@ class TournamentCreationActivity : ComponentActivity() {
             val tournament = Tournament(
                 tournamentID = tournamentID,
                 name = selectedTournamentName,
-                favorites = 'F',
-                locationLatitude = 0.0f,
-                locationLongitude = 0.0f,
+                favorites = '0',
                 scheduledDate = 0,
                 status = 0,
                 tournamentTypeID = selectedTournamentType.tournamentTypeID
@@ -97,14 +116,14 @@ class TournamentCreationActivity : ComponentActivity() {
                         Team(
                             teamID = firstTeamID,
                             name = match.first.getTeamName(),
-                            isWinner = 'F',
-                            score = 0
+                            /*isWinner = 'F',
+                            score = 0*/
                         ),
                         Team(
                             teamID = secondTeamID,
                             name = match.second.getTeamName(),
-                            isWinner = 'F',
-                            score = 0
+                            /*isWinner = 'F',
+                            score = 0*/
                         )
                     )
                     appDatabase?.teamDao()?.insertAll(teams)
@@ -120,40 +139,36 @@ class TournamentCreationActivity : ComponentActivity() {
                     )
                     appDatabase?.matchDao()?.insertAll(matchCurr)
                     teams.forEach { team ->
-                        val teamTm = TeamInTm(teamID = team.teamID, matchTmID = matchID)
+                        val teamTm = TeamInTm(teamID = team.teamID, matchTmID = matchID, isWinner = '0', score = 0)
                         appDatabase?.teamInTmDao()?.insert(teamTm)
                     }
                     match.first.getGuestProfiles().forEach { profile ->
-                        val guestProfile = GuestParticipantScore(
+                        val guestProfile = GuestParticipant(
                             username = profile.username,
-                            teamID = firstTeamID,
-                            score = 0
+                            teamID = firstTeamID
                         )
-                        appDatabase?.matchScoreGuestDao()?.insertAll(guestProfile)
+                        appDatabase?.guestParticipantsDao()?.insertAll(guestProfile)
                     }
                     match.first.getMainProfiles().forEach {profile ->
-                        val mainProfile = MainParticipantScore(
+                        val mainProfile = MainParticipant(
                             email = profile.email,
-                            teamID = firstTeamID,
-                            score = 0
+                            teamID = firstTeamID
                         )
-                        appDatabase?.matchScoreMainDao()?.insertAll(mainProfile)
+                        appDatabase?.mainParticipantsDao()?.insertAll(mainProfile)
                     }
                     match.second.getMainProfiles().forEach {profile ->
-                        val mainProfile = MainParticipantScore(
+                        val mainProfile = MainParticipant(
                             email = profile.username,
-                            teamID = secondTeamID,
-                            score = 0
+                            teamID = secondTeamID
                         )
-                        appDatabase?.matchScoreMainDao()?.insertAll(mainProfile)
+                        appDatabase?.mainParticipantsDao()?.insertAll(mainProfile)
                     }
                     match.second.getGuestProfiles().forEach {profile ->
-                        val guestProfile = GuestParticipantScore(
+                        val guestProfile = GuestParticipant(
                             username = profile.username,
-                            teamID = secondTeamID,
-                            score = 0
+                            teamID = secondTeamID
                         )
-                        appDatabase?.matchScoreGuestDao()?.insertAll(guestProfile)
+                        appDatabase?.guestParticipantsDao()?.insertAll(guestProfile)
                     }
                 }
             }

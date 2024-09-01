@@ -36,13 +36,25 @@ data class Achievement(
     val name: String,
     val description: String,
     val imagePath: String,
-    val achievementsPlayerID: String
 )
 
-@Entity(tableName = "ACHIEVEMENT_PLAYER", primaryKeys = ["achievementsPlayerID"])
+@Entity(
+    tableName = "ACHIEVEMENT_PLAYER",
+    primaryKeys = ["achievementID", "email"],
+    foreignKeys = [
+        ForeignKey(
+            entity = Achievement::class,
+            parentColumns = ["achievementID"],
+            childColumns = ["achievementID"]
+        ),
+        ForeignKey(
+            entity = MainProfile::class,
+            parentColumns = ["email"],
+            childColumns = ["email"]
+        )
+    ])
 data class AchievementPlayer(
-    val achievementsPlayerID: String,
-    val achievementID: String?,
+    val achievementID: String,
     val status: Char,
     val email: String
 )
@@ -58,11 +70,24 @@ data class Game(
     val maxPlayers: Int
 )
 
-@Entity(tableName = "GUEST_PARTICIPANT_SCORE", primaryKeys = ["teamID", "username"])
-data class GuestParticipantScore(
+@Entity(
+    tableName = "GUEST_PARTICIPANT",
+    primaryKeys = ["teamID", "username"],
+    foreignKeys = [
+        ForeignKey(
+            entity = Team::class,
+            parentColumns = ["teamID"],
+            childColumns = ["teamID"]
+        ),
+        ForeignKey(
+            entity = GuestProfile::class,
+            parentColumns = ["username"],
+            childColumns = ["username"]
+        )
+    ])
+data class GuestParticipant(
     val username: String,
-    val teamID: String,
-    val score: Int
+    val teamID: String
 )
 
 @Entity(tableName = "GUEST_PROFILE", primaryKeys = ["username"])
@@ -81,11 +106,24 @@ data class MainProfile(
     val locationLongitude: Double?
 )
 
-@Entity(tableName = "MAIN_PARTICIPANT_SCORE", primaryKeys = ["teamID", "email"])
-data class MainParticipantScore(
+@Entity(
+    tableName = "MAIN_PARTICIPANT",
+    primaryKeys = ["teamID", "email"],
+    foreignKeys = [
+        ForeignKey(
+            entity = Team::class,
+            parentColumns = ["teamID"],
+            childColumns = ["teamID"]
+        ),
+        ForeignKey(
+            entity = MainProfile::class,
+            parentColumns = ["email"],
+            childColumns = ["email"]
+        )
+    ])
+data class MainParticipant(
     val teamID: String,
-    val email: String,
-    val score: Int
+    val email: String
 )
 
 @Entity(
@@ -132,15 +170,15 @@ data class MatchTM(
 )
 data class TeamInTm(
     @ColumnInfo(name = "teamID") val teamID: String,
-    @ColumnInfo(name = "matchTmID") val matchTmID: String
+    @ColumnInfo(name = "matchTmID") val matchTmID: String,
+    val score: Int,
+    val isWinner: Char
 )
 
 @Entity(tableName = "TEAM", primaryKeys = ["teamID"])
 data class Team(
     val teamID: String,
-    val name: String,
-    val isWinner: Char,
-    val score: Int
+    val name: String
 )
 
 @Entity(tableName = "TOURNAMENT", primaryKeys = ["tournamentID"])
@@ -149,8 +187,6 @@ data class Tournament(
     val name: String,
     val favorites: Char,
     val status: Int,
-    val locationLatitude: Float?,
-    val locationLongitude: Float?,
     val scheduledDate: Long?,
     val tournamentTypeID: String
 )
