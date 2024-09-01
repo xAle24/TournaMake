@@ -113,7 +113,7 @@ class TournamentCreationActivity : ComponentActivity() {
                         matchTmID = matchID,
                         date = 0,
                         duration = 0,
-                        favorites = "F",
+                        favorites = 0,
                         gameID = selectedGame.gameID,
                         status = 0,
                         tournamentID = tournamentID

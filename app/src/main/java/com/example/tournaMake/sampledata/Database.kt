@@ -106,7 +106,7 @@ data class MainParticipantScore(
 )
 data class MatchTM(
     @ColumnInfo(name = "matchTmID") val matchTmID: String,
-    @ColumnInfo(name = "favorites") val favorites: String,
+    @ColumnInfo(name = "favorites") val favorites: Int,
     @ColumnInfo(name = "date") val date: Long,
     @ColumnInfo(name = "duration") val duration: Int,
     @ColumnInfo(name = "status") val status: Int,

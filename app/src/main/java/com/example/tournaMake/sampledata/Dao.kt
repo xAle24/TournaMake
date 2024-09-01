@@ -73,25 +73,41 @@ interface GameDao {
     @Delete
     fun delete(game: Game)
 }
-
+data class MatchGameData(
+    val matchTmID: String,
+    val favorites: Int,
+    val date: Long,
+    val duration: Int,
+    val status: Int,
+    val gameID: String,
+    val tournamentID: String?,
+    val name: String
+)
 @Dao
 interface MatchDao {
     @Query("SELECT * FROM `MATCH_TM`")
     fun getAll(): List<MatchTM>
 
-    @Query("""SELECT MATCH_TM.*
+    @Query("""SELECT MATCH_TM.*, GAME.name
+        FROM MATCH_TM
+        JOIN GAME ON GAME.gameID = MATCH_TM.gameID""")
+    fun getAllWithGamesNames(): List<MatchGameData>
+
+    @Query("""SELECT MATCH_TM.*, GAME.name
             FROM MATCH_TM
             JOIN TEAM_IN_TM ON MATCH_TM.matchTmID = TEAM_IN_TM.matchTmID
             JOIN MAIN_PARTICIPANT_SCORE ON TEAM_IN_TM.teamID = MAIN_PARTICIPANT_SCORE.teamID
+            JOIN GAME ON GAME.gameID = MATCH_TM.gameID
             WHERE MAIN_PARTICIPANT_SCORE.email = :email""")
-    fun getMyMatch(email: String): List<MatchTM>
+    fun getMyMatch(email: String): List<MatchGameData>
 
-    @Query("""SELECT * FROM MATCH_TM WHERE favorites = '1'""")
+    @Query("""SELECT * FROM MATCH_TM WHERE favorites = 1""")
     fun getFavoritesMatch(): List<MatchTM>
 
-    @Query("""UPDATE MATCH_TM SET favorites = '1' WHERE matchTmID = :matchTmID""")
+    @Query("""UPDATE MATCH_TM SET favorites = 1 WHERE matchTmID = :matchTmID""")
     fun setMatchFavorites(matchTmID: String)
-
+    @Query("""UPDATE MATCH_TM SET favorites = 0 WHERE matchTmID = :matchTmID""")
+    fun removeMatchFavorites(matchTmID: String)
     @Insert
     fun insertAll(vararg matches: MatchTM)
 

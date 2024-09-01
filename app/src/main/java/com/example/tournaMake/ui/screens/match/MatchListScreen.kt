@@ -3,16 +3,11 @@ package com.example.tournaMake.ui.screens.match
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,24 +15,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,37 +45,36 @@ import androidx.lifecycle.LiveData
 import com.example.tournaMake.R
 import com.example.tournaMake.data.constants.mapIntegerStatusToString
 import com.example.tournaMake.data.models.ThemeState
-import com.example.tournaMake.sampledata.MatchTM
-import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
+import com.example.tournaMake.sampledata.MatchGameData
+import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.theme.ColorConstants
 import com.example.tournaMake.ui.theme.getThemeColors
+import kotlin.reflect.KFunction1
 
-/**
- * TODO: add favourites
- * TODO: add actual games names, not their UUID
- * TODO: think of giving the user the chance to rename the individual matches
- * */
 @Composable
 fun MatchListScreen(
     state: ThemeState,
-    matchesListLiveData: LiveData<List<MatchTM>>,
-    navigationFunction: () -> Unit
+    matchesListLiveData: LiveData<List<MatchGameData>>,
+    navigationFunction: () -> Unit,
+    addFavoritesFunction: KFunction1<String, Unit>,
+    removeFavoritesFunction: KFunction1<String, Unit>,
+    backFunction: () -> Unit
 ) {
     // Data being fetched from database
     val matchesList = matchesListLiveData.observeAsState(emptyList())
     val colorConstants = getThemeColors(themeState = state)
 
-    BasicScreenWithTheme(
-        state = state
+    BasicScreenWithAppBars(
+        state = state,
+        backFunction = backFunction,
+        showTopBar = true,
+        showBottomBar = false
     ) {
         Column {
             Row(
-                modifier = Modifier
-                    //.background(Color.Black)
-                    .fillMaxWidth()
-                    .padding(5.dp),
+                /*TODO remove sto cazzo di spazio che mette a caso tra se e la barra superiore*/
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
             ) {
                 CreateMatchButton(
                     navigationFunction,
@@ -95,8 +83,7 @@ fun MatchListScreen(
                 )
                 FilterButton(
                     colorConstants,
-                    Modifier
-                        .align(Alignment.CenterVertically)
+                    Modifier.align(Alignment.CenterVertically)
                 )
             }
             LazyColumn(
@@ -104,11 +91,7 @@ fun MatchListScreen(
                     .fillMaxHeight()
             ) {
                 items(matchesList.value) { item ->
-                    // TODO: maybe this won't be necessary when it will be integrated with the database
-                    var deleted by remember { mutableStateOf(false) }
-                    if (!deleted) {
-                        MatchCard(match = item, onDelete = { deleted = true }, colorConstants = colorConstants)
-                    }
+                    MatchCard(match = item, addFavoritesFunction, removeFavoritesFunction)
                 }
             }
         }
@@ -159,7 +142,7 @@ fun FilterButton(
     modifier: Modifier = Modifier
 ) {
     Button(
-        onClick = { /* TODO: implement filters */},
+        onClick = { /* TODO: implement filters */ },
         modifier = modifier
             .padding(0.dp, 40.dp, 0.dp, 4.dp)
             .fillMaxWidth(0.55f)
@@ -182,17 +165,14 @@ fun FilterButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MatchCard(
-    match: MatchTM,
-    onDelete: () -> Unit,
-    colorConstants: ColorConstants,
-    isFavourite: Boolean = false // TODO: add logic from database
+    match: MatchGameData,
+    addToFavoritesFunction: KFunction1<String, Unit>,
+    removeFavoritesFunction: KFunction1<String, Unit>,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var isFavorite by remember { mutableStateOf(match.favorites == 1) }
     Card(
-        onClick = { expanded = !expanded },
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(),
         modifier = Modifier
@@ -206,41 +186,40 @@ fun MatchCard(
         )
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                match.gameID + " Match", // TODO: change with Game Name
-                modifier = Modifier
-                    .padding(0.dp, 10.dp),
+                match.name + " match",
+                modifier = Modifier.padding(0.dp, 10.dp),
                 style = MaterialTheme.typography.displaySmall
             )
-            IconButton(onClick = {
-                /*TODO: Add to favorites*/
-            }) {
-                Icon(imageVector = if (isFavourite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, contentDescription = null)
+            IconButton(
+                onClick = {
+                    isFavorite = if (!isFavorite) {
+                        addToFavoritesFunction(match.matchTmID)
+                        true
+                    } else {
+                        removeFavoritesFunction(match.matchTmID)
+                        false
+                    }
+                },
+                modifier = Modifier.size(78.dp) // Adjust the size as needed
+            ) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, //TODO sta cosa fa sempre il cuore vuoto
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(end = 8.dp)
+                )
             }
         }
         Column(
-            //Modifier.background(MaterialTheme.colorScheme.secondary)
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             Content(match = match)
-            if (expanded) {
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally),
-                ) {
-                    DeleteButton(onDelete = onDelete)
-                    Spacer(modifier = Modifier.width(10.dp))
-                    if (mapIntegerStatusToString(match.status) == "Ongoing") {
-                        ContinueIconButton(colorConstants = colorConstants)
-                    }
-                }
-                Spacer(modifier = Modifier.height(30.dp))
-            }
         }
     }
 }
@@ -252,14 +231,13 @@ fun DescriptionText(
     Text(
         text = text,
         style = MaterialTheme.typography.bodyLarge,
-        modifier = Modifier
-            .padding(5.dp, 5.dp)
+        modifier = Modifier.padding(5.dp, 5.dp)
     )
 }
 
 @Composable
 fun Content(
-    match: MatchTM
+    match: MatchGameData
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -277,49 +255,6 @@ fun Content(
         ) {
             DescriptionText(text = "Date: ${match.date}")
             DescriptionText(text = "Status: ${mapIntegerStatusToString(match.status)}")
-        }
-    }
-}
-
-@Composable
-fun DeleteButton(
-    onDelete: () -> Unit
-) {
-    IconButton( // the delete button
-        onClick = { onDelete() },
-        modifier = Modifier
-            .width(80.dp)
-            .height(80.dp)
-            .background(Color(198, 15, 15))
-            .border(BorderStroke(3.dp, Color.White))
-            .padding(5.dp, 5.dp)
-    ) {
-        Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
-    }
-}
-
-@Composable
-fun ContinueIconButton(
-    colorConstants: ColorConstants,
-) {
-    IconButton(
-        onClick = { /* TODO: add navigation to match screen */ },
-        modifier = Modifier
-            .width(200.dp)
-            .height(80.dp)
-            .border(BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary))
-            .padding(5.dp, 5.dp)
-            .background(colorConstants.getButtonBackground()),
-    ) {
-        Column {
-            Icon(
-                imageVector = Icons.Filled.PlayArrow,
-                contentDescription = "Continue",
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .size(40.dp)
-            )
-            Text("Continue", fontSize = 24.sp)
         }
     }
 }
