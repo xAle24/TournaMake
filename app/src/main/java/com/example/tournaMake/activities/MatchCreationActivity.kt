@@ -74,10 +74,10 @@ class MatchCreationActivity : ComponentActivity() {
             val matchUUID = UUID.randomUUID().toString()
             appDatabase.value.matchDao().insertAll(MatchTM(
                 matchTmID = matchUUID,
-                favorites = '0',
+                favorites = 0,
                 date = System.currentTimeMillis(),
                 duration = 0,
-                status = '0',
+                status = 0,
                 gameID = gameId,
                 tournamentID = null
             ))

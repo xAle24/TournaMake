@@ -3,7 +3,6 @@ package com.example.tournaMake.ui.screens.match
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,16 +17,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,12 +43,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
 import com.example.tournaMake.R
-import com.example.tournaMake.data.constants.mapIntegerStatusToString
+import com.example.tournaMake.data.constants.mapIntegerToMatchStatus
 import com.example.tournaMake.data.models.ThemeState
-import com.example.tournaMake.sampledata.MatchTM
-import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
+import com.example.tournaMake.sampledata.MatchGameData
+import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.theme.ColorConstants
 import com.example.tournaMake.ui.theme.getThemeColors
+import kotlin.reflect.KFunction1
 
 @Composable
 fun MatchListScreen(
@@ -257,7 +254,7 @@ fun Content(
                 .padding(0.dp, 30.dp)
         ) {
             DescriptionText(text = "Date: ${match.date}")
-            DescriptionText(text = "Status: ${mapIntegerStatusToString(match.status)}")
+            DescriptionText(text = "Status: ${mapIntegerToMatchStatus(match.status)}")
         }
     }
 }
