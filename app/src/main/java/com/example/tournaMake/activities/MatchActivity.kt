@@ -45,10 +45,7 @@ class MatchActivity : ComponentActivity() {
             // The call to collect ensures the data are fetched from the data store
             matchViewModel.selectedMatchId.collect {
                 if (it != null) {
-
                     val playedMatch = appDatabase.value.matchDao().getMatchFromID(it)
-
-                    Log.d("AIUTO", it.toString())
                     val playedGame = appDatabase.value.gameDao().getGameFromID(playedMatch.gameID)
                     val teamsInTm = appDatabase.value.teamInTmDao().getTeamsInTmFromMatch(playedMatch.matchTmID)
                     val teams = appDatabase.value.teamDao().getAll()
@@ -74,6 +71,7 @@ class MatchActivity : ComponentActivity() {
                     matchViewModel.changePlayedGame(playedGame)
                     matchViewModel.changeTeams(teams)
                     matchViewModel.changeTeamsInMatch(teamsInTm)
+                    matchViewModel.changeMatch(playedMatch)
                 }
             }
         }
@@ -81,6 +79,7 @@ class MatchActivity : ComponentActivity() {
     private fun addMatchToFavorites(matchTmID: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
+                Log.d("DEV-MATCH-ACTIVITY", "Value of matchID: $matchTmID")
                 appDatabase.value.matchDao().setMatchFavorites(matchTmID)
             } catch (e: Exception) {
                 e.printStackTrace()
