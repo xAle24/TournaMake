@@ -13,7 +13,7 @@ import com.example.tournaMake.data.models.GraphViewModel
 import com.example.tournaMake.data.models.MatchCreationViewModel
 import com.example.tournaMake.data.models.MatchDetailsViewModel
 import com.example.tournaMake.data.models.MatchListViewModel
-import com.example.tournaMake.data.models.MatchScreenViewModel
+import com.example.tournaMake.data.models.MatchViewModel
 import com.example.tournaMake.data.models.NotificationViewModel
 import com.example.tournaMake.data.models.ProfileListViewModel
 import com.example.tournaMake.data.models.ProfileViewModel
@@ -54,7 +54,7 @@ val appModule = module {
     viewModel { CoordinatesViewModel() }
     viewModel { NotificationViewModel() }
     viewModel { MatchDetailsViewModel(get()) }
-    viewModel { MatchScreenViewModel(get()) }
+    viewModel { MatchViewModel(get()) }
     single { MatchDetailsRepository(get()) }
     single { MatchRepository(get()) }
     single {

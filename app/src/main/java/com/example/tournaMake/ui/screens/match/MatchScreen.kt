@@ -49,7 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.tournaMake.R
-import com.example.tournaMake.data.models.MatchScreenViewModel
+import com.example.tournaMake.data.models.MatchViewModel
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
@@ -61,7 +61,7 @@ fun MatchScreen(
     state: ThemeState,
     gameImage: Uri?,
     teamsSet: Set<TeamUI>,
-    vm: MatchScreenViewModel,
+    vm: MatchViewModel,
     addMatchToFavorites: (String) -> Unit,
     removeMatchFromFavorites: (String) -> Unit,
     backFunction: () -> Unit

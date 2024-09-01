@@ -7,7 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.MatchCreationViewModel
-import com.example.tournaMake.data.models.MatchScreenViewModel
+import com.example.tournaMake.data.models.MatchViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.GuestParticipant
@@ -31,7 +31,7 @@ class MatchCreationActivity : ComponentActivity() {
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val matchCreationViewModel = koinViewModel<MatchCreationViewModel>()
             fetchData(matchCreationViewModel)
-            val matchScreenViewModel = koinViewModel<MatchScreenViewModel>()
+            val matchViewModel = koinViewModel<MatchViewModel>()
             MatchCreationScreen(
                 state = state.value,
                 backFunction = this::goBack,
@@ -42,7 +42,7 @@ class MatchCreationActivity : ComponentActivity() {
                 addTeam = matchCreationViewModel::addTeam,
                 removeTeam = matchCreationViewModel::removeTeam,
                 createMatchCallback = { gameId ->
-                    this.createMatch(gameId, matchCreationViewModel, matchScreenViewModel)
+                    this.createMatch(gameId, matchCreationViewModel, matchViewModel)
                 }
             )
         }
@@ -65,7 +65,7 @@ class MatchCreationActivity : ComponentActivity() {
     private fun createMatch(
         gameId: String,
         matchCreationViewModel: MatchCreationViewModel,
-        vmScreen: MatchScreenViewModel
+        vmScreen: MatchViewModel
     ){
         /**
          * - Create a new team entry.

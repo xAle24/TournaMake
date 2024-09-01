@@ -17,11 +17,11 @@ import com.example.tournaMake.ui.screens.match.TeamUI
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 
-class MatchScreenViewModel(private val repository: MatchRepository) : ViewModel() {
+class MatchViewModel(private val repository: MatchRepository) : ViewModel() {
     val selectedMatchId = repository.selectedMatch.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
-        initialValue = ""
+        initialValue = null
     )
 
     private val _match = MutableLiveData<MatchTM>()
