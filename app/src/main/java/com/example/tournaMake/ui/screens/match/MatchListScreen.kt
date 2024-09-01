@@ -30,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,12 +50,14 @@ import com.example.tournaMake.sampledata.MatchGameData
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.theme.ColorConstants
 import com.example.tournaMake.ui.theme.getThemeColors
+import com.example.tournaMake.utils.Searchbar
 import kotlin.reflect.KFunction1
 
 @Composable
 fun MatchListScreen(
     state: ThemeState,
     matchesListLiveData: LiveData<List<MatchGameData>>,
+    searchbar: Searchbar<MatchGameData>,
     navigationFunction: () -> Unit,
     addFavoritesFunction: KFunction1<String, Unit>,
     removeFavoritesFunction: KFunction1<String, Unit>,
@@ -63,7 +66,7 @@ fun MatchListScreen(
     // Data being fetched from database
     val matchesList = matchesListLiveData.observeAsState(emptyList())
     val colorConstants = getThemeColors(themeState = state)
-
+    val filteredEntries by remember { mutableStateOf(searchbar.getFilteredEntries()) }
     BasicScreenWithAppBars(
         state = state,
         backFunction = backFunction,
@@ -86,12 +89,14 @@ fun MatchListScreen(
                     Modifier.align(Alignment.CenterVertically)
                 )
             }
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxHeight()
-            ) {
-                items(matchesList.value) { item ->
-                    MatchCard(match = item, addFavoritesFunction, removeFavoritesFunction)
+            key(filteredEntries){
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                ) {
+                    items(filteredEntries) { item ->
+                        MatchCard(match = item, addFavoritesFunction, removeFavoritesFunction)
+                    }
                 }
             }
         }
