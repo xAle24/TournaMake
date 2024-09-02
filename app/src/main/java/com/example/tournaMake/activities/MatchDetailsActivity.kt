@@ -64,13 +64,14 @@ class MatchDetailsActivity : ComponentActivity() {
             val themeViewModel = koinViewModel<ThemeViewModel>()
             val themeState by themeViewModel.state.collectAsStateWithLifecycle()
             val matchDetailsViewModel = koinViewModel<MatchDetailsViewModel>()
-            var wereFavoritesChanged by remember { mutableStateOf(false) }
+            var wereFavoritesChangedFlag by remember { mutableStateOf(false) }
             fetchMatchData(matchDetailsViewModel)
             MatchDetailsScreen(
                 state = themeState,
                 gameImage = null, //TODO: add game image
                 backFunction = {
-                    if (wereFavoritesChanged) {
+                    if (wereFavoritesChangedFlag) {
+                        /* Informs the caller activity that it needs to recreate */
                         val data = Intent()
                         setResult(RESULT_OK, data)
                     }
@@ -79,7 +80,7 @@ class MatchDetailsActivity : ComponentActivity() {
                 vm = matchDetailsViewModel,
                 addMatchToFavorites = this::addMatchToFavorites,
                 removeMatchFromFavorites = this::removeMatchFromFavorites,
-                setFlag = { wereFavoritesChanged = true }
+                setFlag = { wereFavoritesChangedFlag = true }
             )
         }
     }

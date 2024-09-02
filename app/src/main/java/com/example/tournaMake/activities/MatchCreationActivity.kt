@@ -98,9 +98,10 @@ class MatchCreationActivity : ComponentActivity() {
             }
             // Setting the new match id in the repository
             vmScreen.changeRepository(matchUUID)
-            val intent = Intent(this@MatchCreationActivity, MatchActivity::class.java)
-            startActivity(intent)
-
+            val nextIntent = Intent(this@MatchCreationActivity, MatchActivity::class.java)
+            val callerString = intent.getStringExtra("CALLER_ACTIVITY")
+            nextIntent.putExtra("CALLER_ACTIVITY", callerString)
+            startActivity(nextIntent)
         }
     }
     private fun navigateToMatch() {

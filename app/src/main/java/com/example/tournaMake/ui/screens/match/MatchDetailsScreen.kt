@@ -167,13 +167,15 @@ fun MatchDetailsHeading(
                         isFavorite = if (!isFavorite) {
                             if (match != null) {
                                 addMatchToFavorites(match.matchTmID)
-                                setFlag()
+                                setFlag() /* informs the calling activity that it
+                                needs to recreate in order to see real time updates. */
                             }
                             true
                         } else {
                             if (match != null) {
                                 removeMatchFromFavorites(match.matchTmID)
-                                setFlag()
+                                setFlag() /* informs the calling activity that it
+                                needs to recreate in order to see real time updates. */
                             }
                             false
                         }

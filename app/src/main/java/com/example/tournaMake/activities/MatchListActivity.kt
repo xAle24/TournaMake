@@ -78,6 +78,7 @@ class MatchListActivity : ComponentActivity() {
     }
     private fun navigateToMatchCreation() {
         val intent = Intent(this, MatchCreationActivity::class.java)
+        intent.putExtra("CALLER_ACTIVITY", "MatchListActivity")
         startActivity(intent)
     }
 
@@ -91,7 +92,7 @@ class MatchListActivity : ComponentActivity() {
                 resultReceiver.launch(intent)
             } else {
                 val intent = Intent(this@MatchListActivity, MatchActivity::class.java)
-                startActivity(intent)
+                resultReceiver.launch(intent)
             }
         }
     }

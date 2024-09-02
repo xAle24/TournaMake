@@ -37,7 +37,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -69,13 +68,11 @@ import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.data.repositories.MatchRepository
 import com.example.tournaMake.dataStore
-import com.example.tournaMake.sampledata.Game
 import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.screens.common.TournaMakeTopAppBar
 import com.example.tournaMake.ui.screens.registration.createImageRequest
-import java.util.UUID
 
 private val spacerHeight = 20.dp
 
@@ -89,6 +86,7 @@ fun MatchScreen(
     backFunction: () -> Unit,
     endMatch: (Map<String, Pair<Int, MatchResult>>, String) -> Unit,
     saveMatch: (Map<String, Pair<Int, MatchResult>>, String) -> Unit,
+    setFlag: () -> Unit,
 ) {
     val match by vm.match.observeAsState()
     val playedGameLiveData = vm.playedGame.observeAsState()
@@ -196,7 +194,8 @@ fun MatchScreen(
                     gameName = playedGameLiveData.value?.name ?: "Loading...",
                     match,
                     addMatchToFavorites,
-                    removeMatchFromFavorites
+                    removeMatchFromFavorites,
+                    setFlag = setFlag
                 )
                 Spacer(Modifier.height(spacerHeight))
                 dataPackets?.forEach { team ->
@@ -261,7 +260,8 @@ fun MatchHeading(
     gameName: String,
     match: MatchTM?,
     addMatchToFavorites: (String) -> Unit,
-    removeMatchFromFavorites: (String) -> Unit
+    removeMatchFromFavorites: (String) -> Unit,
+    setFlag: () -> Unit
 ) {
     var isFavorite by remember { mutableStateOf(match?.favorites == 1) }
     Box(
@@ -306,11 +306,15 @@ fun MatchHeading(
                         isFavorite = if (!isFavorite) {
                             if (match != null) {
                                 addMatchToFavorites(match.matchTmID)
+                                setFlag() /* informs the calling activity that it
+                                needs to recreate in order to see real time updates. */
                             }
                             true
                         } else {
                             if (match != null) {
                                 removeMatchFromFavorites(match.matchTmID)
+                                setFlag() /* informs the calling activity that it
+                                needs to recreate in order to see real time updates. */
                             }
                             false
                         }
@@ -382,7 +386,12 @@ fun TeamElementInMatchScreen(
                 )
 
                 TextField(
-                    value = score, onValueChange = { score = it }, modifier = Modifier,
+                    value = score,
+                    onValueChange = {
+                        score = it
+                        dataPacket.teamScore = it.text.toInt()
+                    },
+                    modifier = Modifier,
                     //.align(Alignment.Center)
                     trailingIcon = {
                         Icon(
@@ -447,9 +456,11 @@ fun MyMatchScreenPreview() {
         vm = vm,
         addMatchToFavorites = {},
         removeMatchFromFavorites = {},
-        saveMatch = fun(_: Map<String, Pair<Int, MatchResult>>, _: String) {},
+        backFunction = {},
         endMatch = fun(_: Map<String, Pair<Int, MatchResult>>, _: String) {},
-        backFunction = {})
+        saveMatch = fun(_: Map<String, Pair<Int, MatchResult>>, _: String) {},
+        setFlag = {}
+    )
 }
 
 /**

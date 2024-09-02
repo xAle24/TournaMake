@@ -5,6 +5,11 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.constants.MatchResult
@@ -15,12 +20,11 @@ import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.ui.screens.match.MatchScreen
 import com.example.tournaMake.ui.screens.match.TeamUIImpl
-import com.example.tournaMake.ui.screens.match.testTeam1
-import com.example.tournaMake.ui.screens.match.testTeam2
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
+
 class MatchActivity : ComponentActivity() {
     private val appDatabase = inject<AppDatabase>()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,6 +33,7 @@ class MatchActivity : ComponentActivity() {
             val themeViewModel = koinViewModel<ThemeViewModel>()
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val matchViewModel = koinViewModel<MatchViewModel>()
+            var wereFavoritesChangedFlag by remember { mutableStateOf(false) }
             fetchMatchData(matchViewModel)
             MatchScreen(
                 state = state.value,
@@ -36,9 +41,26 @@ class MatchActivity : ComponentActivity() {
                 vm = matchViewModel,
                 addMatchToFavorites = this::addMatchToFavorites,
                 removeMatchFromFavorites = this::removeMatchToFavorites,
-                backFunction = this::goBack,
+                backFunction = {
+                    if (wereFavoritesChangedFlag) {
+                        /* Informs the caller activity that it needs to recreate */
+                        val data = Intent()
+                        setResult(RESULT_OK, data)
+                    }
+                    val stringValue = intent.getStringExtra("CALLER_ACTIVITY")
+                    if (stringValue == "MatchListActivity") {
+                        val intent = Intent(this, MatchListActivity::class.java)
+                        this@MatchActivity.navigateToActivity(intent)
+                    }
+                    finish()
+                    /* TODO: this activity is a bit different. It should return a result, but
+                    *   the intent should be modified. It needs to be the MatchListActivity (since
+                    *   calling "finish()" now brings back to the match creation activity), or the
+                    *   tournament activity. */
+                },
                 endMatch = this::endMatch,
-                saveMatch = this::saveMatch
+                saveMatch = this::saveMatch,
+                setFlag = { wereFavoritesChangedFlag = true }
             )
         }
     }
@@ -152,9 +174,7 @@ class MatchActivity : ComponentActivity() {
         }
     }
 
-    private fun goBack() {
-        /*val intent = Intent(this, MatchListActivity::class.java)
-        startActivity(intent)*/
-        finish()
+    private fun navigateToActivity(intent: Intent) {
+        startActivity(intent)
     }
 }
