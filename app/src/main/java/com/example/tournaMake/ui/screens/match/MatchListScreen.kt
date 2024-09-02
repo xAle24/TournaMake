@@ -1,5 +1,6 @@
 package com.example.tournaMake.ui.screens.match
 
+import Converters.fromTimestamp
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -53,6 +54,9 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.theme.ColorConstants
 import com.example.tournaMake.ui.theme.getThemeColors
 import com.example.tournaMake.utils.Searchbar
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlin.reflect.KFunction1
 
 @Composable
@@ -265,7 +269,13 @@ fun Content(
             modifier = Modifier
                 .padding(0.dp, 30.dp)
         ) {
-            DescriptionText(text = "Date: ${match.date}")
+            val dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MMMM-yyyy")
+            val date = fromTimestamp(match.date)
+                ?.toInstant()
+                ?.atZone(ZoneId.systemDefault())
+                ?.toLocalDate()
+            val stringToPrint = date?.format(dateTimeFormatter)
+            DescriptionText(text = "Date: ${stringToPrint ?: fromTimestamp(match.date).toString()}")
             DescriptionText(text = "Status: ${mapIntegerToMatchStatus(match.isOver)}")
         }
     }

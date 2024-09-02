@@ -27,25 +27,40 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.example.tournaMake.R
+import com.example.tournaMake.activities.handleLogin
 import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.BlockingCredentialsFetcher
+import com.example.tournaMake.data.models.LoggedProfileState
 import com.example.tournaMake.data.models.ThemeEnum
-import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import kotlinx.coroutines.runBlocking
+import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
 @Composable
 fun LoginScreen(
-    state: ThemeState, // The state of the UI (dark, light or system)
-    viewModel: AuthenticationViewModel,
-    handleLogin: (String, String, Boolean) -> Unit
+    navController: NavController,
+    owner: LifecycleOwner,
 ) {
+    val context = LocalContext.current
+    // See ThemeViewModel.kt
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    // The following line converts the StateFlow contained in the ViewModel
+    // to a State object. State objects can trigger recompositions, while
+    // StateFlow objects can't. The 'withLifecycle' part ensures this state
+    // is destroyed when we leave this Activity.
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
     BasicScreenWithTheme(
         state = state,
     ) {
@@ -60,8 +75,6 @@ fun LoginScreen(
             runBlocking {
                 blockingCredentialsFetcher.initCredentials()
             }
-
-            Log.d("DEV-LOGIN", "Did user want to be remembered? ${viewModel.didUserWantToBeRemembered()}")
             var rememberMe by remember { mutableStateOf(blockingCredentialsFetcher.didUserWantToBeRemembered()) }
             var email by remember {
                 mutableStateOf(blockingCredentialsFetcher.getEmail() ?: "")
@@ -69,7 +82,6 @@ fun LoginScreen(
             var password by remember {
                 mutableStateOf(blockingCredentialsFetcher.getPassword() ?: "")
             }
-            Log.d("DEV-LOGIN", "Value of email: $email, value of pw: $password")
             val imageId =
                 if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
             Image(
@@ -121,7 +133,7 @@ fun LoginScreen(
                     checked = rememberMe,
                     onCheckedChange = {
                         rememberMe = it
-                        viewModel.setRememberMe(it)
+                        authenticationViewModel.setRememberMe(it)
                     },
                     colors = CheckboxDefaults.colors(
                         checkedColor = MaterialTheme.colorScheme.secondary
@@ -132,7 +144,15 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(20.dp))
             Button(
                 onClick = {
-                    handleLogin(email, password, rememberMe)
+                    handleLogin(
+                        email = email,
+                        password = password,
+                        rememberMe = rememberMe,
+                        viewModel = authenticationViewModel,
+                        owner = owner,
+                        navController = navController,
+                        context = context
+                    )
                 },
                 modifier = Modifier
                     .fillMaxWidth(0.8f)

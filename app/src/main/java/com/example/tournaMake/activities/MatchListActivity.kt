@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.MatchListViewModel
@@ -101,3 +102,15 @@ class MatchListActivity : ComponentActivity() {
         finish()
     }
 }
+
+/*
+fun fetchAndUpdateMatches(vm: MatchListViewModel, db: AppDatabase, owner: LifecycleOwner) {
+    owner.lifecycleScope.launch (Dispatchers.IO) {
+        try {
+            val matches = db.matchDao().getAllWithGamesNames()
+            vm.changeMatchesList(matches)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+}*/

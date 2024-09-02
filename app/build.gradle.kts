@@ -51,9 +51,9 @@ android {
 dependencies {
 
     implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
-    implementation("androidx.activity:activity-compose:1.9.0")
-    implementation(platform("androidx.compose:compose-bom:2023.08.00"))
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
+    implementation("androidx.activity:activity-compose:1.9.1")
+    implementation(platform("androidx.compose:compose-bom:2024.08.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -63,7 +63,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.08.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
@@ -72,14 +72,14 @@ dependencies {
     ksp("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     implementation ("com.google.android.material:material:1.12.0")
-    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.3")
-    implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.8.3")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
+    implementation ("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
     // For saving preferences and data store
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     // For dependency injection (giving access to objects to classes that require it)
-    implementation("io.insert-koin:koin-androidx-compose:3.5.3")
+    implementation("io.insert-koin:koin-androidx-compose:3.5.6")
     // For managing image uris in a simple way
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("io.coil-kt:coil-compose:2.7.0")
     // Used to convert LiveData to state
     implementation ("androidx.compose.runtime:runtime-livedata:1.6.8")
     //new library for charts
@@ -88,14 +88,16 @@ dependencies {
     // implementation("com.adammcneilly:composetournamentbracket:0.0.1")
     // to make tournament library work
     // https://mvnrepository.com/artifact/com.google.accompanist/accompanist-systemuicontroller
-    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.34.0")
     // Nav controller, still for the tournament dependency to work
     implementation("androidx.navigation:navigation-compose:2.7.7")
     // Pager, needed by the library, again
     // https://mvnrepository.com/artifact/androidx.compose.foundation/foundation
     //implementation("androidx.compose.foundation:foundation:1.6.8")
     //implementation("androidx.compose.foundation:foundation:1.4.3")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:<latest-version>")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:2.0.20")
     // for location
-    implementation("com.google.android.gms:play-services-location:21.2.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    // For Navigation Graph
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 }
