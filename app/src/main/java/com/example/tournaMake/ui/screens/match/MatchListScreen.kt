@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -61,7 +62,8 @@ fun MatchListScreen(
     navigationFunction: () -> Unit,
     addFavoritesFunction: KFunction1<String, Unit>,
     removeFavoritesFunction: KFunction1<String, Unit>,
-    backFunction: () -> Unit
+    backFunction: () -> Unit,
+    navigateToSpecifiedMatch: (String, Boolean) -> Unit
 ) {
     // Data being fetched from database
     val matchesList = matchesListLiveData.observeAsState(emptyList())
@@ -98,7 +100,7 @@ fun MatchListScreen(
                         .fillMaxHeight()
                 ) {
                     items(filteredEntries) { item ->
-                        MatchCard(match = item, addFavoritesFunction, removeFavoritesFunction)
+                        MatchCard(match = item, addFavoritesFunction, removeFavoritesFunction, navigateToSpecifiedMatch)
                     }
                 }
             }
@@ -178,6 +180,7 @@ fun MatchCard(
     match: MatchGameData,
     addToFavoritesFunction: KFunction1<String, Unit>,
     removeFavoritesFunction: KFunction1<String, Unit>,
+    navigateToSpecifiedMatch: (String, Boolean) -> Unit
 ) {
     var isFavorite by remember { mutableStateOf(match.favorites == 1) }
     Card(
@@ -185,7 +188,8 @@ fun MatchCard(
         elevation = CardDefaults.cardElevation(),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .clickable { navigateToSpecifiedMatch(match.matchTmID, match.isOver == 1) },
         colors = CardColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -216,7 +220,7 @@ fun MatchCard(
                 modifier = Modifier.size(78.dp) // Adjust the size as needed
             ) {
                 Icon(
-                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, //TODO sta cosa fa sempre il cuore vuoto
+                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = null,
                     modifier = Modifier
                         .size(40.dp)

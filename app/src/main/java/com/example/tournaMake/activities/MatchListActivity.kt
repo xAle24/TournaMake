@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.MatchListViewModel
@@ -18,6 +19,14 @@ import org.koin.compose.koinInject
 
 class MatchListActivity : ComponentActivity() {
     private var appDatabase: AppDatabase? = get<AppDatabase>()
+    //TODO: SEE IF THIS WORKS
+    /* This should allow the activity to recreate if the user sets other favourites in the
+    * match details screen. */
+    private val resultReceiver = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            recreate()
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -26,13 +35,15 @@ class MatchListActivity : ComponentActivity() {
             val state = themeViewModel.state.collectAsStateWithLifecycle()
             val matchListViewModel = koinViewModel<MatchListViewModel>()
             fetchAndUpdateMatches(matchListViewModel, database)
+
             MatchListScreen(
                 state = state.value,
                 matchesListLiveData = matchListViewModel.matchesListLiveData,
                 navigationFunction = this::navigateToMatchCreation,
                 addFavoritesFunction = this::addMatchToFavorites,
                 removeFavoritesFunction = this::removeMatchToFavorites,
-                backFunction = this::goBack
+                backFunction = this::goBack,
+                navigateToSpecifiedMatch = {matchID, isOver -> this.navigateToSpecifiedMatch(matchID, isOver, matchListViewModel)}
             )
         }
     }
@@ -69,8 +80,23 @@ class MatchListActivity : ComponentActivity() {
         val intent = Intent(this, MatchCreationActivity::class.java)
         startActivity(intent)
     }
+
+    private fun navigateToSpecifiedMatch(matchTmID: String, isOver: Boolean, vm: MatchListViewModel) {
+        lifecycleScope.launch (Dispatchers.IO) {
+            // Change selected match in repository
+            vm.changeRepository(matchTmID)
+            if (isOver) {
+                val intent = Intent(this@MatchListActivity, MatchDetailsActivity::class.java)
+                /*startActivity(intent)*/
+                resultReceiver.launch(intent)
+            } else {
+                val intent = Intent(this@MatchListActivity, MatchActivity::class.java)
+                startActivity(intent)
+            }
+        }
+    }
+
     private fun goBack() {
-        val intent = Intent(this, MenuActivity::class.java)
-        startActivity(intent)
+        finish()
     }
 }

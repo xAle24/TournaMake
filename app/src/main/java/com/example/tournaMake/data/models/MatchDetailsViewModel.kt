@@ -28,7 +28,7 @@ class MatchDetailsViewModel(private val repository: MatchDetailsRepository) : Vi
     val selectedMatchId = repository.selectedMatch.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(),
-        initialValue = ""
+        initialValue = null
     )
 
     private val _match = MutableLiveData<MatchTM>()

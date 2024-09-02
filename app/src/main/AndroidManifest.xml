@@ -53,6 +53,7 @@
         <activity android:name=".activities.TournamentCreationActivity" />
         <activity android:name=".activities.TournamentActivity" />
         <activity android:name=".activities.MatchActivity" />
+        <activity android:name=".activities.MatchDetailsActivity"/>
 
         <!--Test activity-->
         <activity android:name=".activities.test.TestActivity" />

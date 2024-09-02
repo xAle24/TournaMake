@@ -41,7 +41,7 @@ val appModule = module {
     viewModel { AuthenticationViewModel(get()) }
     viewModel { ProfileViewModel() }
     viewModel { ProfileListViewModel() }
-    viewModel { MatchListViewModel() }
+    viewModel { MatchListViewModel(get()) }
     viewModel { MatchCreationViewModel() }
     viewModel { GraphViewModel() }
     viewModel { GamesListViewModel() }

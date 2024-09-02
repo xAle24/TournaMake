@@ -33,6 +33,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -74,6 +75,7 @@ fun MatchDetailsScreen(
     vm: MatchDetailsViewModel,
     addMatchToFavorites: (String) -> Unit,
     removeMatchFromFavorites: (String) -> Unit,
+    setFlag: () -> Unit
 ) {
     val playedGameLiveData = vm.playedGame.observeAsState()
     val dataPackets by vm.teamDataPackets.observeAsState()
@@ -95,7 +97,8 @@ fun MatchDetailsScreen(
                 gameName = playedGameLiveData.value?.name ?: "Loading...",
                 match,
                 addMatchToFavorites,
-                removeMatchFromFavorites
+                removeMatchFromFavorites,
+                setFlag
             )
             Spacer(Modifier.height(spacerHeight))
             dataPackets?.forEach { team ->
@@ -112,9 +115,12 @@ fun MatchDetailsHeading(
     gameName: String,
     match: MatchTM?,
     addMatchToFavorites: (String) -> Unit,
-    removeMatchFromFavorites: (String) -> Unit
+    removeMatchFromFavorites: (String) -> Unit,
+    setFlag: () -> Unit
 ) {
-    var isFavorite by remember { mutableStateOf(match?.favorites == 1) }
+    var isFavorite by remember(match) {
+        mutableStateOf(match?.favorites == 1)
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -161,11 +167,13 @@ fun MatchDetailsHeading(
                         isFavorite = if (!isFavorite) {
                             if (match != null) {
                                 addMatchToFavorites(match.matchTmID)
+                                setFlag()
                             }
                             true
                         } else {
                             if (match != null) {
                                 removeMatchFromFavorites(match.matchTmID)
+                                setFlag()
                             }
                             false
                         }
@@ -302,5 +310,6 @@ fun MatchDetailsScreenPreview() {
         vm = vm,
         addMatchToFavorites = {},
         removeMatchFromFavorites = {},
+        setFlag = {}
     )
 }

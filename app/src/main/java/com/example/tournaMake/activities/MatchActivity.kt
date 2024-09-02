@@ -21,7 +21,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
-
 class MatchActivity : ComponentActivity() {
     private val appDatabase = inject<AppDatabase>()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -147,13 +146,15 @@ class MatchActivity : ComponentActivity() {
             // Ending the match
             appDatabase.value.matchDao().endMatch(matchID)
             // Navigating back to matches list screen
-            val intent = Intent(this@MatchActivity, MatchListActivity::class.java)
-            startActivity(intent)
+            /*val intent = Intent(this@MatchActivity, MatchListActivity::class.java)
+            startActivity(intent)*/
+            finish() // instead of creating a new activity, we can just ensure this one ends and the caller activity is brought to the top
         }
     }
 
     private fun goBack() {
-        val intent = Intent(this, MatchListActivity::class.java)
-        startActivity(intent)
+        /*val intent = Intent(this, MatchListActivity::class.java)
+        startActivity(intent)*/
+        finish()
     }
 }

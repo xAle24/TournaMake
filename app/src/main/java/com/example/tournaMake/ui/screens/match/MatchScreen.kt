@@ -93,7 +93,7 @@ fun MatchScreen(
     val match by vm.match.observeAsState()
     val playedGameLiveData = vm.playedGame.observeAsState()
     val dataPackets by vm.teamDataPackets.observeAsState()
-    var winnerDataPackets: List<TeamDataPacket> = emptyList()
+    var winnerDataPackets: List<TeamDataPacket>
     var shouldShowAlertDialog by remember {
         mutableStateOf(false)
     }
@@ -218,7 +218,7 @@ fun WinnerSelectionAlertDialog(
     var selectedTeams by remember { mutableStateOf<List<TeamDataPacket>>(emptyList()) }
     AlertDialog(onDismissRequest = { /*showDialog = false*/ onDismissRequest() }, title = {
         Text(
-            "Select winning teams if any (leaving all teams blank" + "will result in a collective draw)."
+            "Select winning teams if any (leaving all teams blank will result in a collective draw)."
         )
     }, text = {
         LazyColumn() {
