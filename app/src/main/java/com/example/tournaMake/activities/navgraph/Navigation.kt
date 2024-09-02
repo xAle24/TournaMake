@@ -8,8 +8,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.tournaMake.ui.screens.login.LoginScreen
 import com.example.tournaMake.ui.screens.main.MainScreen
+import com.example.tournaMake.ui.screens.match.MatchListScreen
 import com.example.tournaMake.ui.screens.menu.MenuScreen
 import com.example.tournaMake.ui.screens.registration.RegistrationScreen
+import com.example.tournaMake.ui.screens.tournament.TournamentCreationScreen
 import com.example.tournaMake.ui.screens.tournament.TournamentListScreen
 
 sealed class NavigationRoute(
@@ -21,7 +23,11 @@ sealed class NavigationRoute(
     data object MenuScreen : NavigationRoute("MenuScreen")
     data object TournamentsListScreen : NavigationRoute("TournamentsListScreen")
     data object TournamentCreationScreen : NavigationRoute("TournamentCreationScreen")
+    data object TournamentScreen : NavigationRoute("TournamentScreen")
     data object MatchesListScreen : NavigationRoute("MatchesListScreen")
+    data object MatchDetailsScreen : NavigationRoute("MatchDetailsScreen")
+    data object MatchCreationScreen : NavigationRoute("MatchCreationScreen")
+    data object MatchScreen : NavigationRoute("MatchScreen")
     data object GamesListScreen : NavigationRoute("GamesListScreen")
     data object ProfilesListScreen : NavigationRoute("ProfilesListScreen")
     data object SettingsScreen : NavigationRoute("SettingsScreen")
@@ -52,6 +58,30 @@ fun NavGraph(
         }
         composable(NavigationRoute.TournamentsListScreen.route) {
             TournamentListScreen(navController = navController, owner = owner)
+        }
+        composable(NavigationRoute.TournamentCreationScreen.route) {
+            TournamentCreationScreen(navController = navController, owner = owner)
+        }
+        composable(NavigationRoute.MatchesListScreen.route) {
+            MatchListScreen(navController = navController, owner = owner)
+        }
+        composable(NavigationRoute.MatchesListScreen.route) {
+
+        }
+        composable(NavigationRoute.MatchesListScreen.route) {
+
+        }
+        composable(NavigationRoute.MatchesListScreen.route) {
+
+        }
+        composable(NavigationRoute.GamesListScreen.route) {
+            /*TODO*/
+        }
+        composable(NavigationRoute.MatchesListScreen.route) {
+
+        }
+        composable(NavigationRoute.MatchesListScreen.route) {
+
         }
     }
 }

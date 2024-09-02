@@ -39,10 +39,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.example.tournaMake.R
+import com.example.tournaMake.activities.fetchAndUpdateGamesList
+import com.example.tournaMake.activities.fetchAndUpdateGuestProfileList
+import com.example.tournaMake.activities.fetchAndUpdateMainProfileList
+import com.example.tournaMake.activities.fetchAndUpdateTournamentTypeList
+import com.example.tournaMake.activities.fetchData
+import com.example.tournaMake.activities.navigateToTournament
+import com.example.tournaMake.data.models.MatchCreationViewModel
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.data.models.ThemeViewModel
+import com.example.tournaMake.data.models.TournamentCreationViewModel
 import com.example.tournaMake.sampledata.Game
 import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainProfile
@@ -53,25 +65,27 @@ import com.example.tournaMake.ui.screens.match.TeamUI
 import com.example.tournaMake.ui.screens.match.TeamUIImpl
 import com.example.tournaMake.ui.theme.getThemeColors
 import kotlinx.coroutines.flow.StateFlow
+import org.koin.androidx.compose.koinViewModel
 import java.util.stream.Collectors
 import kotlin.reflect.KFunction4
 
 @Composable
 fun TournamentCreationScreen(
-    state: ThemeState,
-    teamsStateFlow: StateFlow<Set<TeamUI>>,
-    addTeam: (TeamUI) -> Unit,
-    removeTeam: (TeamUI) -> Unit,
-    gamesListLiveData: LiveData<List<Game>>,
-    tournamentType: LiveData<List<TournamentType>>,
-    mainProfilesListLiveData: LiveData<List<MainProfile>>,
-    guestProfilesListLiveData: LiveData<List<GuestProfile>>,
-    navigateToTournament: KFunction4<Set<TeamUI>, Game?, TournamentType?, String, Unit>,
-    backFunction: () -> Unit
+    navController: NavController,
+    owner: LifecycleOwner,
 ) {
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val tournamentCreationViewModel = koinViewModel<TournamentCreationViewModel>()
+    val matchCreationViewModel = koinViewModel<MatchCreationViewModel>()
+    fetchAndUpdateGamesList(tournamentCreationViewModel, owner)
+    fetchAndUpdateTournamentTypeList(tournamentCreationViewModel, owner)
+    fetchAndUpdateGuestProfileList(tournamentCreationViewModel, owner)
+    fetchAndUpdateMainProfileList(tournamentCreationViewModel, owner)
+    fetchData(matchCreationViewModel, owner)
     BasicScreenWithAppBars(
         state = state,
-        backFunction = backFunction,
+        backFunction = { navController.navigateUp() },
         showTopBar = true,
         showBottomBar = false
     ) {
@@ -80,15 +94,13 @@ fun TournamentCreationScreen(
             if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
 
         /* Variable containing all the created teams */
-        val teamsSet by teamsStateFlow.collectAsState()
+        val teamsSet by matchCreationViewModel.teamsSet.collectAsState()
         var selectedGame by remember { mutableStateOf<Game?>(null) }
         var selectedTournamentType by remember { mutableStateOf<TournamentType?>(null) }
         var selectedTournamentName by remember { mutableStateOf("") }
 
-        val gamesList = gamesListLiveData.observeAsState()
-        val tournamentTypeList = tournamentType.observeAsState()
-        val mainProfileListt = mainProfilesListLiveData.observeAsState()
-        val guestProfileListt = guestProfilesListLiveData.observeAsState()
+        val gamesList = tournamentCreationViewModel.gamesListLiveData.observeAsState()
+        val tournamentTypeList = tournamentCreationViewModel.tournamentType.observeAsState()
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
@@ -123,9 +135,9 @@ fun TournamentCreationScreen(
                 * */
                 key(teamsSet) {
                     TeamContainer(
-                        teamsSetStateFlow = teamsStateFlow,
-                        mainProfileListFromDatabase = mainProfilesListLiveData,
-                        guestProfileListFromDatabase = guestProfilesListLiveData,
+                        teamsSetStateFlow = matchCreationViewModel.teamsSet,
+                        mainProfileListFromDatabase = tournamentCreationViewModel.mainProfileListLiveData,
+                        guestProfileListFromDatabase = tournamentCreationViewModel.guestProfileListLiveData,
                         removeTeam = removeTeam
                     )
                 }
@@ -144,7 +156,13 @@ fun TournamentCreationScreen(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
-                    onClick = { navigateToTournament(teamsSet, selectedGame, selectedTournamentType, selectedTournamentName) },
+                    onClick = { navigateToTournament(teamsSet,
+                        selectedGame,
+                        selectedTournamentType,
+                        selectedTournamentName,
+                        navController = navController,
+                        owner = owner)
+                    },
                     modifier = Modifier
                         .background(colorConstants.getButtonBackground())
                         .fillMaxWidth(0.9f),

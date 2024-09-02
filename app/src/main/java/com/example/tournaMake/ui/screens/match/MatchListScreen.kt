@@ -1,7 +1,6 @@
 package com.example.tournaMake.ui.screens.match
 
 import Converters.fromTimestamp
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -45,40 +44,44 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.example.tournaMake.R
+import com.example.tournaMake.activities.addMatchToFavorites
+import com.example.tournaMake.activities.fetchAndUpdateMatches
+import com.example.tournaMake.activities.navgraph.NavigationRoute
+import com.example.tournaMake.activities.navigateToSpecifiedMatch
+import com.example.tournaMake.activities.removeMatchToFavorites
 import com.example.tournaMake.data.constants.mapIntegerToMatchStatus
-import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.data.models.MatchListViewModel
+import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.MatchGameData
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.theme.ColorConstants
 import com.example.tournaMake.ui.theme.getThemeColors
 import com.example.tournaMake.utils.Searchbar
-import java.time.LocalDate
+import org.koin.androidx.compose.koinViewModel
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import kotlin.reflect.KFunction1
 
 @Composable
 fun MatchListScreen(
-    state: ThemeState,
-    matchesListLiveData: LiveData<List<MatchGameData>>,
-    navigationFunction: () -> Unit,
-    addFavoritesFunction: KFunction1<String, Unit>,
-    removeFavoritesFunction: KFunction1<String, Unit>,
-    backFunction: () -> Unit,
-    navigateToSpecifiedMatch: (String, Boolean) -> Unit
+    navController: NavController,
+    owner: LifecycleOwner,
 ) {
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val matchListViewModel = koinViewModel<MatchListViewModel>()
+    fetchAndUpdateMatches(matchListViewModel, owner)
     // Data being fetched from database
-    val matchesList = matchesListLiveData.observeAsState(emptyList())
+    val matchesList = matchListViewModel.matchesListLiveData.observeAsState(emptyList())
     val colorConstants = getThemeColors(themeState = state)
     val searchbar2 = Searchbar(matchesList.value)
     val filteredEntries = searchbar2.getFilteredEntries()
-    Log.d("DEV-MATCH-LIST", "matchesList size: ${matchesList.value.size}")
-    Log.d("DEV-MATCH-LIST", "searchbarList size: ${searchbar2.getFilteredEntries().size}")
     BasicScreenWithAppBars(
         state = state,
-        backFunction = backFunction,
+        backFunction = { navController.navigateUp() },
         showTopBar = true,
         showBottomBar = false
     ) {
@@ -89,7 +92,7 @@ fun MatchListScreen(
                 horizontalArrangement = Arrangement.SpaceAround,
             ) {
                 CreateMatchButton(
-                    navigationFunction,
+                    { navController.navigate(NavigationRoute.MatchCreationScreen.route) },
                     colorConstants,
                     Modifier.align(Alignment.CenterVertically)
                 )
@@ -104,7 +107,10 @@ fun MatchListScreen(
                         .fillMaxHeight()
                 ) {
                     items(filteredEntries) { item ->
-                        MatchCard(match = item, addFavoritesFunction, removeFavoritesFunction, navigateToSpecifiedMatch)
+                        MatchCard(match = item,
+                            vm = matchListViewModel,
+                            navController = navController,
+                            owner = owner)
                     }
                 }
             }
@@ -182,9 +188,9 @@ fun FilterButton(
 @Composable
 fun MatchCard(
     match: MatchGameData,
-    addToFavoritesFunction: KFunction1<String, Unit>,
-    removeFavoritesFunction: KFunction1<String, Unit>,
-    navigateToSpecifiedMatch: (String, Boolean) -> Unit
+    vm: MatchListViewModel,
+    navController: NavController,
+    owner: LifecycleOwner
 ) {
     var isFavorite by remember { mutableStateOf(match.favorites == 1) }
     Card(
@@ -193,7 +199,11 @@ fun MatchCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .clickable { navigateToSpecifiedMatch(match.matchTmID, match.isOver == 1) },
+            .clickable { navigateToSpecifiedMatch(matchTmID = match.matchTmID,
+                                                isOver = match.isOver == 1,
+                                                vm = vm,
+                                                owner = owner,
+                                                navController = navController) },
         colors = CardColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -214,10 +224,10 @@ fun MatchCard(
             IconButton(
                 onClick = {
                     isFavorite = if (!isFavorite) {
-                        addToFavoritesFunction(match.matchTmID)
+                        addMatchToFavorites(match.matchTmID, owner)
                         true
                     } else {
-                        removeFavoritesFunction(match.matchTmID)
+                        removeMatchToFavorites(match.matchTmID, owner)
                         false
                     }
                 },
