@@ -325,8 +325,8 @@ class RegistrationPhotoActivity : ComponentActivity() {
     }
 
     private fun loadMenu() {
-        val intent = Intent(this, MenuActivity::class.java)
-        startActivity(intent)
+        /*val intent = Intent(this, MenuActivity::class.java)
+        startActivity(intent)*/
     }
 
     override fun onPause() {

@@ -3,22 +3,28 @@ package com.example.tournaMake.activities.navgraph
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.LifecycleOwner
-import androidx.navigation.NavController
-import androidx.navigation.NavGraph
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.tournaMake.ui.screens.login.LoginScreen
 import com.example.tournaMake.ui.screens.main.MainScreen
-import com.example.tournaMake.ui.screens.match.MatchListScreen
+import com.example.tournaMake.ui.screens.menu.MenuScreen
+import com.example.tournaMake.ui.screens.registration.RegistrationScreen
+import com.example.tournaMake.ui.screens.tournament.TournamentListScreen
 
 sealed class NavigationRoute(
     val route: String
 ) {
     data object MainScreen : NavigationRoute("MainScreen")
     data object LoginScreen : NavigationRoute("LoginScreen")
-    data object MenuScreen : NavigationRoute("MenuScreen")
     data object RegistrationScreen : NavigationRoute("RegistrationScreen")
+    data object MenuScreen : NavigationRoute("MenuScreen")
+    data object TournamentsListScreen : NavigationRoute("TournamentsListScreen")
+    data object TournamentCreationScreen : NavigationRoute("TournamentCreationScreen")
+    data object MatchesListScreen : NavigationRoute("MatchesListScreen")
+    data object GamesListScreen : NavigationRoute("GamesListScreen")
+    data object ProfilesListScreen : NavigationRoute("ProfilesListScreen")
+    data object SettingsScreen : NavigationRoute("SettingsScreen")
 }
 
 @Composable
@@ -39,7 +45,13 @@ fun NavGraph(
             LoginScreen(navController, owner)
         }
         composable(NavigationRoute.RegistrationScreen.route) {
-
+            RegistrationScreen(navController, owner)
+        }
+        composable(NavigationRoute.MenuScreen.route) {
+            MenuScreen(navController = navController, owner = owner)
+        }
+        composable(NavigationRoute.TournamentsListScreen.route) {
+            TournamentListScreen(navController = navController, owner = owner)
         }
     }
 }

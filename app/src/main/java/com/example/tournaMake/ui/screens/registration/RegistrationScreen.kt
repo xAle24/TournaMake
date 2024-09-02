@@ -26,16 +26,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.example.tournaMake.R
+import com.example.tournaMake.activities.handleRegistration
+import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun RegistrationScreen(
-    state: ThemeState,
-    handleRegistration: (String, String, String, Boolean) -> Unit,
+    navController: NavController,
+    owner: LifecycleOwner,
 ) {
+    // See ThemeViewModel.kt
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    // The following line converts the StateFlow contained in the ViewModel
+    // to a State object. State objects can trigger recompositions, while
+    // StateFlow objects can't. The 'withLifecycle' part ensures this state
+    // is destroyed when we leave this Activity.
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
     BasicScreenWithTheme(
         state = state,
     ) {
@@ -106,7 +121,7 @@ fun RegistrationScreen(
             }
             Spacer(modifier = Modifier.height(20.dp))
             Button(onClick = {
-                handleRegistration(username, password, email, rememberMe)
+                handleRegistration(username, password, email, rememberMe, authenticationViewModel, owner, navController)
                 /* SETTING THE "GLOBAL" VARIABLE LOGGED EMAIL! */
                 Log.d("DEV", "In RegistrationScreen.kt, email = $email")
             }, modifier = Modifier

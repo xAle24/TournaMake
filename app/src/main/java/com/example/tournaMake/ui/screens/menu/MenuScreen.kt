@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,26 +31,42 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.example.tournaMake.R
+import com.example.tournaMake.activities.fetchAndUpdateNotification
+import com.example.tournaMake.activities.navgraph.NavigationRoute
+import com.example.tournaMake.data.models.AuthenticationViewModel
+import com.example.tournaMake.data.models.NotificationViewModel
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
-import com.example.tournaMake.sampledata.Notification
+import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.theme.getThemeColors
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MenuScreen(
-    state: ThemeState,
-    navigateToSettings: () -> Unit,
-    navigateToListProfile: () -> Unit,
-    navigateToTournament: () -> Unit,
-    navigateToGamesList: () -> Unit,
-    navigateToMatchesList: () -> Unit,
-    logout: () -> Unit,
-    notificationLiveData: LiveData<List<Notification>>
+    navController: NavController,
+    owner: LifecycleOwner
 ) {
-    val notification = notificationLiveData.observeAsState()
+    // See ThemeViewModel.kt
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    // The following line converts the StateFlow contained in the ViewModel
+    // to a State object. State objects can trigger recompositions, while
+    // StateFlow objects can't. The 'withLifecycle' part ensures this state
+    // is destroyed when we leave this Activity.
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
+    val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
+    val notificationViewModel = koinViewModel<NotificationViewModel>()
+    fetchAndUpdateNotification(
+        notificationViewModel,
+        loggedEmail.value.loggedProfileEmail,
+        owner
+    )
+    val notification = notificationViewModel.notificationLiveData.observeAsState()
     BasicScreenWithTheme(
         state = state,
     ) {
@@ -93,7 +110,7 @@ fun MenuScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 MenuButton(
-                    "Logout", { logout() }, R.drawable.backicon, state,
+                    "Logout", { navController.navigate(NavigationRoute.MainScreen.route) }, R.drawable.backicon, state,
                     modifier = Modifier
                         .fillMaxWidth(0.4f)
                         .fillMaxHeight(0.05f)
@@ -111,11 +128,11 @@ fun MenuScreen(
                     .fillMaxWidth(0.8f)
                     .fillMaxHeight(0.2f)
             )
-            MenuButton("Tournament", navigateToTournament, R.drawable.triangleicon, state)
-            MenuButton("Matches", navigateToMatchesList, R.drawable.d20_dark, state)
-            MenuButton("Game list", navigateToGamesList, R.drawable.listicon, state)
-            MenuButton("Profile", navigateToListProfile, R.drawable.profileicon, state)
-            MenuButton("Settings", navigateToSettings, R.drawable.settingsicon, state)
+            MenuButton("Tournament", { navController.navigate(NavigationRoute.TournamentsListScreen.route) }, R.drawable.triangleicon, state)
+            MenuButton("Matches", { navController.navigate(NavigationRoute.MatchesListScreen.route) }, R.drawable.d20_dark, state)
+            MenuButton("Game list", { navController.navigate(NavigationRoute.GamesListScreen.route) }, R.drawable.listicon, state)
+            MenuButton("Profile", { navController.navigate(NavigationRoute.ProfilesListScreen.route) }, R.drawable.profileicon, state)
+            MenuButton("Settings", { navController.navigate(NavigationRoute.SettingsScreen.route) }, R.drawable.settingsicon, state)
 
             Image(
                 painter = painterResource(id = imageKnightId),

@@ -41,7 +41,9 @@ fun handleLogin(
                 //Trying to switch activity
                 if (viewModel.loginStatus.value == LoginStatus.Success) {
                     Log.d("DEV-AHGAH", "Entering this if")
-                    navController.navigate(NavigationRoute.MenuScreen.route)
+                    withContext(Dispatchers.Main) {
+                        navController.navigate(NavigationRoute.MenuScreen.route)
+                    }
                 }
             } else {
                 viewModel.changeLoginStatus(LoginStatus.Fail)

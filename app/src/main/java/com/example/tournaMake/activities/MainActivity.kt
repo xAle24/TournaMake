@@ -23,49 +23,11 @@ import com.example.tournaMake.ui.theme.TournaMakeTheme
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
-
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val navGraph = rememberNavController()
             NavGraph(navController = navGraph, modifier = Modifier, owner = this)
-            /*// See ThemeViewModel.kt
-            val themeViewModel = koinViewModel<ThemeViewModel>()
-            // The following line converts the StateFlow contained in the ViewModel
-            // to a State object. State objects can trigger recompositions, while
-            // StateFlow objects can't. The 'withLifecycle' part ensures this state
-            // is destroyed when we leave this Activity.
-            val state = themeViewModel.state.collectAsStateWithLifecycle()
-            MainScreen(
-                state = state.value,
-                navigateToRegistration = this::navigateToRegistration,
-                navigateToLogin = this::navigateToLogin
-            )
-            // Test; TODO: remove
-            Button(onClick = {
-                val intent = Intent(this, TestActivity::class.java)
-                startActivity(intent)
-            }) {
-                Text("Go to test activity")
-            }*/
         }
-    }
-
-    private fun navigateToLogin() {
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
-    }
-
-    private fun navigateToRegistration() {
-        val intent = Intent(this, RegisterActivity::class.java)
-        startActivity(intent)
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoginPagePreview() {
-    TournaMakeTheme {
-        MainActivity().onCreate(null)
     }
 }
