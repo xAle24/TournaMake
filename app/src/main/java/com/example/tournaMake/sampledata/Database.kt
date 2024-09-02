@@ -171,8 +171,8 @@ data class MatchTM(
 data class TeamInTm(
     @ColumnInfo(name = "teamID") val teamID: String,
     @ColumnInfo(name = "matchTmID") val matchTmID: String,
-    val score: Int,
-    val isWinner: Int
+    var score: Int,
+    var isWinner: Int
 )
 
 @Entity(tableName = "TEAM", primaryKeys = ["teamID"])

@@ -10,10 +10,12 @@ fun mapIntegerToMatchStatus(n: Int) : MatchStatus {
     }
 }
 
-fun mapCharStatusToString(n: Char) : String {
-    return when (n) {
-        '0' -> "Ongoing"
-        '1' -> "Ended"
-        else -> "Unknown"
+enum class MatchResult {Loser, Winner, Draw}
+
+fun mapMatchResultToInteger(mr: MatchResult) : Int {
+    return when (mr) {
+        MatchResult.Loser -> 0
+        MatchResult.Winner -> 1
+        MatchResult.Draw -> 2
     }
 }

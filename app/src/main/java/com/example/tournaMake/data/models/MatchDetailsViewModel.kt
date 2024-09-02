@@ -64,6 +64,9 @@ class MatchDetailsViewModel(private val repository: MatchDetailsRepository) : Vi
     private val _teamDataPackets = MutableLiveData<List<TeamDataPacket>>()
     val teamDataPackets: LiveData<List<TeamDataPacket>> = _teamDataPackets
 
+    private val _isDraw = MutableLiveData<Boolean>()
+    val isDraw: LiveData<Boolean> = _isDraw
+
     fun changeMatch(match: MatchTM) {
         this._match.postValue(match)
     }
@@ -102,6 +105,10 @@ class MatchDetailsViewModel(private val repository: MatchDetailsRepository) : Vi
 
     fun changeTeamDataPackets(teamDataPackets: List<TeamDataPacket>) {
         this._teamDataPackets.postValue(teamDataPackets)
+    }
+
+    fun changeIsDraw(isDraw: Boolean) {
+        this._isDraw.postValue(isDraw)
     }
 }
 

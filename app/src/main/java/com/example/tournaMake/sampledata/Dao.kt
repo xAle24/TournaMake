@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import androidx.room.Upsert
 
 @Dao
@@ -112,6 +113,20 @@ interface MatchDao {
 
     @Query("SELECT * FROM MATCH_TM WHERE matchTmID = :matchID")
     fun getMatchFromID(matchID: String): MatchTM
+
+    @Query("UPDATE MATCH_TM SET isOver = 1 WHERE matchTmID = :matchID")
+    fun endMatch(matchID: String)
+
+    @Query("""
+        SELECT
+            NOT EXISTS (
+                SELECT *
+                FROM TEAM_IN_TM
+                WHERE TEAM_IN_TM.matchTmID = :matchID
+                AND TEAM_IN_TM.isWinner <> 2 -- 2 means "Draw"
+            ) AS allScoredADraw
+    """)
+    fun isDraw(matchID: String): Boolean
 
     @Insert
     fun insertAll(vararg matches: MatchTM)
@@ -270,6 +285,9 @@ interface TeamInTmDao {
 
     @Query("SELECT * FROM TEAM_IN_TM WHERE matchTmID = :matchTmID")
     fun getTeamsInTmFromMatch(matchTmID: String): List<TeamInTm>
+
+    @Update
+    fun updateTeamInTms(teamInTMs: List<TeamInTm>)
 
     @Delete
     suspend fun delete(teamInTm: TeamInTm)

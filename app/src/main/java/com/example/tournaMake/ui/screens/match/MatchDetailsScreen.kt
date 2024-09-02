@@ -78,6 +78,7 @@ fun MatchDetailsScreen(
     val playedGameLiveData = vm.playedGame.observeAsState()
     val dataPackets by vm.teamDataPackets.observeAsState()
     val match by vm.match.observeAsState()
+    val isDraw by vm.isDraw.observeAsState()
     BasicScreenWithAppBars(
         state = state,
         backFunction = backFunction,
@@ -98,7 +99,7 @@ fun MatchDetailsScreen(
             )
             Spacer(Modifier.height(spacerHeight))
             dataPackets?.forEach { team ->
-                TeamElementInMatchDetailsScreen(dataPacket = team)
+                TeamElementInMatchDetailsScreen(dataPacket = team, isDraw = isDraw ?: false)
                 Spacer(modifier = Modifier.height(spacerHeight))
             }
         }
@@ -182,9 +183,13 @@ fun MatchDetailsHeading(
 
 @Composable
 fun TeamElementInMatchDetailsScreen(
-    dataPacket: TeamDataPacket
+    dataPacket: TeamDataPacket,
+    isDraw: Boolean
 ) {
     val teamScore = dataPacket.teamScore
+    var headingToDisplay = dataPacket.teamUI.getTeamName()
+    if (isDraw) headingToDisplay += " - DRAW"
+    else if (dataPacket.isWinner) headingToDisplay += " - WINNER"
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -198,7 +203,7 @@ fun TeamElementInMatchDetailsScreen(
                 .align(Alignment.Center)
         ) {
             Text(
-                dataPacket.teamUI.getTeamName(),
+                headingToDisplay,
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier
                     .padding(start = 10.dp)
@@ -296,6 +301,6 @@ fun MatchDetailsScreenPreview() {
         backFunction = {},
         vm = vm,
         addMatchToFavorites = {},
-        removeMatchFromFavorites = {}
+        removeMatchFromFavorites = {},
     )
 }

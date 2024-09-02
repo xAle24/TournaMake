@@ -49,11 +49,13 @@ class MatchDetailsActivity: ComponentActivity() {
                         isWinner = teamInTM.isWinner == 1
                     )
                 }
+                val isDraw = appDatabase.value.matchDao().isDraw(matchID)
                 matchDetailsViewModel.changeTeamDataPackets(teamDataPackets)
                 matchDetailsViewModel.changeTeamUIs(teamDataPackets.map { it.teamUI })
                 matchDetailsViewModel.changePlayedGame(playedGame)
                 matchDetailsViewModel.changeTeams(teams)
                 matchDetailsViewModel.changeTeamsInMatch(teamsInTm)
+                matchDetailsViewModel.changeIsDraw(isDraw)
             }
         }
     }
