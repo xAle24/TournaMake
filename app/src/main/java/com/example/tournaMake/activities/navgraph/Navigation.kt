@@ -23,6 +23,7 @@ import com.example.tournaMake.ui.screens.profile.ProfileListScreen
 import com.example.tournaMake.ui.screens.profile.ProfileScreen
 import com.example.tournaMake.ui.screens.registration.RegistrationPhotoScreen
 import com.example.tournaMake.ui.screens.registration.RegistrationScreen
+import com.example.tournaMake.ui.screens.settings.SettingsScreen
 import com.example.tournaMake.ui.screens.tournament.TournamentCreationScreen
 import com.example.tournaMake.ui.screens.tournament.TournamentListScreen
 import com.example.tournaMake.ui.screens.tournament.TournamentScreen
@@ -130,6 +131,9 @@ fun NavGraph(
         }
         composable(NavigationRoute.TournamentScreen.route) {
             TournamentScreen(navController = navController, owner = owner)
+        }
+        composable(NavigationRoute.SettingsScreen.route) {
+            SettingsScreen()
         }
     }
 }
