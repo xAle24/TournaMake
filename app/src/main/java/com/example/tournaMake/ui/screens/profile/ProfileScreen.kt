@@ -573,8 +573,8 @@ fun ProfileScreenPreview() {
                 locationLongitude = 0.0f
             )
         ),
-        backButton = { *//*TODO*//* },
-        navigateToChart = { *//*TODO*//* },
+        backButton = {  },
+        navigateToChart = {  },
 
     )
 }*/
