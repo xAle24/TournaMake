@@ -32,24 +32,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.example.tournaMake.activities.addGame
+import com.example.tournaMake.activities.fetchAndUpdateGameList
+import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.data.models.GamesListViewModel
-import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.Game
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
+import org.koin.androidx.compose.koinViewModel
 import java.util.UUID
-import kotlin.reflect.KFunction1
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GamesListScreen(
-    state: ThemeState,
-    gamesListLiveData: LiveData<List<Game>>,
-    addGame: KFunction1<Game, Unit>,
-    backButton: () -> Unit,
-    recreationFunction: () -> Unit
+    navController: NavController,
+    owner: LifecycleOwner
 ) {
-    val gameList = gamesListLiveData.observeAsState()
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    // View Model of profile list
+    val gamesListViewModel = koinViewModel<GamesListViewModel>()
+    fetchAndUpdateGameList(gamesListViewModel, owner)
+    val gameList = gamesListViewModel.gamesListLiveData.observeAsState()
     var showDialog by remember { mutableStateOf(false) }
 
     BasicScreenWithTheme(state = state) {
@@ -60,7 +67,7 @@ fun GamesListScreen(
         ) {
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { backButton() }) {
+                    IconButton(onClick = { navController.navigate(NavigationRoute.MenuScreen.route) }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
@@ -149,9 +156,8 @@ fun GamesListScreen(
                                 maxPlayers = maxPlayers.toInt(),
                                 favorites = 0 // TODO: change to actual value
                             )
-                            addGame(game)
+                            addGame(game, owner)
                             showDialog = false
-                            recreationFunction() // to update the UI... ugly but we can't do otherwise
                         }) {
                             Text("Confirm")
                         }
