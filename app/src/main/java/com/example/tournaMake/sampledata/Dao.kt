@@ -58,8 +58,9 @@ interface GameDao {
     @Query("""
         SELECT GAME.*, COUNT(MATCH_TM.matchTmID) as timesPlayed
         FROM GAME
-        JOIN MATCH_TM ON GAME.gameID = MATCH_TM.matchTmID
-        JOIN TEAM ON MATCH_TM.matchTmID = TEAM.teamID
+        JOIN MATCH_TM ON GAME.gameID = MATCH_TM.gameID
+        JOIN TEAM_IN_TM ON MATCH_TM.matchTmID = TEAM_IN_TM.matchTmID
+        JOIN TEAM ON TEAM_IN_TM.teamID = TEAM.teamID
         JOIN MAIN_PARTICIPANT ON TEAM.teamID = MAIN_PARTICIPANT.teamID
         WHERE MAIN_PARTICIPANT.email = :email
         GROUP BY GAME.name;

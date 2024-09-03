@@ -1,6 +1,5 @@
 package com.example.tournaMake.activities
 
-import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.GraphViewModel
@@ -13,7 +12,6 @@ fun fetchAndUpdateGraph(email: String, graphViewModel: GraphViewModel, owner: Li
     owner.lifecycleScope.launch(Dispatchers.IO) {
         try {
             val myGames = appDatabase.value.gameDao().getPlayedGames(email)
-            Log.d("DEV", "In GamesChart.kt, myGames = $myGames")
             graphViewModel.changeGamesList(myGames)
         } catch (e: Exception) {
             e.printStackTrace()
