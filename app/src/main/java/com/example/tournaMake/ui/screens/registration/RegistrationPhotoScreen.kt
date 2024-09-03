@@ -1,9 +1,11 @@
 package com.example.tournaMake.ui.screens.registration
 
+import android.Manifest
+import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -27,8 +29,12 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,31 +44,197 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.tournaMake.R
+import com.example.tournaMake.activities.navgraph.NavigationRoute
+import com.example.tournaMake.activities.updateDatabaseWithCoordinates
+import com.example.tournaMake.activities.updateDatabaseWithPhotoUri
+import com.example.tournaMake.data.models.AuthenticationViewModel
+import com.example.tournaMake.data.models.CoordinatesViewModel
 import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.data.models.ThemeViewModel
+import com.example.tournaMake.filemanager.AppDirectoryNames
+import com.example.tournaMake.filemanager.PROFILE_PICTURE_NAME
+import com.example.tournaMake.filemanager.ProfileImageHelper
+import com.example.tournaMake.filemanager.ProfileImageHelperImpl
+import com.example.tournaMake.filemanager.doesDirectoryContainFile
+import com.example.tournaMake.filemanager.loadImageUriFromDirectory
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.theme.getThemeColors
-import com.example.tournaMake.utils.CameraLauncher
 import com.example.tournaMake.utils.Coordinates
 import com.example.tournaMake.utils.LocationService
+import com.example.tournaMake.utils.PermissionStatus
+import com.example.tournaMake.utils.StartMonitoringResult
 import com.example.tournaMake.utils.rememberCameraLauncher
+import com.example.tournaMake.utils.rememberPermission
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun RegistrationPhotoScreen(
-    state: ThemeState,
-    back: () -> Unit,
-    loadMenu: () -> Unit,
-    selectedImage: Uri?,
-    photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
-    snackbarHostState: SnackbarHostState,
-    requestLocation: () -> Unit,
-    coordinatesLiveData: LiveData<Coordinates>,
-    cameraLauncher: CameraLauncher
+    navController: NavController,
+    owner: LifecycleOwner,
+    contentResolver: ContentResolver
 ) {
+    // Initial variables
+    val context = LocalContext.current
+    val profileImageHelper: ProfileImageHelper = ProfileImageHelperImpl()
+    val locationService = LocationService(context)
+
+    // Logic that was previously in the activity
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
+    val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
+    /* Code taken from:
+    * https://www.youtube.com/watch?v=uHX5NB6wHao
+    * */
+    var selectedImageURI by remember {
+        mutableStateOf(
+            if (doesDirectoryContainFile(
+                    AppDirectoryNames.profileImageDirectoryName,
+                    PROFILE_PICTURE_NAME,
+                    context,
+                    loggedEmail.value.loggedProfileEmail
+                )
+            ) loadImageUriFromDirectory(
+                AppDirectoryNames.profileImageDirectoryName,
+                PROFILE_PICTURE_NAME,
+                context,
+                loggedEmail.value.loggedProfileEmail
+            ) else null
+        )
+    }
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null && loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
+            val uriForInternallySavedFile =
+                profileImageHelper.storeProfilePictureImmediately(
+                    profileImageUri = uri,
+                    email = loggedEmail.value.loggedProfileEmail,
+                    contentResolver = contentResolver,
+                    context = context,
+                    databaseUpdaterCallback = {outputUri, outputString -> updateDatabaseWithPhotoUri(
+                        uri = outputUri,
+                        loggedEmail = outputString,
+                        owner = owner
+                    )}
+                )
+            selectedImageURI = uriForInternallySavedFile
+        } else if (uri != null && loggedEmail.value.loggedProfileEmail.isEmpty()) {
+            profileImageHelper.waitForEmailThenStoreProfilePicture(
+                loggedEmailStateFlow = authenticationViewModel.loggedEmail,
+                profileImageUri = uri,
+                context = context,
+                databaseUpdaterCallback = {outputUri, outputString -> updateDatabaseWithPhotoUri(
+                    uri = outputUri,
+                    loggedEmail = outputString,
+                    owner = owner
+                )},
+                lifecycleCoroutineScope = owner.lifecycleScope,
+                lifecycleOwner = owner,
+                stateChangerCallback = { resultUri ->
+                    selectedImageURI = resultUri
+                },
+                contentResolver = contentResolver
+            )
+        }
+        Log.d(
+            "DEV",
+            "In onResult function in RegistrationPhoto.kt: everything went fine!"
+        )
+    }
+
+    // Camera launcher; code taken from tutor Gianni
+    // The code inside here is a duplicate of the one above... maybe there's a way to refactor this
+    val cameraLauncher = rememberCameraLauncher { uri ->
+        if (loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
+            val uriForInternallySavedFile =
+                profileImageHelper.storeProfilePictureImmediately(
+                    profileImageUri = uri,
+                    email = loggedEmail.value.loggedProfileEmail,
+                    contentResolver = contentResolver,
+                    context = context,
+                    databaseUpdaterCallback = {outputUri, outputString -> updateDatabaseWithPhotoUri(
+                        uri = outputUri,
+                        loggedEmail = outputString,
+                        owner = owner
+                    )}
+                )
+            selectedImageURI = uriForInternallySavedFile
+        } else if (loggedEmail.value.loggedProfileEmail.isEmpty()) {
+            profileImageHelper.waitForEmailThenStoreProfilePicture(
+                loggedEmailStateFlow = authenticationViewModel.loggedEmail,
+                profileImageUri = uri,
+                context = context,
+                databaseUpdaterCallback = {outputUri, outputString -> updateDatabaseWithPhotoUri(
+                    uri = outputUri,
+                    loggedEmail = outputString,
+                    owner = owner
+                )},
+                lifecycleCoroutineScope = owner.lifecycleScope,
+                lifecycleOwner = owner,
+                stateChangerCallback = { resultUri ->
+                    selectedImageURI = resultUri
+                },
+                contentResolver = contentResolver
+            )
+        }
+    }
+
+    // GPS variables
+    val snackbarHostState = remember { SnackbarHostState() }
+    var showLocationDisabledAlert by remember { mutableStateOf(false) }
+    var showPermissionDeniedAlert by remember { mutableStateOf(false) }
+    var showPermissionPermanentlyDeniedSnackbar by remember { mutableStateOf(false) }
+    val coordinatesViewModel = koinViewModel<CoordinatesViewModel>()
+    val coordinatesLiveData = coordinatesViewModel.coordinatesLiveData
+    // Setting the callback... hope it works
+    locationService.addCallback {
+        updateDatabaseWithCoordinates(
+            loggedEmail.value.loggedProfileEmail,
+            it.latitude,
+            it.longitude,
+            coordinatesViewModel,
+            owner
+        )
+    }
+
+
+    val locationPermission = rememberPermission(
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    ) { status ->
+        when (status) {
+            PermissionStatus.Granted -> {
+                val res = locationService.requestCurrentLocation()
+                showLocationDisabledAlert = res == StartMonitoringResult.GPSDisabled
+            }
+
+            PermissionStatus.Denied ->
+                showPermissionDeniedAlert = true
+
+            PermissionStatus.PermanentlyDenied ->
+                showPermissionPermanentlyDeniedSnackbar = true
+
+            PermissionStatus.Unknown -> {}
+        }
+    }
+
+    fun requestLocation() {
+        if (locationPermission.status.isGranted) {
+            val res = locationService.requestCurrentLocation()
+            showLocationDisabledAlert = res == StartMonitoringResult.GPSDisabled
+        } else {
+            locationPermission.launchPermissionRequest()
+        }
+    }
+
     val configuration = LocalConfiguration.current // used to find screen size
     // val screenHeight = configuration.screenHeightDp
     val screenWidth = configuration.screenWidthDp
@@ -74,11 +246,11 @@ fun RegistrationPhotoScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            key(selectedImage) {
-                if (selectedImage != null) {
+            key(selectedImageURI) {
+                if (selectedImageURI != null) {
                     /* The profile image will be contained here. */
                     AsyncImage(
-                        model = createImageRequest(LocalContext.current, selectedImage),
+                        model = createImageRequest(LocalContext.current, selectedImageURI!!),
                         contentDescription = null,
                         modifier = Modifier
                             .size(200.dp)
@@ -105,7 +277,7 @@ fun RegistrationPhotoScreen(
             Spacer(modifier = Modifier.height(5.dp))
             Button(
                 onClick = {
-                    photoPickerLauncher.launch(
+                    singlePhotoPickerLauncher.launch(
                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                     )
                 },
@@ -138,7 +310,7 @@ fun RegistrationPhotoScreen(
             Spacer(modifier = Modifier.height(16.dp))
             LocationUIArea(
                 snackbarHostState = snackbarHostState,
-                requestLocation = requestLocation,
+                requestLocation = ::requestLocation,
                 state = state,
                 coordinates = coordinates.value
             )
@@ -149,7 +321,7 @@ fun RegistrationPhotoScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
-                    onClick = { back() },
+                    onClick = { navController.navigate(NavigationRoute.RegistrationScreen.route) },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(text = "Back")
@@ -158,7 +330,7 @@ fun RegistrationPhotoScreen(
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Button(
-                    onClick = { loadMenu() },
+                    onClick = { navController.navigate(NavigationRoute.MenuScreen.route) },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(text = "Next")

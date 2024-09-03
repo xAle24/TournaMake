@@ -1,6 +1,7 @@
 package com.example.tournaMake.ui.screens.tournament
 
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -37,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,62 +46,118 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.tournaMake.activities.DatabaseMatchUpdateRequest
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.example.tournaMake.activities.MatchAsCompetingTeams
 import com.example.tournaMake.activities.TournamentManagerUpdateRequest
-import com.example.tournaMake.data.models.ThemeState
-import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
+import com.example.tournaMake.activities.createBracket
+import com.example.tournaMake.activities.fetchStuffForTournament
+import com.example.tournaMake.activities.getMatchesNamesAsCompetingTeams
+import com.example.tournaMake.data.models.ThemeViewModel
+import com.example.tournaMake.data.models.TournamentDataViewModel
+import com.example.tournaMake.data.models.TournamentIDViewModel
 import com.example.tournaMake.mylibrary.ui.SingleEliminationBracket
+import com.example.tournaMake.sampledata.TournamentMatchData
+import com.example.tournaMake.tournamentmanager.TournamentManager
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TournamentScreen(
-    state: ThemeState,
-    bracket: BracketDisplayModel,
-    matchesAndTeams: List<MatchAsCompetingTeams>,
-    onConfirmCallback: (TournamentManagerUpdateRequest) -> Unit
+    navController: NavController,
+    owner: LifecycleOwner
 ) {
-    BasicScreenWithTheme(
-        state = state
-    ) {
-        var isAlertVisible by remember {
-            mutableStateOf(false)
+    // Initial variables
+    val tournamentManager = TournamentManager()
+
+    // Former activity code
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val tournamentIDViewModel = koinViewModel<TournamentIDViewModel>()
+    val tournamentID = tournamentIDViewModel.tournamentID.collectAsStateWithLifecycle()
+    val tournamentDataViewModel = koinViewModel<TournamentDataViewModel>()
+    var wasTournamentCreated by remember { mutableStateOf(false) }
+    fetchStuffForTournament(tournamentID.value, tournamentDataViewModel, owner)
+
+    val liveDataObserver = Observer<List<TournamentMatchData>> {
+        Log.d("DEV", "In TournamentActivity: Observer code called! List size = ${it.size}")
+        // When data arrives, create the bracket
+        createBracket(tournamentDataViewModel, tournamentManager)
+        // Update wasTournamentCreated state to trigger recomposition
+        wasTournamentCreated = tournamentManager.wasBracketInitialised()
+        Log.d("DEV", "Guard variable wasTournamentCreated = $wasTournamentCreated")
+    }
+    tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.observe(
+        owner,
+        liveDataObserver
+    )
+
+    if (tournamentManager.wasBracketInitialised()) {
+        val privateBracket = tournamentManager.getBracket()
+        var bracket by remember { mutableStateOf(privateBracket) }
+        val privateData =
+            getMatchesNamesAsCompetingTeams(tournamentManager.getTournamentMatchData())
+        val data = remember {
+            mutableStateOf(privateData)
         }
-        ConfigureTransparentSystemBars()
+        Log.d(
+            "DEV",
+            "TournamentActivity: Alert data size = ${data.value.size}, elements = ${data.value}"
+        )
 
-        Surface(
-            color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f), // the background behind the whole bracket system
-            modifier = Modifier
-                .systemBarsPadding(),
-        ) {
-
-            SingleEliminationBracket(bracket = bracket)
-
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.BottomEnd
+        // UI Code
+        key(bracket, data) {
+            BasicScreenWithTheme(
+                state = state
             ) {
-                FloatingActionButton(
-                    onClick = { isAlertVisible = true },
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Icon(imageVector = Icons.Default.Edit, contentDescription = "Add")
+                var isAlertVisible by remember {
+                    mutableStateOf(false)
                 }
+                ConfigureTransparentSystemBars()
+
+                Surface(
+                    color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f), // the background behind the whole bracket system
+                    modifier = Modifier
+                        .systemBarsPadding(),
+                ) {
+
+                    SingleEliminationBracket(bracket = bracket)
+
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.BottomEnd
+                    ) {
+                        FloatingActionButton(
+                            onClick = { isAlertVisible = true },
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Icon(imageVector = Icons.Default.Edit, contentDescription = "Add")
+                        }
+                    }
+                }
+                ModifyMatchesAlert(
+                    openDialog = isAlertVisible,
+                    onDismiss = { isAlertVisible = false },
+                    matchesAndTeams = data.value,
+                    onConfirmCallback = {
+                        tournamentManager.updateMatch(it)
+                        bracket = tournamentManager.refreshBracket()
+                        data.value = getMatchesNamesAsCompetingTeams(tournamentManager.refreshTournamentDataList())
+                        Log.d("DEV", "Trying to refresh...")
+                    },
+                )
             }
         }
-        ModifyMatchesAlert(
-            openDialog = isAlertVisible,
-            onDismiss = { isAlertVisible = false },
-            matchesAndTeams = matchesAndTeams,
-            onConfirmCallback = onConfirmCallback,
-        )
     }
 }
 
@@ -366,17 +424,11 @@ private fun MatchSelectionMenu(
     }
 }
 
-/*@Preview
+@Preview
 @Composable
-fun ModifyMatchesAlertPreview() {
-    ModifyMatchesAlert(
-        openDialog = true,
-        onDismiss = {},
-        matchesAndTeams = listOf(
-            MatchAsCompetingTeams("match1", "Team1", "1","Team2", "2"),
-            MatchAsCompetingTeams("match2", "Team3", "3","Team4", "4")
-        ),
-        onConfirmCallback = {},
-        tryToRecomposePlease = {}
+fun TournamentPreview() {
+    TournamentScreen(
+        navController = NavController(LocalContext.current),
+        owner = ComponentActivity()
     )
-}*/
+}

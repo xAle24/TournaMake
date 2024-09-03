@@ -30,6 +30,7 @@ import com.example.tournaMake.data.repositories.TournamentIDRepository
 import com.example.tournaMake.sampledata.AppDatabase
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
+import java.util.UUID
 
 val Context.dataStore
         by preferencesDataStore("theme")
@@ -65,7 +66,13 @@ val appModule = module {
         ).addCallback(object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
+                val uuids = generateSequence(0) { it -> it + 1 }
+                    .take(2)
+                    .map { UUID.randomUUID() }
+                    .toList()
                 db.execSQL("INSERT INTO ACHIEVEMENT (achievementID, name, description, imagePath) VALUES ('1', 'Welcome', 'Welcome in TournaMake', '');")
+                db.execSQL("INSERT INTO TOURNAMENT_TYPE (tournamentTypeID, name, description) VALUES ('${uuids[0]}', 'Single Bracket', 'Tournament with single elimination bracket');")
+                db.execSQL("INSERT INTO TOURNAMENT_TYPE (tournamentTypeID, name, description) VALUES ('${uuids[1]}', 'Double Bracket', 'Tournament with double elimination bracket');")
                 db.execSQL("CREATE TRIGGER IF NOT EXISTS create_achievement_player AFTER INSERT ON MAIN_PROFILE BEGIN INSERT INTO ACHIEVEMENT_PLAYER (achievementID, status, email) VALUES ('1', '1', NEW.email); END;")
                 db.execSQL("CREATE TRIGGER IF NOT EXISTS create_notification AFTER INSERT ON MAIN_PROFILE BEGIN INSERT INTO NOTIFICATION (notificationID, description, email) VALUES (NEW.email, 'You have completed the Welcome achievement!', NEW.email); END;")
             }

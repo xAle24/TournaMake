@@ -33,5 +33,5 @@ fun handleRegistration(
     if (rememberMe) {
         viewModel.saveUserAuthenticationPreferences(email, password, true)
     }
-    navController.navigate(NavigationRoute.MenuScreen.route)
+    navController.navigate(NavigationRoute.RegistrationPhotoScreen.route)
 }
