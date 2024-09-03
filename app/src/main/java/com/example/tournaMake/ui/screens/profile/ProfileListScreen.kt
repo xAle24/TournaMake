@@ -20,23 +20,35 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.example.tournaMake.activities.fetchAndUpdateGuestProfiles
+import com.example.tournaMake.activities.navgraph.NavigationRoute
+import com.example.tournaMake.data.models.ProfileListViewModel
 import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileListScreen(
-    state: ThemeState,
-    profileListLiveData: LiveData<List<String>>,
-    backButton: () -> Unit,
-    navigateToProfile: () -> Unit
+    owner: LifecycleOwner,
+    navController: NavController
 ) {
-    val profileNamesList = profileListLiveData.observeAsState()
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    // View Model of profiles list
+    val profileListViewModel = koinViewModel<ProfileListViewModel>()
+    fetchAndUpdateGuestProfiles(profileListViewModel, owner)
+    val profileNamesList = profileListViewModel.profileNamesListLiveData.observeAsState()
 
     BasicScreenWithTheme(state = state) {
         Column(
@@ -46,7 +58,7 @@ fun ProfileListScreen(
         ) {
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { backButton() }) {
+                    IconButton(onClick = { navController.navigate(NavigationRoute.MenuScreen.route) }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
@@ -54,7 +66,7 @@ fun ProfileListScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { navigateToProfile() }, modifier = Modifier
+                onClick = { navController.navigate(NavigationRoute.ProfileScreen.route) }, modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .height(80.dp)
             ) {

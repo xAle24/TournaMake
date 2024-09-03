@@ -14,6 +14,7 @@ import com.example.tournaMake.ui.screens.match.MatchListScreen
 import com.example.tournaMake.ui.screens.match.MatchScreen
 import com.example.tournaMake.ui.screens.menu.GamesListScreen
 import com.example.tournaMake.ui.screens.menu.MenuScreen
+import com.example.tournaMake.ui.screens.profile.ProfileListScreen
 import com.example.tournaMake.ui.screens.registration.RegistrationScreen
 import com.example.tournaMake.ui.screens.tournament.TournamentCreationScreen
 import com.example.tournaMake.ui.screens.tournament.TournamentListScreen
@@ -34,6 +35,7 @@ sealed class NavigationRoute(
     data object MatchScreen : NavigationRoute("MatchScreen")
     data object GamesListScreen : NavigationRoute("GamesListScreen")
     data object ProfilesListScreen : NavigationRoute("ProfilesListScreen")
+    data object ProfileScreen : NavigationRoute("ProfileScreen")
     data object SettingsScreen : NavigationRoute("SettingsScreen")
 }
 
@@ -92,6 +94,12 @@ fun NavGraph(
         }
         composable(NavigationRoute.GamesListScreen.route) {
             GamesListScreen(navController = navController, owner = owner)
+        }
+        composable(NavigationRoute.ProfilesListScreen.route) {
+            ProfileListScreen(owner = owner, navController = navController)
+        }
+        composable(NavigationRoute.ProfileScreen.route) {
+
         }
     }
 }
