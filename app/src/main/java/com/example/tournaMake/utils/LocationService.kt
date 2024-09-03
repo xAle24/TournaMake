@@ -43,11 +43,6 @@ class LocationService(private val ctx: Context) {
             super.onLocationResult(p0)
             with(p0.locations.last()) {
                 coordinates = Coordinates(latitude, longitude)
-                // TODO: IF THIS WORKS, ADD A CALLBACK
-                Log.d(
-                    "DEV",
-                    "In LocationService, where the callback should be, coordinates = $coordinates"
-                )
                 callbacks.forEach { it(Coordinates(latitude, longitude)) }
             }
             endLocationRequest()

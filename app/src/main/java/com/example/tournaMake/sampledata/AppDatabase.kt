@@ -21,7 +21,7 @@ import androidx.room.TypeConverters
     TeamInTm::class,
     Notification::class
 ], version = 1)
-@TypeConverters(Converters::class) // TODO verify if it works
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun achievementDao(): AchievementDao
     abstract fun achievementPlayerDao(): AchievementPlayerDao

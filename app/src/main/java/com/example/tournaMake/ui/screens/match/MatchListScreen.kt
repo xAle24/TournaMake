@@ -1,6 +1,7 @@
 package com.example.tournaMake.ui.screens.match
 
 import Converters.fromTimestamp
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -29,6 +31,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -77,8 +80,11 @@ fun MatchListScreen(
     // Data being fetched from database
     val matchesList = matchListViewModel.matchesListLiveData.observeAsState(emptyList())
     val colorConstants = getThemeColors(themeState = state)
-    val searchbar2 = Searchbar(matchesList.value)
+    val searchbar2 = remember { Searchbar(matchesList.value) }
     val filteredEntries = searchbar2.getFilteredEntries()
+    Log.d("CAZ", "$matchesList")
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedPredicate by remember { mutableStateOf<(MatchGameData) -> Boolean>({ true }) }
     BasicScreenWithAppBars(
         state = state,
         backFunction = { navController.navigate(NavigationRoute.MenuScreen.route) },
@@ -98,7 +104,8 @@ fun MatchListScreen(
                 )
                 FilterButton(
                     colorConstants,
-                    Modifier.align(Alignment.CenterVertically)
+                    Modifier.align(Alignment.CenterVertically),
+                    onClick = { showDialog = true }
                 )
             }
             key(filteredEntries){
@@ -114,6 +121,16 @@ fun MatchListScreen(
                     }
                 }
             }
+        }
+        if (showDialog) {
+            FilterDialog(
+                onDismiss = { showDialog = false },
+                onPredicateSelected = { predicate ->
+                    selectedPredicate = predicate
+                    searchbar2.filterEntries(predicate)
+                    showDialog = false
+                }
+            )
         }
     }
 }
@@ -159,10 +176,11 @@ fun CreateMatchButton(
 @Composable
 fun FilterButton(
     colorConstants: ColorConstants,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
     Button(
-        onClick = { /* TODO: implement filters */ },
+        onClick = onClick,
         modifier = modifier
             .padding(0.dp, 40.dp, 0.dp, 4.dp)
             .fillMaxWidth(0.55f)
@@ -289,4 +307,51 @@ fun Content(
             DescriptionText(text = "Status: ${mapIntegerToMatchStatus(match.isOver)}")
         }
     }
+}
+@Composable
+fun FilterDialog(
+    onDismiss: () -> Unit,
+    onPredicateSelected: (predicate: (MatchGameData) -> Boolean) -> Unit
+) {
+    val options = listOf("All", "Favorites", "Completed")
+    var selectedOption by remember { mutableStateOf(options[0]) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Select Filter") },
+        text = {
+            Column {
+                options.forEach { option ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = (selectedOption == option),
+                            onClick = { selectedOption = option }
+                        )
+                        Text(option)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    val predicate: (MatchGameData) -> Boolean = when (selectedOption) {
+                        "Favorites" -> { match -> match.favorites == 1 }
+                        "Completed" -> { match -> match.isOver == 1 }
+                        else -> { _ -> true }
+                    }
+                    onPredicateSelected(predicate)
+                }
+            ) {
+                Text("Apply")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }

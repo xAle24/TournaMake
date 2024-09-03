@@ -103,10 +103,10 @@ fun NavGraph(
             if (callerRoute == null) {
                 Log.e("DEV-NAVGRAPH", "CallerRoute is null in Navigation.kt: " +
                         "somebody is trying to instantiate a MatchScreen without specifying proper arguments!")
-            } else if (callerRoute == NavigationRoute.MatchCreationScreen.route || callerRoute == NavigationRoute.MatchesListScreen.route) {
+            } else if (callerRoute == NavigationRoute.MatchCreationScreen.route) {
                 callerRoute = NavigationRoute.MatchesListScreen.route
-            } // TODO: ADD NAVIGATION TO TOURNAMENT
-            MatchScreen(callerRoute = callerRoute!!, navController = navController, owner = owner)
+            }
+            MatchScreen(callerRoute = callerRoute!!, navController = navController, owner = owner)// TODO: ADD NAVIGATION TO TOURNAMENT
         }
         composable(NavigationRoute.GamesListScreen.route) {
             GamesListScreen(navController = navController, owner = owner)
