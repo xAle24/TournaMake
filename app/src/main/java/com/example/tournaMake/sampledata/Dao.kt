@@ -83,7 +83,7 @@ data class MatchGameData(
     val isOver: Int,
     val gameID: String,
     val tournamentID: String?,
-    val name: String
+    val name: String // the game name
 )
 @Dao
 interface MatchDao {

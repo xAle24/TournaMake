@@ -1,5 +1,6 @@
 package com.example.tournaMake.ui.screens.profile
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,23 +21,42 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LiveData
-import com.example.tournaMake.data.models.ThemeState
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.example.tournaMake.activities.fetchAndUpdateMatch
+import com.example.tournaMake.activities.navgraph.NavigationRoute
+import com.example.tournaMake.data.models.AuthenticationViewModel
+import com.example.tournaMake.data.models.MatchListViewModel
+import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.MatchGameData
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MatchListScreen(
-    state: ThemeState,
-    matchListLiveData: LiveData<List<MatchGameData>>,
-    backButton: () -> Unit
+fun PlayerMatchesHistoryScreen(
+    navController: NavController,
+    owner: LifecycleOwner
 ) {
-    val matchList = matchListLiveData.observeAsState()
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
+    val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
+    val matchListViewModel = koinViewModel<MatchListViewModel>()
+    val matchObserver = Observer<List<MatchGameData>?> { match ->
+        Log.d("DEV", "In profile observer profile = $match")
+        // TODO: add rest of the profile code
+    }
+    matchListViewModel.matchesListLiveData.observe(owner, matchObserver)
+    fetchAndUpdateMatch(loggedEmail.value.loggedProfileEmail, matchListViewModel, owner)
+    val matchList = matchListViewModel.matchesListLiveData.observeAsState()
 
     BasicScreenWithTheme(state = state) {
         Column(
@@ -46,7 +66,7 @@ fun MatchListScreen(
         ) {
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { backButton() }) {
+                    IconButton(onClick = { navController.navigate(NavigationRoute.ProfileScreen.route) }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
@@ -63,12 +83,12 @@ fun MatchListScreen(
                     items(matchList.value!!) { item ->
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
-                            onClick = { /* Do something when button is clicked */ },
+                            onClick = { /*TODO: Do something when button is clicked */ },
                             modifier = Modifier
                                 .fillMaxWidth(0.8f)
                                 .height(60.dp)
                         ) {
-                            Text(item.matchTmID)
+                            Text("Match of ${item.name}")
                         }
                     }
                 }

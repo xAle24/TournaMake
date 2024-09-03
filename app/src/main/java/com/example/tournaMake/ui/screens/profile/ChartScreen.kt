@@ -1,5 +1,6 @@
 package com.example.tournaMake.ui.screens.profile
 
+import android.util.Log
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,37 +26,56 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.example.tournaMake.R
+import com.example.tournaMake.activities.fetchAndUpdateGraph
+import com.example.tournaMake.activities.navgraph.NavigationRoute
+import com.example.tournaMake.data.models.AuthenticationViewModel
+import com.example.tournaMake.data.models.GraphViewModel
 import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.data.models.ThemeViewModel
+import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.sampledata.PlayedGame
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.hd.charts.BarChartView
 import com.hd.charts.StackedBarChartView
 import com.hd.charts.common.model.ChartDataSet
 import com.hd.charts.common.model.MultiChartDataSet
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChartScreen(
-    state: ThemeState,
-    gamesLiveData: LiveData<List<PlayedGame>>,
-    backButton: () -> Unit
+    navController: NavController,
+    owner: LifecycleOwner
 ) {
+    // See ThemeViewModel.kt
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    // The following line converts the StateFlow contained in the ViewModel
+    // to a State object. State objects can trigger recompositions, while
+    // StateFlow objects can't. The 'withLifecycle' part ensures this state
+    // is destroyed when we leave this Activity.
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
+    val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
+    val graphViewModel = koinViewModel<GraphViewModel>()
+    val gameObserver = Observer<List<PlayedGame>?> { game ->
+        Log.d("DEV", "In game observer profile = $game")//TODO remove
+    }
+    val matchObserver = Observer<List<MatchTM>?> { match ->
+        Log.d("DEV", "In match observer profile = $match")//TODO remove
+    }
+    graphViewModel.gamesListLiveData.observe(owner, gameObserver)
+    graphViewModel.matchListLiveData.observe(owner, matchObserver)
+    val gamesLiveData = graphViewModel.gamesListLiveData
+
+    fetchAndUpdateGraph(loggedEmail.value.loggedProfileEmail, graphViewModel, owner)
     val gamesData = gamesLiveData.observeAsState(listOf())
-    /*
-        val items = if (list.isNotEmpty()) listOf(
-            list[0].name to listOf(list[0].times_played.toFloat(), 8810.34f, 30000.57f),
-            "Strawberry Mall" to listOf(8261.68f, 8810.34f, 30000.57f),
-            "Lime Av." to listOf(1500.87f, 2765.58f, 33245.81f),
-            "Apple Rd." to listOf(5444.87f, 233.58f, 67544.81f)
-        ) else listOf(
-            "ghini" to listOf(300f, 200f, 100f),
-            "Strawberry Mall" to listOf(8261.68f, 8810.34f, 30000.57f),
-            "Lime Av." to listOf(1500.87f, 2765.58f, 33245.81f),
-            "Apple Rd." to listOf(5444.87f, 233.58f, 67544.81f)
-        )
-    */
+
     val items = gamesData.value
         .map { playedGame -> playedGame.name to listOf(playedGame.timesPlayed.toFloat()) }
         .toList()
@@ -80,7 +100,7 @@ fun ChartScreen(
             // Back button at the top
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { backButton() }) {
+                    IconButton(onClick = { navController.navigate(NavigationRoute.ProfileScreen.route) }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },

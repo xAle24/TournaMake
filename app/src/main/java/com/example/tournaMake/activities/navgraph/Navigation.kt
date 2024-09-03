@@ -1,5 +1,6 @@
 package com.example.tournaMake.activities.navgraph
 
+import android.content.ContentResolver
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -10,11 +11,15 @@ import androidx.navigation.compose.composable
 import com.example.tournaMake.ui.screens.login.LoginScreen
 import com.example.tournaMake.ui.screens.main.MainScreen
 import com.example.tournaMake.ui.screens.match.MatchCreationScreen
+import com.example.tournaMake.ui.screens.match.MatchDetailsScreen
 import com.example.tournaMake.ui.screens.match.MatchListScreen
 import com.example.tournaMake.ui.screens.match.MatchScreen
 import com.example.tournaMake.ui.screens.menu.GamesListScreen
 import com.example.tournaMake.ui.screens.menu.MenuScreen
+import com.example.tournaMake.ui.screens.profile.ChartScreen
+import com.example.tournaMake.ui.screens.profile.PlayerMatchesHistoryScreen
 import com.example.tournaMake.ui.screens.profile.ProfileListScreen
+import com.example.tournaMake.ui.screens.profile.ProfileScreen
 import com.example.tournaMake.ui.screens.registration.RegistrationScreen
 import com.example.tournaMake.ui.screens.tournament.TournamentCreationScreen
 import com.example.tournaMake.ui.screens.tournament.TournamentListScreen
@@ -36,6 +41,9 @@ sealed class NavigationRoute(
     data object GamesListScreen : NavigationRoute("GamesListScreen")
     data object ProfilesListScreen : NavigationRoute("ProfilesListScreen")
     data object ProfileScreen : NavigationRoute("ProfileScreen")
+    data object ChartScreen : NavigationRoute("ChartScreen")
+    /* The following route shows the matches played by the player. */
+    data object PlayerMatchesHistoryScreen : NavigationRoute("PlayerMatchesHistoryScreen")
     data object SettingsScreen : NavigationRoute("SettingsScreen")
 }
 
@@ -43,7 +51,8 @@ sealed class NavigationRoute(
 fun NavGraph(
     navController: NavHostController,
     modifier: Modifier,
-    owner: LifecycleOwner
+    owner: LifecycleOwner,
+    contentResolver: ContentResolver
 ) {
     NavHost(
         navController = navController,
@@ -99,7 +108,16 @@ fun NavGraph(
             ProfileListScreen(owner = owner, navController = navController)
         }
         composable(NavigationRoute.ProfileScreen.route) {
-
+            ProfileScreen(navController = navController, contentResolver = contentResolver, owner = owner)
+        }
+        composable(NavigationRoute.ChartScreen.route) {
+            ChartScreen(navController = navController, owner = owner)
+        }
+        composable(NavigationRoute.PlayerMatchesHistoryScreen.route) {
+            PlayerMatchesHistoryScreen(navController = navController, owner = owner)
+        }
+        composable(NavigationRoute.MatchDetailsScreen.route) {
+            MatchDetailsScreen(navController = navController, owner = owner)
         }
     }
 }

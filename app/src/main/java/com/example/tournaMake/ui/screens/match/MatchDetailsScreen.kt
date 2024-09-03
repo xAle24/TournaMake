@@ -1,6 +1,7 @@
 package com.example.tournaMake.ui.screens.match
 
 import android.net.Uri
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -19,10 +20,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.HorizontalDivider
@@ -31,9 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -44,46 +41,51 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.tournaMake.R
+import com.example.tournaMake.activities.addMatchToFavorites
+import com.example.tournaMake.activities.fetchMatchData
+import com.example.tournaMake.activities.navgraph.NavigationRoute
+import com.example.tournaMake.activities.removeMatchFromFavorites
 import com.example.tournaMake.data.models.MatchDetailsViewModel
 import com.example.tournaMake.data.models.TeamDataPacket
-import com.example.tournaMake.data.models.ThemeEnum
-import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.repositories.MatchDetailsRepository
 import com.example.tournaMake.dataStore
 import com.example.tournaMake.sampledata.MatchTM
-import com.example.tournaMake.sampledata.Team
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.screens.registration.createImageRequest
+import org.koin.androidx.compose.koinViewModel
 
 private val spacerHeight = 20.dp
 
 @Composable
 fun MatchDetailsScreen(
-    state: ThemeState,
-    gameImage: Uri?,
-    backFunction: () -> Unit,
-    vm: MatchDetailsViewModel,
-    addMatchToFavorites: (String) -> Unit,
-    removeMatchFromFavorites: (String) -> Unit,
-    setFlag: () -> Unit
+    navController: NavController,
+    owner: LifecycleOwner
 ) {
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val vm = koinViewModel<MatchDetailsViewModel>()
+    fetchMatchData(vm,  owner)
+    val gameImage: Uri? = null
+
     val playedGameLiveData = vm.playedGame.observeAsState()
     val dataPackets by vm.teamDataPackets.observeAsState()
     val match by vm.match.observeAsState()
     val isDraw by vm.isDraw.observeAsState()
     BasicScreenWithAppBars(
         state = state,
-        backFunction = backFunction,
+        backFunction = { navController.navigate(NavigationRoute.MatchesListScreen.route) },
         showTopBar = true,
         showBottomBar = false
     ) {
@@ -95,10 +97,8 @@ fun MatchDetailsScreen(
             MatchDetailsHeading(
                 gameImage = gameImage,
                 gameName = playedGameLiveData.value?.name ?: "Loading...",
-                match,
-                addMatchToFavorites,
-                removeMatchFromFavorites,
-                setFlag
+                match = match,
+                owner = owner
             )
             Spacer(Modifier.height(spacerHeight))
             dataPackets?.forEach { team ->
@@ -114,9 +114,7 @@ fun MatchDetailsHeading(
     gameImage: Uri?,
     gameName: String,
     match: MatchTM?,
-    addMatchToFavorites: (String) -> Unit,
-    removeMatchFromFavorites: (String) -> Unit,
-    setFlag: () -> Unit
+    owner: LifecycleOwner
 ) {
     var isFavorite by remember(match) {
         mutableStateOf(match?.favorites == 1)
@@ -166,16 +164,18 @@ fun MatchDetailsHeading(
                     onClick = {
                         isFavorite = if (!isFavorite) {
                             if (match != null) {
-                                addMatchToFavorites(match.matchTmID)
-                                setFlag() /* informs the calling activity that it
-                                needs to recreate in order to see real time updates. */
+                                addMatchToFavorites(
+                                    matchTmID = match.matchTmID,
+                                    owner = owner
+                                )
                             }
                             true
                         } else {
                             if (match != null) {
-                                removeMatchFromFavorites(match.matchTmID)
-                                setFlag() /* informs the calling activity that it
-                                needs to recreate in order to see real time updates. */
+                                removeMatchFromFavorites(
+                                    matchTmID = match.matchTmID,
+                                    owner = owner
+                                )
                             }
                             false
                         }
@@ -306,12 +306,7 @@ fun MatchDetailsScreenPreview() {
         TeamDataPacket(testTeam2, 100, "team2ID", false)
     ))
     MatchDetailsScreen(
-        state = ThemeState(ThemeEnum.Light),
-        null,
-        backFunction = {},
-        vm = vm,
-        addMatchToFavorites = {},
-        removeMatchFromFavorites = {},
-        setFlag = {}
+        navController = NavController(LocalContext.current),
+        owner = ComponentActivity()
     )
 }

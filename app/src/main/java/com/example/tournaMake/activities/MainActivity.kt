@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val navGraph = rememberNavController()
-            NavGraph(navController = navGraph, modifier = Modifier, owner = this)
+            NavGraph(navController = navGraph, modifier = Modifier, owner = this, contentResolver = contentResolver)
         }
     }
 }

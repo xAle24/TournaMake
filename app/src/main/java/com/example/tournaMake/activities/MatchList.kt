@@ -8,6 +8,7 @@ import com.example.tournaMake.data.models.MatchListViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent
 
 fun fetchAndUpdateMatches(vm: MatchListViewModel, owner: LifecycleOwner) {
@@ -51,9 +52,13 @@ fun navigateToSpecifiedMatch(matchTmID: String,
         // Change selected match in repository
         vm.changeRepository(matchTmID)
         if (isOver) {
-            navController.navigate(NavigationRoute.MatchDetailsScreen.route)
+            withContext(Dispatchers.Main) {
+                navController.navigate(NavigationRoute.MatchDetailsScreen.route)
+            }
         } else {
-            navController.navigate(NavigationRoute.MatchScreen.route)
+            withContext(Dispatchers.Main) {
+                navController.navigate(NavigationRoute.MatchScreen.route)
+            }
         }
     }
 }

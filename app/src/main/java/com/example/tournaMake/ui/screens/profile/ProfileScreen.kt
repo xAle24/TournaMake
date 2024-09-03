@@ -1,9 +1,11 @@
 package com.example.tournaMake.ui.screens.profile
 
+import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -40,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -55,18 +58,37 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.tournaMake.R
+import com.example.tournaMake.activities.fetchAndUpdateAchievementsProfile
+import com.example.tournaMake.activities.fetchAndUpdateProfile
+import com.example.tournaMake.activities.navgraph.NavigationRoute
+import com.example.tournaMake.activities.uploadPhotoToDatabase
+import com.example.tournaMake.data.models.AchievementsProfileViewModel
+import com.example.tournaMake.data.models.AuthenticationViewModel
+import com.example.tournaMake.data.models.ProfileViewModel
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.data.models.ThemeViewModel
+import com.example.tournaMake.filemanager.AppDirectoryNames
+import com.example.tournaMake.filemanager.PROFILE_PICTURE_NAME
+import com.example.tournaMake.filemanager.ProfileImageHelper
+import com.example.tournaMake.filemanager.ProfileImageHelperImpl
+import com.example.tournaMake.filemanager.doesDirectoryContainFile
+import com.example.tournaMake.filemanager.loadImageUriFromDirectory
 import com.example.tournaMake.sampledata.AchievementResult
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.theme.getThemeColors
-import com.example.tournaMake.utils.CameraLauncher
+import com.example.tournaMake.utils.rememberCameraLauncher
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * The screen seen when clicking on a specific profile.
@@ -74,17 +96,121 @@ import com.example.tournaMake.utils.CameraLauncher
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    state: ThemeState,
-    //profile: MainProfile?,
-    profileLiveData: LiveData<MainProfile?>,
-    achievementPlayerLiveData: LiveData<List<AchievementResult>>,
-    backButton: () -> Unit,
-    navigateToChart: () -> Unit,
-    navigateToPlayerActivity: () -> Unit,
-    selectedImage: Uri?,
-    photoPickerLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>,
-    cameraLauncher: CameraLauncher
+    navController: NavController,
+    contentResolver: ContentResolver,
+    owner: LifecycleOwner
 ) {
+    val context = LocalContext.current
+    val profilePictureHelper: ProfileImageHelper = ProfileImageHelperImpl()
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
+    val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
+    val profileViewModel = koinViewModel<ProfileViewModel>()
+    val profileLiveData = profileViewModel.profileLiveData
+    val profileObserver = Observer<MainProfile?> { profile ->
+        Log.d("DEV", "In profile observer profile = ${profile?.email}")
+    }
+    profileViewModel.profileLiveData.observe(owner, profileObserver)
+    val achievementsProfileViewModel = koinViewModel<AchievementsProfileViewModel>()
+    val achievementPlayerLiveData = achievementsProfileViewModel.achievementProfileListLiveData
+    val achievementsObserver = Observer<List<AchievementResult>> { }
+    achievementsProfileViewModel.achievementProfileListLiveData.observe(
+        owner,
+        achievementsObserver
+    )
+    // Adding management of profile photo
+    /* Code taken from:
+    * https://www.youtube.com/watch?v=uHX5NB6wHao
+    * */
+    var selectedImageURI by remember {
+        mutableStateOf(
+            if (doesDirectoryContainFile(
+                    AppDirectoryNames.profileImageDirectoryName,
+                    PROFILE_PICTURE_NAME,
+                    context,
+                    loggedEmail.value.loggedProfileEmail
+                )
+            ) loadImageUriFromDirectory(
+                AppDirectoryNames.profileImageDirectoryName,
+                PROFILE_PICTURE_NAME,
+                context,
+                loggedEmail.value.loggedProfileEmail
+            ) else null
+        )
+    }
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null && loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
+            val uriForInternallySavedFile =
+                profilePictureHelper.storeProfilePictureImmediately(
+                    profileImageUri = uri,
+                    email = loggedEmail.value.loggedProfileEmail,
+                    contentResolver = contentResolver,
+                    context = context,
+                    databaseUpdaterCallback = ::uploadPhotoToDatabase
+                )
+            selectedImageURI = uriForInternallySavedFile
+        } else if (uri != null && loggedEmail.value.loggedProfileEmail.isEmpty()) {
+            profilePictureHelper.waitForEmailThenStoreProfilePicture(
+                loggedEmailStateFlow = authenticationViewModel.loggedEmail,
+                profileImageUri = uri,
+                context = context,
+                databaseUpdaterCallback = ::uploadPhotoToDatabase,
+                lifecycleCoroutineScope = owner.lifecycleScope,
+                lifecycleOwner = owner,
+                stateChangerCallback = { resultUri ->
+                    selectedImageURI = resultUri
+                },
+                contentResolver = contentResolver
+            )
+        }
+        Log.d(
+            "DEV", "In onResult function in Profile.kt: everything went fine!"
+        )
+    }
+
+    // To update profile picture by means of camera
+    val cameraLauncher = rememberCameraLauncher { uri ->
+        if (loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
+            val uriForInternallySavedFile =
+                profilePictureHelper.storeProfilePictureImmediately(
+                    profileImageUri = uri,
+                    email = loggedEmail.value.loggedProfileEmail,
+                    contentResolver = contentResolver,
+                    context = context,
+                    databaseUpdaterCallback = ::uploadPhotoToDatabase
+                )
+            selectedImageURI = uriForInternallySavedFile
+        } else if (loggedEmail.value.loggedProfileEmail.isEmpty()) {
+            profilePictureHelper.waitForEmailThenStoreProfilePicture(
+                loggedEmailStateFlow = authenticationViewModel.loggedEmail,
+                profileImageUri = uri,
+                context = context,
+                databaseUpdaterCallback = ::uploadPhotoToDatabase,
+                lifecycleCoroutineScope = owner.lifecycleScope,
+                lifecycleOwner = owner,
+                stateChangerCallback = { resultUri ->
+                    selectedImageURI = resultUri
+                },
+                contentResolver = contentResolver
+            )
+        }
+    }
+
+    fetchAndUpdateProfile(
+        loggedEmail.value.loggedProfileEmail,
+        profileViewModel,
+        thenUpdateImageUri = { selectedImageURI = it },
+        baseContext = context,
+        owner = owner
+    )
+    fetchAndUpdateAchievementsProfile(
+        loggedEmail.value.loggedProfileEmail,
+        achievementsProfileViewModel,
+        owner = owner
+    )
     /*
     * This extension function was imported with:
     * implementation ("androidx.compose.runtime:runtime-livedata:1.6.8")
@@ -103,7 +229,7 @@ fun ProfileScreen(
             // Back button at the top
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { backButton() }) {
+                    IconButton(onClick = { navController.navigate(NavigationRoute.ProfilesListScreen.route) }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
@@ -152,10 +278,13 @@ fun ProfileScreen(
                                     .padding(start = 10.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                ProfileImage(selectedImage = selectedImage, photoPickerLauncher = photoPickerLauncher)
+                                ProfileImage(
+                                    selectedImage = selectedImageURI,
+                                    photoPickerLauncher = singlePhotoPickerLauncher
+                                )
                                 Button(
                                     onClick = {
-                                          cameraLauncher.captureImage()
+                                        cameraLauncher.captureImage()
                                     },
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.secondary
@@ -178,8 +307,8 @@ fun ProfileScreen(
                         Grid(
                             wonTournamentsNumber = profile.value?.wonTournamentsNumber ?: 0,
                             playedTournamentsNumber = /*profile.value.playedTournamentsNumber ?: 0*/ 0, // TODO: update
-                            onChartClick = navigateToChart,
-                            onActivityClick = navigateToPlayerActivity,
+                            onChartClick = { navController.navigate(NavigationRoute.ChartScreen.route) },
+                            onActivityClick = { navController.navigate(NavigationRoute.PlayerMatchesHistoryScreen.route) },
                             state = state
                         ) // TODO: add played tournaments number to database
                     }
@@ -206,12 +335,12 @@ fun ProfileScreen(
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
-                                            text = "Status"+achievement.status.toString(),
+                                            text = "Status" + achievement.status.toString(),
                                             color = MaterialTheme.colorScheme.secondary
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
-                                            text = "Description"+achievement.description,
+                                            text = "Description" + achievement.description,
                                             color = MaterialTheme.colorScheme.secondary
                                         )
                                     }
