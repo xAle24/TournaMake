@@ -49,8 +49,8 @@ class MatchActivity : ComponentActivity() {
                     }
                     val stringValue = intent.getStringExtra("CALLER_ACTIVITY")
                     if (stringValue == "MatchListActivity") {
-                        val intent = Intent(this, MatchListActivity::class.java)
-                        this@MatchActivity.navigateToActivity(intent)
+                        /*val intent = Intent(this, MatchListActivity::class.java)
+                        this@MatchActivity.navigateToActivity(intent)*/
                     }
                     finish()
                     /* TODO: this activity is a bit different. It should return a result, but

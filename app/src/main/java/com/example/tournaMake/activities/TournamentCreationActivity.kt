@@ -21,8 +21,10 @@ import com.example.tournaMake.sampledata.TournamentType
 import com.example.tournaMake.ui.screens.match.TeamUI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.java.KoinJavaComponent
+import org.koin.java.KoinJavaComponent.inject
 import java.util.UUID
 
 fun fetchData(vm: MatchCreationViewModel, owner: LifecycleOwner) {
@@ -98,7 +100,7 @@ fun navigateToTournament(
 ) {
     //TODO salvare in db tutto 1 creare il torneo
     val db = KoinJavaComponent.inject<AppDatabase>(AppDatabase::class.java)
-    val tournamentIDViewModel = KoinJavaComponent.inject<TournamentIDViewModel>(TournamentIDViewModel::class.java)
+    val tournamentIDViewModel by inject<TournamentIDViewModel>(TournamentIDViewModel::class.java)
     val tournamentID = UUID.randomUUID().toString()
     if (selectedTournamentType != null && selectedTournamentName != "") {
         val tournament = Tournament(

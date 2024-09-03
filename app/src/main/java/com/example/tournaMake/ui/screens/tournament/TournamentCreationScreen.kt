@@ -100,7 +100,7 @@ fun TournamentCreationScreen(
         var selectedTournamentName by remember { mutableStateOf("") }
 
         val gamesList = tournamentCreationViewModel.gamesListLiveData.observeAsState()
-        val tournamentTypeList = tournamentCreationViewModel.tournamentType.observeAsState()
+        val tournamentTypeList = tournamentCreationViewModel.tournamentListLiveData.observeAsState()
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
@@ -138,12 +138,12 @@ fun TournamentCreationScreen(
                         teamsSetStateFlow = matchCreationViewModel.teamsSet,
                         mainProfileListFromDatabase = tournamentCreationViewModel.mainProfileListLiveData,
                         guestProfileListFromDatabase = tournamentCreationViewModel.guestProfileListLiveData,
-                        removeTeam = removeTeam
+                        removeTeam = matchCreationViewModel::removeTeam
                     )
                 }
                 Button(
                     onClick = {
-                        addTeam(TeamUIImpl(emptySet(), emptySet(), ""))
+                        matchCreationViewModel.addTeam(TeamUIImpl(emptySet(), emptySet(), ""))
                     },
                     modifier = Modifier
                         .background(colorConstants.getButtonBackground())

@@ -54,16 +54,16 @@ fun NavGraph(
             RegistrationScreen(navController, owner)
         }
         composable(NavigationRoute.MenuScreen.route) {
-            MenuScreen(navController = navController, owner = owner)
+            MenuScreen(navController, owner)
         }
         composable(NavigationRoute.TournamentsListScreen.route) {
-            TournamentListScreen(navController = navController, owner = owner)
+            TournamentListScreen(navController, owner)
         }
         composable(NavigationRoute.TournamentCreationScreen.route) {
-            TournamentCreationScreen(navController = navController, owner = owner)
+            TournamentCreationScreen(navController, owner)
         }
         composable(NavigationRoute.MatchesListScreen.route) {
-            MatchListScreen(navController = navController, owner = owner)
+            MatchListScreen(navController, owner)
         }
         composable(NavigationRoute.MatchesListScreen.route) {
 
