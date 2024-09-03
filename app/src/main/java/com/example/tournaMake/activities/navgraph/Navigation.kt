@@ -1,5 +1,6 @@
 package com.example.tournaMake.activities.navgraph
 
+import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.LifecycleOwner
@@ -8,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.tournaMake.ui.screens.login.LoginScreen
 import com.example.tournaMake.ui.screens.main.MainScreen
+import com.example.tournaMake.ui.screens.match.MatchCreationScreen
 import com.example.tournaMake.ui.screens.match.MatchListScreen
 import com.example.tournaMake.ui.screens.menu.MenuScreen
 import com.example.tournaMake.ui.screens.registration.RegistrationScreen
@@ -65,23 +67,10 @@ fun NavGraph(
         composable(NavigationRoute.MatchesListScreen.route) {
             MatchListScreen(navController, owner)
         }
-        composable(NavigationRoute.MatchesListScreen.route) {
+        composable(NavigationRoute.MatchCreationScreen.route) {navBackStackEntry ->
+            navBackStackEntry.arguments?.putString("CALLER_ROUTE", NavigationRoute.MatchesListScreen.route)
+            MatchCreationScreen(navController = navController, owner = owner)
+        }
 
-        }
-        composable(NavigationRoute.MatchesListScreen.route) {
-
-        }
-        composable(NavigationRoute.MatchesListScreen.route) {
-
-        }
-        composable(NavigationRoute.GamesListScreen.route) {
-            /*TODO*/
-        }
-        composable(NavigationRoute.MatchesListScreen.route) {
-
-        }
-        composable(NavigationRoute.MatchesListScreen.route) {
-
-        }
     }
 }

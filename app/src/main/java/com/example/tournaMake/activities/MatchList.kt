@@ -31,7 +31,7 @@ fun addMatchToFavorites(matchTmID: String, owner: LifecycleOwner) {
         }
     }
 }
-fun removeMatchToFavorites(matchTmID: String, owner: LifecycleOwner) {
+fun removeMatchFromFavorites(matchTmID: String, owner: LifecycleOwner) {
     val db = KoinJavaComponent.inject<AppDatabase>(AppDatabase::class.java)
     owner.lifecycleScope.launch(Dispatchers.IO) {
         try {

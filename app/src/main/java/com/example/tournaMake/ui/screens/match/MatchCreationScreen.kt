@@ -43,10 +43,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import com.example.tournaMake.R
+import com.example.tournaMake.activities.createMatch
+import com.example.tournaMake.activities.fetchDataForMatchCreation
+import com.example.tournaMake.activities.navgraph.NavigationRoute
+import com.example.tournaMake.data.models.MatchCreationViewModel
+import com.example.tournaMake.data.models.MatchViewModel
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.Game
 import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainProfile
@@ -54,25 +64,28 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.theme.getThemeColors
 import kotlinx.coroutines.flow.StateFlow
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MatchCreationScreen(
-    state: ThemeState,
-    backFunction: () -> Unit,
-    gamesListLiveData: LiveData<List<Game>>,
-    teamsSetStateFlow: StateFlow<Set<TeamUI>>,
-    mainProfilesLiveData: LiveData<List<MainProfile>>,
-    guestProfilesLiveData: LiveData<List<GuestProfile>>,
-    addTeam: (TeamUI) -> Unit,
-    removeTeam: (TeamUI) -> Unit,
-    createMatchCallback: (String) -> Unit
+    navController: NavController,
+    owner: LifecycleOwner,
 ) {
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val matchCreationViewModel = koinViewModel<MatchCreationViewModel>()
+    fetchDataForMatchCreation(matchCreationViewModel, owner)
+    val matchViewModel = koinViewModel<MatchViewModel>()
+    val gamesListLiveData = matchCreationViewModel.games
+    val teamsSetStateFlow = matchCreationViewModel.teamsSet
+    val mainProfilesLiveData = matchCreationViewModel.mainProfiles
+    val guestProfilesLiveData = matchCreationViewModel.guestProfiles
     val imageLogoId =
         if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
     val context = LocalContext.current
     BasicScreenWithAppBars(
         state = state,
-        backFunction = backFunction,
+        backFunction = { navController.navigate(NavigationRoute.MatchesListScreen.route) },
         showTopBar = true,
         showBottomBar = false
     ) {
@@ -87,12 +100,12 @@ fun MatchCreationScreen(
                 var selectedGame: Game? by remember {
                     mutableStateOf(null)
                 }
-                SelectionMenu(gamesListLiveData, { selectedGame = it })
+                SelectionMenu(gamesListLiveData) { selectedGame = it }
                 TeamContainer(
                     teamsSetStateFlow = teamsSetStateFlow,
                     mainProfileListFromDatabase = mainProfilesLiveData,
                     guestProfileListFromDatabase = guestProfilesLiveData,
-                    removeTeam = removeTeam
+                    removeTeam = matchCreationViewModel::removeTeam
                 )
                 Spacer(Modifier.height(20.dp))
                 Row(
@@ -108,7 +121,7 @@ fun MatchCreationScreen(
                          * This is the function that calls the addTeam() callback,
                          * creating a new empty team.
                          * */
-                        onClick = { addTeam(TeamUIImpl(emptySet(), emptySet(), "")) },
+                        onClick = { matchCreationViewModel.addTeam(TeamUIImpl(emptySet(), emptySet(), "")) },
                         text = "Add Team"
                     )
                     Spacer(modifier = Modifier.width(10.dp))
@@ -118,7 +131,13 @@ fun MatchCreationScreen(
                         text = "Create Match",
                         onClick = {
                             if (selectedGame != null) {
-                                createMatchCallback(selectedGame!!.gameID)
+                                createMatch(
+                                    selectedGame!!.gameID,
+                                    matchCreationViewModel,
+                                    matchViewModel,
+                                    owner,
+                                    navController
+                                )
                                 Log.d("DEV-MATCH-CREATION", "Clicked create match!")
                             } else {
                                 Toast.makeText(context, "Must choose a game first!", Toast.LENGTH_SHORT).show()

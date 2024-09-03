@@ -128,8 +128,8 @@ fun TournamentCreationScreen(
                     onValueChange = { selectedTournamentName = it },
                     label = { Text("Label") }
                 )
-                SelectionMenuGame(gamesList, { selectedGame = it })
-                SelectionMenuTournamentType(tournamentTypeList, {selectedTournamentType = it})
+                SelectionMenuGame(gamesList) { selectedGame = it }
+                SelectionMenuTournamentType(tournamentTypeList) { selectedTournamentType = it }
                 /*
                 * Here begins the huge part of the team container
                 * */

@@ -52,7 +52,7 @@ import com.example.tournaMake.activities.addMatchToFavorites
 import com.example.tournaMake.activities.fetchAndUpdateMatches
 import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.activities.navigateToSpecifiedMatch
-import com.example.tournaMake.activities.removeMatchToFavorites
+import com.example.tournaMake.activities.removeMatchFromFavorites
 import com.example.tournaMake.data.constants.mapIntegerToMatchStatus
 import com.example.tournaMake.data.models.MatchListViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
@@ -81,7 +81,7 @@ fun MatchListScreen(
     val filteredEntries = searchbar2.getFilteredEntries()
     BasicScreenWithAppBars(
         state = state,
-        backFunction = { navController.navigateUp() },
+        backFunction = { navController.navigate(NavigationRoute.MenuScreen.route) },
         showTopBar = true,
         showBottomBar = false
     ) {
@@ -227,7 +227,7 @@ fun MatchCard(
                         addMatchToFavorites(match.matchTmID, owner)
                         true
                     } else {
-                        removeMatchToFavorites(match.matchTmID, owner)
+                        removeMatchFromFavorites(match.matchTmID, owner)
                         false
                     }
                 },

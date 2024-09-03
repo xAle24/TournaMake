@@ -21,8 +21,6 @@ import com.example.tournaMake.sampledata.TournamentType
 import com.example.tournaMake.ui.screens.match.TeamUI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
 import org.koin.java.KoinJavaComponent
 import org.koin.java.KoinJavaComponent.inject
 import java.util.UUID
