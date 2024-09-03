@@ -2,6 +2,7 @@ package com.example.tournaMake.tournamentmanager
 
 import com.example.tournaMake.sampledata.MatchTM
 import okhttp3.internal.toImmutableList
+import java.util.UUID
 import kotlin.math.log2
 import kotlin.math.pow
 
@@ -14,7 +15,8 @@ class TournamentTree(private val numberOfTeams: Int) {
     val roundsNumber: Int // n, or tree height
     val leavesNumber: Int
     val totalMatches: Int // m, or matches number
-    val matchesList: List<MatchTM?>
+    var matchesList: List<MatchTM?>
+    private set
     // Kotlin's syntax for a "constructor"
     init {
         if (!isPowerOf2(numberOfTeams)) {
@@ -53,7 +55,7 @@ class TournamentTree(private val numberOfTeams: Int) {
     fun getIndexOfFirstMatchInRound(r: Int): Int {
         assert(isRoundInBounds(r))
         var rest: Int = 0
-        for (i in (roundsNumber - 1 - r)until(roundsNumber - 1)) {
+        for (i in (roundsNumber - 1 - r) until (roundsNumber)) {
             rest += 2.0.pow(i).toInt()
         }
         return totalMatches - rest
@@ -81,5 +83,98 @@ class TournamentTree(private val numberOfTeams: Int) {
     fun getMatchesAtIndexes(indexes: List<Int>): List<MatchTM?> {
         indexes.forEach { assert(isIndexInArrayBounds(it)) }
         return matchesList.filter { indexes.contains(matchesList.indexOf(it)) }
+    }
+
+    /**
+     * Insertion of null matches is not allowed.
+     * Overwriting existing matches is not allowed.
+     * */
+    fun setMatchAtIndex(index: Int, match: MatchTM) {
+        assert(isIndexInArrayBounds(index))
+        assert(matchesList[index] == null) // Don't allow insertion where there's an existing match
+        val newList = mutableListOf<MatchTM?>()
+        matchesList.forEach { elem -> newList.add(elem) }
+        newList[index] = match
+        matchesList = newList
+    }
+
+    /**
+     * New lists are allowed, as long as they contain all the matches already created in this
+     * tournament tree. */
+    fun setMatches(matchList: List<MatchTM?>) {
+        assert(matchList.size == totalMatches)
+        val nonNullMatches = matchesList.filterNotNull()
+        /* The old matches must be in the new list and they must occupy
+        * the same index as in the old list. */
+        nonNullMatches.forEach {
+            assert(matchList.contains(it) && matchList.indexOf(it) == matchesList.indexOf(it))
+        }
+        matchesList = matchList
+    }
+
+    fun canSetMatches(matchList: List<MatchTM?>): Boolean {
+        val nonNullMatches = matchesList.filterNotNull()
+        return matchList.size == totalMatches &&
+                nonNullMatches.all { matchList.contains(it) &&
+                    matchList.indexOf(it) == matchesList.indexOf(it)
+                }
+    }
+
+    fun canSetMatchAtIndex(index: Int): Boolean {
+        return isIndexInArrayBounds(index) && matchesList[index] == null
+    }
+
+    /**
+     * If the round exists and there are no matches in it, it automatically
+     * generates all the matches for the given round.
+     * @return the list of generated matches.
+     * */
+    fun autoGenerateMatchesAtRound(
+        r: Int,
+        tournamentID: String,
+        gameID: String,
+        duration: Int = 0
+    ): List<MatchTM> {
+        assert(isRoundInBounds(r))
+        val roundIndexes = getAllMatchIndexesFromRound(r)
+        roundIndexes.forEach { assert(canSetMatchAtIndex(it)) }
+        val newMatchesList = mutableListOf<MatchTM>()
+        roundIndexes.forEach {
+            val matchTM = MatchTM(
+                matchTmID = UUID.randomUUID().toString(),
+                favorites = 0,
+                date = System.currentTimeMillis(),
+                duration = duration,
+                isOver = 0,
+                gameID = gameID,
+                tournamentID = tournamentID
+            )
+            setMatchAtIndex(it, matchTM)
+            newMatchesList.add(matchTM)
+        }
+        return newMatchesList.toImmutableList()
+    }
+
+    fun endMatchAtIndex(index: Int): Boolean {
+        assert(isIndexInArrayBounds(index))
+        assert(matchesList[index] != null)
+        val matchAtIndex = matchesList[index]!!
+        if (matchAtIndex.isOver == 1) {
+            return false
+        }
+        val newMatch = MatchTM(
+            matchTmID = matchAtIndex.matchTmID,
+            favorites = matchAtIndex.favorites,
+            date = matchAtIndex.date,
+            duration = matchAtIndex.duration,
+            isOver = 1, // setting it to over
+            gameID = matchAtIndex.gameID,
+            tournamentID = matchAtIndex.tournamentID
+        )
+        val newList = mutableListOf<MatchTM?>()
+        matchesList.forEach { newList.add(it) }
+        newList[index] = newMatch
+        matchesList = newList.toImmutableList()
+        return true
     }
 }
