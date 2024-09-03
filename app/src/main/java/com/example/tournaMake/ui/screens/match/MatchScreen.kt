@@ -2,6 +2,7 @@ package com.example.tournaMake.ui.screens.match
 
 import android.net.Uri
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -59,13 +60,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.net.toUri
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.tournaMake.R
+import com.example.tournaMake.activities.MainActivity
+import com.example.tournaMake.activities.addMatchToFavorites
+import com.example.tournaMake.activities.endMatch
+import com.example.tournaMake.activities.fetchMatchData
+import com.example.tournaMake.activities.removeMatchFromFavorites
+import com.example.tournaMake.activities.saveMatch
 import com.example.tournaMake.data.constants.MatchResult
 import com.example.tournaMake.data.models.MatchViewModel
 import com.example.tournaMake.data.models.TeamDataPacket
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
+import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.repositories.MatchRepository
 import com.example.tournaMake.dataStore
 import com.example.tournaMake.sampledata.MatchTM
@@ -73,24 +84,26 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.screens.common.TournaMakeTopAppBar
 import com.example.tournaMake.ui.screens.registration.createImageRequest
+import org.koin.androidx.compose.koinViewModel
 
 private val spacerHeight = 20.dp
 
 @Composable
 fun MatchScreen(
-    state: ThemeState,
-    gameImage: Uri?,
-    vm: MatchViewModel,
-    addMatchToFavorites: (String) -> Unit,
-    removeMatchFromFavorites: (String) -> Unit,
-    backFunction: () -> Unit,
-    endMatch: (Map<String, Pair<Int, MatchResult>>, String) -> Unit,
-    saveMatch: (Map<String, Pair<Int, MatchResult>>, String) -> Unit,
-    setFlag: () -> Unit,
+    callerRoute: String,
+    navController: NavController,
+    owner: LifecycleOwner
 ) {
-    val match by vm.match.observeAsState()
-    val playedGameLiveData = vm.playedGame.observeAsState()
-    val dataPackets by vm.teamDataPackets.observeAsState()
+    val themeViewModel = koinViewModel<ThemeViewModel>()
+    val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val matchViewModel = koinViewModel<MatchViewModel>()
+
+    val gameImage: Uri? = null // TODO: IMPLEMENT GAME IMAGE
+
+    fetchMatchData(matchViewModel, owner)
+    val match by matchViewModel.match.observeAsState()
+    val playedGameLiveData = matchViewModel.playedGame.observeAsState()
+    val dataPackets by matchViewModel.teamDataPackets.observeAsState()
     var winnerDataPackets: List<TeamDataPacket>
     var shouldShowAlertDialog by remember {
         mutableStateOf(false)
@@ -137,7 +150,13 @@ fun MatchScreen(
                     }
                     map = mutableMap
                 }
-                endMatch(map, match!!.matchTmID)
+                endMatch(
+                    navController = navController,
+                    navigationRoute = callerRoute,
+                    teamScores = map,
+                    matchID = match!!.matchTmID,
+                    owner = owner
+                )
             })
     }
 
@@ -150,7 +169,8 @@ fun MatchScreen(
                 TournaMakeTopAppBar(
                     backButtonIcon = backButtonIcon, topAppBarBackground = topAppBarBackground
                 ) {
-                    backFunction()
+                    // Back button
+                    navController.navigate(callerRoute)
                 }
             },
             bottomBar = {
@@ -167,7 +187,11 @@ fun MatchScreen(
                                 Log.d(
                                     "DEV-MATCH-SCREEN", "Save Button was clicked in Match Screen!"
                                 )
-                                saveMatch(buildMap(dataPackets!!), match!!.matchTmID)
+                                saveMatch(
+                                    teamScores = buildMap(dataPackets!!),
+                                    matchID = match!!.matchTmID,
+                                    owner = owner
+                                )
                             }
                         }) {
                             Text("Save")
@@ -192,10 +216,8 @@ fun MatchScreen(
                 MatchHeading(
                     gameImage = gameImage,
                     gameName = playedGameLiveData.value?.name ?: "Loading...",
-                    match,
-                    addMatchToFavorites,
-                    removeMatchFromFavorites,
-                    setFlag = setFlag
+                    match = match,
+                    owner = owner
                 )
                 Spacer(Modifier.height(spacerHeight))
                 dataPackets?.forEach { team ->
@@ -259,9 +281,7 @@ fun MatchHeading(
     gameImage: Uri?,
     gameName: String,
     match: MatchTM?,
-    addMatchToFavorites: (String) -> Unit,
-    removeMatchFromFavorites: (String) -> Unit,
-    setFlag: () -> Unit
+    owner: LifecycleOwner
 ) {
     var isFavorite by remember { mutableStateOf(match?.favorites == 1) }
     Box(
@@ -305,16 +325,12 @@ fun MatchHeading(
                     onClick = {
                         isFavorite = if (!isFavorite) {
                             if (match != null) {
-                                addMatchToFavorites(match.matchTmID)
-                                setFlag() /* informs the calling activity that it
-                                needs to recreate in order to see real time updates. */
+                                addMatchToFavorites(match.matchTmID, owner)
                             }
                             true
                         } else {
                             if (match != null) {
-                                removeMatchFromFavorites(match.matchTmID)
-                                setFlag() /* informs the calling activity that it
-                                needs to recreate in order to see real time updates. */
+                                removeMatchFromFavorites(match.matchTmID, owner)
                             }
                             false
                         }
@@ -451,15 +467,10 @@ fun MyMatchScreenPreview() {
             TeamDataPacket(testTeam2, 100, "team2ID", false)
         )
     )
-    MatchScreen(state = ThemeState(ThemeEnum.Light),
-        gameImage = null,
-        vm = vm,
-        addMatchToFavorites = {},
-        removeMatchFromFavorites = {},
-        backFunction = {},
-        endMatch = fun(_: Map<String, Pair<Int, MatchResult>>, _: String) {},
-        saveMatch = fun(_: Map<String, Pair<Int, MatchResult>>, _: String) {},
-        setFlag = {}
+    MatchScreen(
+        callerRoute = "",
+        navController = NavController(LocalContext.current),
+        owner = ComponentActivity()
     )
 }
 

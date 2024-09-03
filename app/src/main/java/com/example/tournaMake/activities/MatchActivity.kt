@@ -9,12 +9,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.data.constants.MatchResult
 import com.example.tournaMake.data.constants.mapMatchResultToInteger
 import com.example.tournaMake.data.models.MatchViewModel
@@ -29,7 +27,7 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.compose.koinViewModel
 import org.koin.java.KoinJavaComponent.inject
 
-class MatchActivity : ComponentActivity() {
+/*class MatchActivity : ComponentActivity() {
     private val appDatabase = inject<AppDatabase>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,25 +40,25 @@ class MatchActivity : ComponentActivity() {
             MatchScreen(
                 state = state.value,
                 gameImage = null,
-                vm = matchViewModel,
+                matchViewModel = matchViewModel,
                 addMatchToFavorites = this::addMatchToFavorites,
                 removeMatchFromFavorites = this::removeMatchToFavorites,
                 backFunction = {
                     if (wereFavoritesChangedFlag) {
-                        /* Informs the caller activity that it needs to recreate */
+                        *//* Informs the caller activity that it needs to recreate *//*
                         val data = Intent()
                         setResult(RESULT_OK, data)
                     }
                     val stringValue = intent.getStringExtra("CALLER_ACTIVITY")
                     if (stringValue == "MatchListActivity") {
-                        /*val intent = Intent(this, MatchListActivity::class.java)
-                        this@MatchActivity.navigateToActivity(intent)*/
+                        *//*val intent = Intent(this, MatchListActivity::class.java)
+                        this@MatchActivity.navigateToActivity(intent)*//*
                     }
                     finish()
-                    /* TODO: this activity is a bit different. It should return a result, but
+                    *//* TODO: this activity is a bit different. It should return a result, but
                     *   the intent should be modified. It needs to be the MatchListActivity (since
                     *   calling "finish()" now brings back to the match creation activity), or the
-                    *   tournament activity. */
+                    *   tournament activity. *//*
                 },
                 endMatch = this::endMatch,
                 saveMatch = this::saveMatch,
@@ -142,11 +140,11 @@ class MatchActivity : ComponentActivity() {
         }
     }
 
-    /**
+    *//**
      * Saves the current scores of each team.
      * The string is the TeamID. The integer is the score, and the match result
      * is an enum representing if the team won, lost or obtained a draw.
-     * */
+     * *//*
     private fun saveMatch(teamScores: Map<String, Pair<Int, MatchResult>>, matchID: String) {
         lifecycleScope.launch(Dispatchers.IO) {
             val newTeamInTms = teamScores
@@ -172,8 +170,8 @@ class MatchActivity : ComponentActivity() {
             // Ending the match
             appDatabase.value.matchDao().endMatch(matchID)
             // Navigating back to matches list screen
-            /*val intent = Intent(this@MatchActivity, MatchListActivity::class.java)
-            startActivity(intent)*/
+            *//*val intent = Intent(this@MatchActivity, MatchListActivity::class.java)
+            startActivity(intent)*//*
             finish() // instead of creating a new activity, we can just ensure this one ends and the caller activity is brought to the top
         }
     }
@@ -181,7 +179,7 @@ class MatchActivity : ComponentActivity() {
     private fun navigateToActivity(intent: Intent) {
         startActivity(intent)
     }
-}
+}*/
 
 fun fetchMatchData(matchViewModel: MatchViewModel, owner: LifecycleOwner) {
     val appDatabase = inject<AppDatabase>(AppDatabase::class.java)
