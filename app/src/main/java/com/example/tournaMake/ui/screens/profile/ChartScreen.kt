@@ -1,8 +1,5 @@
 package com.example.tournaMake.ui.screens.profile
 
-import android.util.Log
-import androidx.compose.foundation.gestures.ScrollableState
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,30 +17,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.tournaMake.R
 import com.example.tournaMake.activities.fetchAndUpdateGraph
 import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.GraphViewModel
-import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.sampledata.PlayedGame
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
-import com.hd.charts.BarChartView
 import com.hd.charts.StackedBarChartView
-import com.hd.charts.common.model.ChartDataSet
 import com.hd.charts.common.model.MultiChartDataSet
 import org.koin.androidx.compose.koinViewModel
 
@@ -63,12 +52,8 @@ fun ChartScreen(
     val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
     val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
     val graphViewModel = koinViewModel<GraphViewModel>()
-    val gameObserver = Observer<List<PlayedGame>?> { game ->
-        Log.d("DEV", "In game observer profile = $game")//TODO remove
-    }
-    val matchObserver = Observer<List<MatchTM>?> { match ->
-        Log.d("DEV", "In match observer profile = $match")//TODO remove
-    }
+    val gameObserver = Observer<List<PlayedGame>?> {}
+    val matchObserver = Observer<List<MatchTM>?> {}
     graphViewModel.gamesListLiveData.observe(owner, gameObserver)
     graphViewModel.matchListLiveData.observe(owner, matchObserver)
     val gamesLiveData = graphViewModel.gamesListLiveData
