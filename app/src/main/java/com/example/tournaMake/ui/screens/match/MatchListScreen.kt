@@ -88,7 +88,7 @@ fun MatchListScreen(
     var selectedPredicate by remember { mutableStateOf<(MatchGameData) -> Boolean>({ true }) }
     BasicScreenWithAppBars(
         state = state,
-        backFunction = { navController.navigate(NavigationRoute.MenuScreen.route) },
+        backFunction = { navController.navigateUp() },
         showTopBar = true,
         showBottomBar = false
     ) {

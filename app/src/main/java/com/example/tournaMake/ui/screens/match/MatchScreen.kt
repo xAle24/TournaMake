@@ -69,6 +69,7 @@ import com.example.tournaMake.activities.MainActivity
 import com.example.tournaMake.activities.addMatchToFavorites
 import com.example.tournaMake.activities.endMatch
 import com.example.tournaMake.activities.fetchMatchData
+import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.activities.removeMatchFromFavorites
 import com.example.tournaMake.activities.saveMatch
 import com.example.tournaMake.data.constants.MatchResult
@@ -170,7 +171,12 @@ fun MatchScreen(
                     backButtonIcon = backButtonIcon, topAppBarBackground = topAppBarBackground
                 ) {
                     // Back button
-                    navController.navigate(callerRoute)
+                    // If we got to this screen from the match creation, we need to go back twice
+                    // to skip that screen and go back to the match list
+                    if (callerRoute == NavigationRoute.MatchCreationScreen.route) {
+                        navController.navigateUp()
+                    }
+                    navController.navigateUp()
                 }
             },
             bottomBar = {

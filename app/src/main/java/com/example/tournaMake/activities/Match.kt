@@ -3,6 +3,7 @@ package com.example.tournaMake.activities
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.data.constants.MatchResult
 import com.example.tournaMake.data.constants.mapMatchResultToInteger
 import com.example.tournaMake.data.models.MatchViewModel
@@ -105,7 +106,12 @@ fun endMatch(
         // Ending the match
         appDatabase.value.matchDao().endMatch(matchID)
         withContext(Dispatchers.Main) {
-            navController.navigate(navigationRoute)
+            // If we got to this screen from the match creation, we need to go back twice
+            // to skip that screen and go back to the match list
+            if (navigationRoute == NavigationRoute.MatchCreationScreen.route) {
+                navController.navigateUp()
+            }
+            navController.navigateUp()
         }
     }
 }

@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -120,9 +122,6 @@ fun TournamentScreen(
             BasicScreenWithTheme(
                 state = state
             ) {
-                var isAlertVisible by remember {
-                    mutableStateOf(false)
-                }
                 ConfigureTransparentSystemBars()
 
                 Surface(
@@ -136,13 +135,13 @@ fun TournamentScreen(
 
                     Box(
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.BottomEnd
+                        contentAlignment = Alignment.BottomStart
                     ) {
                         FloatingActionButton(
-                            onClick = { isAlertVisible = true },
+                            onClick = { navController.navigateUp() },
                             modifier = Modifier.padding(16.dp)
                         ) {
-                            Icon(imageVector = Icons.Default.Edit, contentDescription = "Add")
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Add")
                         }
                     }
                 }
