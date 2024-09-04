@@ -300,4 +300,7 @@ interface TeamInTmDao {
 interface NotificationDao {
     @Query("SELECT * FROM NOTIFICATION WHERE email = :email")
     fun getNotificationsByEmail(email: String): List<Notification>
+
+    @Delete
+    fun removeNotification(notificationID: Notification)
 }

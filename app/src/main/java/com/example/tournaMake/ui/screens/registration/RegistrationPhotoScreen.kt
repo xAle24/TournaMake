@@ -10,6 +10,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -38,8 +40,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -66,6 +68,7 @@ import com.example.tournaMake.filemanager.ProfileImageHelperImpl
 import com.example.tournaMake.filemanager.doesDirectoryContainFile
 import com.example.tournaMake.filemanager.loadImageUriFromDirectory
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
+import com.example.tournaMake.ui.theme.ColorConstants
 import com.example.tournaMake.ui.theme.getThemeColors
 import com.example.tournaMake.utils.Coordinates
 import com.example.tournaMake.utils.LocationService
@@ -89,6 +92,7 @@ fun RegistrationPhotoScreen(
     // Logic that was previously in the activity
     val themeViewModel = koinViewModel<ThemeViewModel>()
     val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val colorConstants = getThemeColors(themeState = state)
     val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
     val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
     /* Code taken from:
@@ -235,9 +239,7 @@ fun RegistrationPhotoScreen(
         }
     }
 
-    val configuration = LocalConfiguration.current // used to find screen size
     // val screenHeight = configuration.screenHeightDp
-    val screenWidth = configuration.screenWidthDp
     val coordinates = coordinatesLiveData.observeAsState()
 
     BasicScreenWithTheme(state = state) {
@@ -282,8 +284,14 @@ fun RegistrationPhotoScreen(
                     )
                 },
                 modifier = Modifier
-                    .width((screenWidth * 0.8).dp)
-                    .height(85.dp)
+                    .clip(RoundedCornerShape(30.dp))
+                    .height(60.dp)
+                    .fillMaxWidth(0.9f)
+                    .background(colorConstants.getButtonBackground()),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent
+                ),
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
             ) {
                 Text(
                     text = "Upload Photo",
@@ -298,8 +306,14 @@ fun RegistrationPhotoScreen(
                     cameraLauncher.captureImage()
                 },
                 modifier = Modifier
-                    .width((screenWidth * 0.8).dp)
-                    .height(85.dp)
+                    .clip(RoundedCornerShape(30.dp))
+                    .height(60.dp)
+                    .fillMaxWidth(0.9f)
+                    .background(colorConstants.getButtonBackground()),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent
+                ),
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
             ) {
                 Text(
                     text = "Take picture",
@@ -312,17 +326,26 @@ fun RegistrationPhotoScreen(
                 snackbarHostState = snackbarHostState,
                 requestLocation = ::requestLocation,
                 state = state,
+                colorConstants = colorConstants,
                 coordinates = coordinates.value
             )
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.Absolute.SpaceAround
             ) {
                 Button(
                     onClick = { navController.navigate(NavigationRoute.RegistrationScreen.route) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(30.dp))
+                        .height(60.dp)
+                        .fillMaxWidth(0.4f)
+                        .background(colorConstants.getButtonBackground()),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent
+                    ),
+                    border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
                 ) {
                     Text(text = "Back")
                 }
@@ -331,7 +354,15 @@ fun RegistrationPhotoScreen(
 
                 Button(
                     onClick = { navController.navigate(NavigationRoute.MenuScreen.route) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(30.dp))
+                        .height(60.dp)
+                        .fillMaxWidth(0.7f)
+                        .background(colorConstants.getButtonBackground()),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent
+                    ),
+                    border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
                 ) {
                     Text(text = "Next")
                 }
@@ -358,6 +389,7 @@ fun LocationUIArea(
     snackbarHostState: SnackbarHostState,
     requestLocation: () -> Unit,
     state: ThemeState,
+    colorConstants: ColorConstants,
     coordinates: Coordinates?
 ) {
     Scaffold(
@@ -374,9 +406,17 @@ fun LocationUIArea(
                 .padding(contentPadding)
                 .fillMaxSize()
         ) {
-            Button(onClick = {
-                requestLocation()
-            }) {
+            Button(onClick = { requestLocation() },
+                modifier = Modifier
+                    .clip(RoundedCornerShape(30.dp))
+                .height(60.dp)
+                .fillMaxWidth(0.9f)
+                .background(colorConstants.getButtonBackground()),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent
+                ),
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+            ) {
                 Text("Get current location")
             }
             Spacer(modifier = Modifier.height(16.dp))

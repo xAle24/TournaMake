@@ -1,6 +1,6 @@
 package com.example.tournaMake.ui.screens.login
 
-import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -39,10 +42,10 @@ import com.example.tournaMake.R
 import com.example.tournaMake.activities.handleLogin
 import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.BlockingCredentialsFetcher
-import com.example.tournaMake.data.models.LoggedProfileState
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
+import com.example.tournaMake.ui.theme.getThemeColors
 import kotlinx.coroutines.runBlocking
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -60,6 +63,7 @@ fun LoginScreen(
     // StateFlow objects can't. The 'withLifecycle' part ensures this state
     // is destroyed when we leave this Activity.
     val state by themeViewModel.state.collectAsStateWithLifecycle()
+    val colorConstants = getThemeColors(themeState = state)
     val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
     BasicScreenWithTheme(
         state = state,
@@ -125,8 +129,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(20.dp))
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(0.8f)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.9f)),
+                    .fillMaxWidth(0.8f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Checkbox(
@@ -155,8 +158,14 @@ fun LoginScreen(
                     )
                 },
                 modifier = Modifier
-                    .fillMaxWidth(0.8f)
+                    .clip(RoundedCornerShape(30.dp))
                     .height(60.dp)
+                    .fillMaxWidth(0.9f)
+                    .background(colorConstants.getButtonBackground()),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent
+                ),
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
             ) {
                 Text("Login")
             }

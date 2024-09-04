@@ -11,13 +11,22 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -31,17 +40,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.tournaMake.R
 import com.example.tournaMake.activities.fetchAndUpdateNotification
 import com.example.tournaMake.activities.navgraph.NavigationRoute
+import com.example.tournaMake.activities.removeNotification
 import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.NotificationViewModel
 import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.data.models.ThemeViewModel
+import com.example.tournaMake.sampledata.Notification
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.theme.getThemeColors
 import org.koin.androidx.compose.koinViewModel
@@ -66,7 +78,7 @@ fun MenuScreen(
         loggedEmail.value.loggedProfileEmail,
         owner
     )
-    val notification = notificationViewModel.notificationLiveData.observeAsState()
+    val notifications = notificationViewModel.notificationLiveData.observeAsState()
     BasicScreenWithTheme(
         state = state,
     ) {
@@ -83,7 +95,8 @@ fun MenuScreen(
             ShowNotification(
                 openDialog = showDialog,
                 onDismiss = { showDialog.value = false },
-                listItems = notification.value?.map { it.description } ?: emptyList()
+                listItems = notifications.value ?: emptyList(),
+                owner = owner
             )
         }
         Column(
@@ -190,7 +203,8 @@ fun MenuButton(
 fun ShowNotification(
     openDialog: MutableState<Boolean>,
     onDismiss: () -> Unit,
-    listItems: List<String>
+    listItems: List<Notification>,
+    owner: LifecycleOwner
 ) {
     if (openDialog.value) {
         AlertDialog(
@@ -203,7 +217,7 @@ fun ShowNotification(
             text = {
                 LazyColumn {
                     items(listItems) { item ->
-                        Text(text = item, modifier = Modifier.padding(8.dp))
+                        NotificationCard(notification = item, owner = owner)
                     }
                 }
             },
@@ -213,5 +227,49 @@ fun ShowNotification(
                 }
             }
         )
+    }
+}
+
+@Composable
+fun NotificationCard(
+    notification: Notification,
+    owner: LifecycleOwner
+) {
+    Card(
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(),
+        modifier = Modifier
+            .fillMaxWidth(),
+        colors = CardColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
+            disabledContentColor = MaterialTheme.colorScheme.error
+        )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                notification.description,
+                modifier = Modifier.padding(0.dp, 10.dp).fillMaxWidth(0.8f),
+                style = MaterialTheme.typography.displaySmall,
+                fontSize = 22.sp
+            )
+            IconButton(
+                onClick = { removeNotification(notification = notification, owner = owner) },
+                modifier = Modifier.size(78.dp) // Adjust the size as needed
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete Icon",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .padding(end = 8.dp)
+                )
+            }
+        }
     }
 }

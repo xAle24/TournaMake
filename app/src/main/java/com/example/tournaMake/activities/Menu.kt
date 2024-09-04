@@ -25,3 +25,13 @@ fun fetchAndUpdateNotification(
         }
     }
 }
+fun removeNotification(notification: Notification, owner: LifecycleOwner) {
+    val db = inject<AppDatabase>(AppDatabase::class.java)
+    owner.lifecycleScope.launch(Dispatchers.IO) {
+        try {
+            db.value.notificationDao().removeNotification(notification)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+}
