@@ -18,10 +18,10 @@ import com.example.tournaMake.sampledata.Team
 import com.example.tournaMake.sampledata.TeamInTm
 import com.example.tournaMake.sampledata.Tournament
 import com.example.tournaMake.sampledata.TournamentType
+import com.example.tournaMake.tournamentmanager.TournamentTree
 import com.example.tournaMake.ui.screens.match.TeamUI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent
 import org.koin.java.KoinJavaComponent.inject
 import java.util.UUID
@@ -89,6 +89,13 @@ fun fetchAndUpdateMainProfileList(tournamentCreationViewModel: TournamentCreatio
         }
     }
 }
+
+/**
+ * DO NOT DELETE THIS FUNCTION!
+ * If matches and teamInTMs are not created at the same time,
+ * there's no way to determine the tournament in which a team
+ * is participating.
+ * */
 fun navigateToTournament(
     teamsSet: Set<TeamUI>,
     selectedGame: Game?,
@@ -98,8 +105,10 @@ fun navigateToTournament(
     navController: NavController
 ) {
     //TODO salvare in db tutto 1 creare il torneo
-    val db = KoinJavaComponent.inject<AppDatabase>(AppDatabase::class.java)
+    val db = inject<AppDatabase>(AppDatabase::class.java)
     val tournamentIDViewModel by inject<TournamentIDViewModel>(TournamentIDViewModel::class.java)
+
+    /* Tournament creation */
     val tournamentID = UUID.randomUUID().toString()
     if (selectedTournamentType != null && selectedTournamentName != "") {
         val tournament = Tournament(
@@ -120,26 +129,31 @@ fun navigateToTournament(
             }
         }
     }
+
+    /* Creation of matches in round 0 */
     if (selectedGame != null) {
         val shuffledList = teamsSet.shuffled()
-        val matches = generateSequence(0) { it + 2 }
+        val competingTeamsPairs = generateSequence(0) { it + 2 }
             .take(shuffledList.size / 2)
             .map { index -> Pair(shuffledList[index], shuffledList[index + 1]) }
             .toList()
+        val helperTournamentTree = TournamentTree(teamsSet.size) // used here just for the indexes methods
+        val indexesInRound0 = helperTournamentTree.getAllMatchIndexesFromRound(0)
+        var i = 0 // used to iterate on the indexes in round 0
         owner.lifecycleScope.launch(Dispatchers.IO) {
-            matches.forEach { match ->
+            competingTeamsPairs.forEach { competingTeamPair ->
                 val firstTeamID = UUID.randomUUID().toString()
                 val secondTeamID = UUID.randomUUID().toString()
                 val teams: List<Team> = listOf(
                     Team(
                         teamID = firstTeamID,
-                        name = match.first.getTeamName(),
+                        name = competingTeamPair.first.getTeamName(),
                         /*isWinner = 'F',
                         score = 0*/
                     ),
                     Team(
                         teamID = secondTeamID,
-                        name = match.second.getTeamName(),
+                        name = competingTeamPair.second.getTeamName(),
                         /*isWinner = 'F',
                         score = 0*/
                     )
@@ -153,35 +167,36 @@ fun navigateToTournament(
                     favorites = 0,
                     gameID = selectedGame.gameID,
                     isOver = 0,
-                    tournamentID = tournamentID
+                    tournamentID = tournamentID,
+                    indexInTournamentTree = indexesInRound0[i++]
                 )
                 db.value.matchDao().insertAll(matchCurr)
                 teams.forEach { team ->
                     val teamTm = TeamInTm(teamID = team.teamID, matchTmID = matchID, isWinner = 0, score = 0)
                     db.value.teamInTmDao().insert(teamTm)
                 }
-                match.first.getGuestProfiles().forEach { profile ->
+                competingTeamPair.first.getGuestProfiles().forEach { profile ->
                     val guestProfile = GuestParticipant(
                         username = profile.username,
                         teamID = firstTeamID
                     )
                     db.value.guestParticipantsDao().insertAll(guestProfile)
                 }
-                match.first.getMainProfiles().forEach {profile ->
+                competingTeamPair.first.getMainProfiles().forEach {profile ->
                     val mainProfile = MainParticipant(
                         email = profile.email,
                         teamID = firstTeamID
                     )
                     db.value.mainParticipantsDao().insertAll(mainProfile)
                 }
-                match.second.getMainProfiles().forEach {profile ->
+                competingTeamPair.second.getMainProfiles().forEach {profile ->
                     val mainProfile = MainParticipant(
                         email = profile.username,
                         teamID = secondTeamID
                     )
                     db.value.mainParticipantsDao().insertAll(mainProfile)
                 }
-                match.second.getGuestProfiles().forEach {profile ->
+                competingTeamPair.second.getGuestProfiles().forEach {profile ->
                     val guestProfile = GuestParticipant(
                         username = profile.username,
                         teamID = secondTeamID

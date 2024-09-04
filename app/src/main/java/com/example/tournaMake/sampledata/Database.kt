@@ -149,7 +149,8 @@ data class MatchTM(
     @ColumnInfo(name = "duration") val duration: Int,
     @ColumnInfo(name = "isOver") val isOver: Int,
     @ColumnInfo(name = "gameID") val gameID: String,
-    @ColumnInfo(name = "tournamentID") val tournamentID: String?
+    @ColumnInfo(name = "tournamentID") val tournamentID: String?,
+    @ColumnInfo(name = "indexInTournamentTree") val indexInTournamentTree: Int?
 )
 
 @Entity(

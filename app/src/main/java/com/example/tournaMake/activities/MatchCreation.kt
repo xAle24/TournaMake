@@ -55,7 +55,8 @@ fun createMatch(
             duration = 0,
             isOver = 0,
             gameID = gameId,
-            tournamentID = null
+            tournamentID = null,
+            indexInTournamentTree = null,
         ))
         matchCreationViewModel.teamsSet.value.forEach {
             val teamUUID = UUID.randomUUID().toString()

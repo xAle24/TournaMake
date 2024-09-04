@@ -174,6 +174,7 @@ interface MainParticipantsDao {
 
 data class TournamentMatchData(
     val matchTmID: String,
+    val indexInTournamentTree: Int,
     val isOver: Int,
     val gameID: String,
     val tournamentID: String,
@@ -197,6 +198,7 @@ interface TournamentDao {
     SELECT 
         MATCH_TM.matchTmID,
         MATCH_TM.isOver,
+        MATCH_TM.indexInTournamentTree,
         MATCH_TM.gameID, 
         MATCH_TM.tournamentID,
         TEAM.*,

@@ -32,7 +32,7 @@ class TournamentManager {
 
     fun initMap() {
         this.tournamentDataList
-            .map { elem -> elem.name }
+            .map { elem -> elem.teamID }
             .forEach { teamName -> map[teamName] = 0 }
     }
 
@@ -130,6 +130,7 @@ class TournamentManager {
                 this.tournamentDataList.add(
                     TournamentMatchData(
                         matchTmID = uuid,
+                        indexInTournamentTree = newTeamIndex,
                         isOver = 0,
                         gameID = "",
                         tournamentID = "",
@@ -142,6 +143,7 @@ class TournamentManager {
                 this.tournamentDataList.add(
                     TournamentMatchData(
                         matchTmID = uuid,
+                        indexInTournamentTree = newTeamIndex,
                         isOver = 0,
                         gameID = "",
                         tournamentID = "",
