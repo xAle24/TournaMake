@@ -1,7 +1,6 @@
 package com.example.tournaMake.ui.screens.match
 
 import android.net.Uri
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -65,7 +64,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.tournaMake.R
-import com.example.tournaMake.activities.MainActivity
 import com.example.tournaMake.activities.addMatchToFavorites
 import com.example.tournaMake.activities.endMatch
 import com.example.tournaMake.activities.fetchMatchData
@@ -75,7 +73,6 @@ import com.example.tournaMake.data.constants.MatchResult
 import com.example.tournaMake.data.models.MatchViewModel
 import com.example.tournaMake.data.models.TeamDataPacket
 import com.example.tournaMake.data.models.ThemeEnum
-import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.repositories.MatchRepository
 import com.example.tournaMake.dataStore
@@ -184,9 +181,6 @@ fun MatchScreen(
                         /** SAVE MATCH BUTTON */
                         Button(onClick = {
                             if (dataPackets != null && match != null) {
-                                Log.d(
-                                    "DEV-MATCH-SCREEN", "Save Button was clicked in Match Screen!"
-                                )
                                 saveMatch(
                                     teamScores = buildMap(dataPackets!!),
                                     matchID = match!!.matchTmID,
@@ -242,7 +236,7 @@ fun WinnerSelectionAlertDialog(
             "Select winning teams if any (leaving all teams blank will result in a collective draw)."
         )
     }, text = {
-        LazyColumn() {
+        LazyColumn {
             items(allTeams) { localTeamDataPacket ->
                 var isChecked by remember {
                     mutableStateOf(false)
@@ -397,18 +391,18 @@ fun TeamElementInMatchScreen(
                     "Current Score",
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.fillMaxWidth(),
-                    //.background(Color.White),
                     textAlign = TextAlign.Center
                 )
 
                 TextField(
                     value = score,
                     onValueChange = {
-                        score = it
-                        dataPacket.teamScore = it.text.toInt()
+                        if (it.text != "") {
+                            score = it
+                            dataPacket.teamScore = it.text.toInt()
+                        }
                     },
                     modifier = Modifier,
-                    //.align(Alignment.Center)
                     trailingIcon = {
                         Icon(
                             Icons.Filled.Edit, contentDescription = null
@@ -430,7 +424,6 @@ fun MiniProfileImage(
     ) {
         OutlinedCard(
             modifier = Modifier
-                //.background(Color.White)
                 .width(80.dp)
                 .height(80.dp)
                 .padding(4.dp),
