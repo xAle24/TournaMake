@@ -69,7 +69,10 @@ interface GameDao {
 
     @Query("SELECT * FROM GAME WHERE gameID = :gameID")
     fun getGameFromID(gameID: String): Game
-
+    @Query("""UPDATE GAME SET favorites = 1 WHERE gameID = :gameID""")
+    fun setGameFavorites(gameID: String)
+    @Query("""UPDATE GAME SET favorites = 0 WHERE gameID = :gameID""")
+    fun removeGameFavorites(gameID: String)
     @Insert
     fun insertAll(vararg games: Game)
 

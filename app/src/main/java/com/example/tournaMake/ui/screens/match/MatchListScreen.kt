@@ -148,7 +148,6 @@ fun CreateMatchButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .padding(0.dp, 40.dp, 0.dp, 4.dp)
             .clip(RoundedCornerShape(30.dp))
             .height(60.dp)
             .fillMaxWidth(0.6f)
@@ -186,7 +185,6 @@ fun FilterButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .padding(0.dp, 40.dp, 0.dp, 4.dp)
             .fillMaxWidth(0.55f)
             .clip(RoundedCornerShape(30.dp))
             .height(60.dp)
