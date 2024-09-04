@@ -13,7 +13,7 @@ import org.koin.java.KoinJavaComponent
 
 fun fetchAndUpdateMatches(vm: MatchListViewModel, owner: LifecycleOwner) {
     val db = KoinJavaComponent.inject<AppDatabase>(AppDatabase::class.java)
-    owner.lifecycleScope.launch (Dispatchers.IO) {
+    owner.lifecycleScope.launch(Dispatchers.IO) {
         try {
             val matches = db.value.matchDao().getAllWithGamesNames()
             vm.changeMatchesList(matches)
@@ -22,6 +22,7 @@ fun fetchAndUpdateMatches(vm: MatchListViewModel, owner: LifecycleOwner) {
         }
     }
 }
+
 fun addMatchToFavorites(matchTmID: String, owner: LifecycleOwner) {
     val db = KoinJavaComponent.inject<AppDatabase>(AppDatabase::class.java)
     owner.lifecycleScope.launch(Dispatchers.IO) {
@@ -32,6 +33,7 @@ fun addMatchToFavorites(matchTmID: String, owner: LifecycleOwner) {
         }
     }
 }
+
 fun removeMatchFromFavorites(matchTmID: String, owner: LifecycleOwner) {
     val db = KoinJavaComponent.inject<AppDatabase>(AppDatabase::class.java)
     owner.lifecycleScope.launch(Dispatchers.IO) {
@@ -42,13 +44,15 @@ fun removeMatchFromFavorites(matchTmID: String, owner: LifecycleOwner) {
         }
     }
 }
-fun navigateToSpecifiedMatch(matchTmID: String,
-                                     isOver: Boolean,
-                                     vm: MatchListViewModel,
-                                     owner: LifecycleOwner,
-                                     navController: NavController
+
+fun navigateToSpecifiedMatch(
+    matchTmID: String,
+    isOver: Boolean,
+    vm: MatchListViewModel,
+    owner: LifecycleOwner,
+    navController: NavController
 ) {
-    owner.lifecycleScope.launch (Dispatchers.IO) {
+    owner.lifecycleScope.launch(Dispatchers.IO) {
         // Change selected match in repository
         vm.changeRepository(matchTmID)
         if (isOver) {

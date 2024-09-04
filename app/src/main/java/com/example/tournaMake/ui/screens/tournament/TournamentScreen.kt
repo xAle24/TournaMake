@@ -104,7 +104,7 @@ fun TournamentScreen(
 
     if (tournamentManager.wasBracketInitialised()) {
         val privateBracket = tournamentManager.getBracket()
-        var bracket by remember { mutableStateOf(privateBracket) }
+        val bracket by remember { mutableStateOf(privateBracket) }
         val privateData =
             getMatchesNamesAsCompetingTeams(tournamentManager.getTournamentMatchData())
         val data = remember {
@@ -132,7 +132,7 @@ fun TournamentScreen(
                 ) {
 
                     /** For now we only handle a single elimination tournament. */
-                    SingleEliminationBracket(bracket = bracket)
+                    SingleEliminationBracket(bracket = bracket, navController = navController)
 
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -146,7 +146,7 @@ fun TournamentScreen(
                         }
                     }
                 }
-                ModifyMatchesAlert(
+                /*ModifyMatchesAlert(
                     openDialog = isAlertVisible,
                     onDismiss = { isAlertVisible = false },
                     matchesAndTeams = data.value,
@@ -156,7 +156,7 @@ fun TournamentScreen(
                         data.value = getMatchesNamesAsCompetingTeams(tournamentManager.refreshTournamentDataList())
                         Log.d("DEV", "Trying to refresh...")
                     },
-                )
+                )*/
             }
         }
     }

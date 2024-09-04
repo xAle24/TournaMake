@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.tournaMake.mylibrary.displaymodels.BracketRoundDisplayModel
 import com.example.tournaMake.mylibrary.ui.BracketColors
 
@@ -26,6 +27,7 @@ internal fun BracketRoundsPager(
     pagerState: PagerState,
     colors: BracketColors,
     modifier: Modifier = Modifier,
+    navController: NavController
 ) {
     val lazyListStates = List(rounds.size) {
         rememberLazyListState()
@@ -51,6 +53,7 @@ internal fun BracketRoundsPager(
             itemHeight = itemHeight,
             lazyListState = lazyListStates[pageIndex],
             colors = colors,
+            navController = navController
         )
     }
 }

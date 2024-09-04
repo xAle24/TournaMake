@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
+import androidx.navigation.NavController
 import com.example.tournaMake.mylibrary.displaymodels.BracketMatchDisplayModel
 import com.example.tournaMake.mylibrary.ui.BracketColors
 
@@ -17,6 +18,7 @@ internal fun BracketRoundMatchList(
     itemHeight: Dp,
     lazyListState: LazyListState,
     colors: BracketColors,
+    navController: NavController
 ) {
     LazyColumn(
         modifier = Modifier
@@ -29,6 +31,7 @@ internal fun BracketRoundMatchList(
                 modifier = Modifier
                     .height(itemHeight),
                 colors = colors.matchColors,
+                navController = navController
             )
         }
     }

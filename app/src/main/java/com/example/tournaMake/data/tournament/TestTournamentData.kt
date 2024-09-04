@@ -18,6 +18,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "4",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -30,6 +31,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "1",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -42,6 +44,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "4",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -54,6 +57,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "3",
             ),
+            tournamentData = null
         ),
     )
 
@@ -69,6 +73,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "2",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -81,6 +86,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "4",
             ),
+            tournamentData = null
         ),
     )
 
@@ -96,6 +102,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "4",
             ),
+            tournamentData = null
         ),
     )
 
@@ -131,6 +138,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "0",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -143,6 +151,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "0",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -155,6 +164,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "1",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -167,6 +177,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "3",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -179,6 +190,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "0",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -191,6 +203,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "0",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -203,6 +216,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "3",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -215,6 +229,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "1",
             ),
+            tournamentData = null
         ),
     )
 
@@ -230,6 +245,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "3",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -242,6 +258,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "0",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -254,6 +271,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "0",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -266,6 +284,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "3",
             ),
+            tournamentData = null
         ),
     )
 
@@ -281,6 +300,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "4",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -293,6 +313,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "1",
             ),
+            tournamentData = null
         ),
     )
 
@@ -308,6 +329,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "4",
             ),
+            tournamentData = null
         ),
     )
 
@@ -323,6 +345,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "2",
             ),
+            tournamentData = null
         ),
     )
 
@@ -338,6 +361,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "3",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -350,6 +374,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "0",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -362,6 +387,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "3",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -374,6 +400,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "2",
             ),
+            tournamentData = null
         ),
     )
 
@@ -389,6 +416,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "2",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -401,6 +429,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "3",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -413,6 +442,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "3",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -425,6 +455,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "3",
             ),
+            tournamentData = null
         ),
     )
 
@@ -440,6 +471,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "3",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -452,6 +484,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "3",
             ),
+            tournamentData = null
         ),
     )
 
@@ -467,6 +500,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "2",
             ),
+            tournamentData = null
         ),
         BracketMatchDisplayModel(
             BracketTeamDisplayModel(
@@ -479,6 +513,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "2",
             ),
+            tournamentData = null
         ),
     )
 
@@ -494,6 +529,7 @@ object TestTournamentData {
                 isWinner = true,
                 score = "4",
             ),
+            tournamentData = null
         ),
     )
 
@@ -509,6 +545,7 @@ object TestTournamentData {
                 isWinner = false,
                 score = "1",
             ),
+            tournamentData = null
         ),
     )
 

@@ -21,6 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
 import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
 import com.example.tournaMake.mylibrary.internal.Bracket
 import kotlinx.coroutines.launch
@@ -37,6 +38,7 @@ fun MultiEliminationBracket(
     brackets: List<BracketDisplayModel>,
     modifier: Modifier = Modifier,
     colors: BracketColors = BracketDefaults.bracketColors(),
+    navController: NavController
 ) {
     var dropdownExpanded by remember {
         mutableStateOf(false)
@@ -102,6 +104,7 @@ fun MultiEliminationBracket(
                 }
             },
             colors = colors,
+            navController = navController
         )
     }
 }

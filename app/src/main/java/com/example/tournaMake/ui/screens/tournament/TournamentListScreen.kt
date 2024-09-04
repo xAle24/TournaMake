@@ -28,10 +28,12 @@ import androidx.navigation.NavController
 import com.example.tournaMake.activities.fetchAndUpdateTournament
 import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.data.models.ThemeViewModel
+import com.example.tournaMake.data.models.TournamentIDViewModel
 import com.example.tournaMake.data.models.TournamentListViewModel
 import com.example.tournaMake.sampledata.Tournament
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.theme.getThemeColors
+import kotlinx.coroutines.runBlocking
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -42,6 +44,7 @@ fun TournamentListScreen(
     val themeViewModel = koinViewModel<ThemeViewModel>()
     val state by themeViewModel.state.collectAsStateWithLifecycle()
     val tournamentListViewModel = koinViewModel<TournamentListViewModel>()
+    val selectedTournamentIDViewModel = koinViewModel<TournamentIDViewModel>()
     fetchAndUpdateTournament(tournamentListViewModel, owner)
     BasicScreenWithAppBars(
         state = state,
@@ -49,7 +52,8 @@ fun TournamentListScreen(
         showTopBar = true,
         showBottomBar = false
     ) {
-        val tournamentList = tournamentListViewModel.tournamentListLiveData.observeAsState(emptyList())
+        val tournamentList =
+            tournamentListViewModel.tournamentListLiveData.observeAsState(emptyList())
         val colorConstants = getThemeColors(themeState = state)
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -58,7 +62,9 @@ fun TournamentListScreen(
         ) {
             Button(
                 onClick = { navController.navigate(NavigationRoute.TournamentCreationScreen.route) },
-                modifier = Modifier.background(colorConstants.getButtonBackground()).fillMaxWidth(0.9f),
+                modifier = Modifier
+                    .background(colorConstants.getButtonBackground())
+                    .fillMaxWidth(0.9f),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent
                 )
@@ -74,7 +80,11 @@ fun TournamentListScreen(
                 items(tournamentList.value) { item ->
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
-                        onClick = { /* Do something when button is clicked */ },
+                        onClick = {
+                            /* Trying to ensure that writing the repository is completed before moving to next screen */
+                            runBlocking { selectedTournamentIDViewModel.saveTournamentIDInPreferences(item.tournamentID) }
+                            navController.navigate(NavigationRoute.TournamentScreen.route)
+                        },
                         modifier = Modifier
                             .fillMaxWidth(0.8f)
                             .height(60.dp)

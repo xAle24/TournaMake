@@ -4,6 +4,7 @@ import android.view.Window
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import com.example.tournaMake.data.models.TournamentDataViewModel
 import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
 import com.example.tournaMake.mylibrary.displaymodels.BracketMatchDisplayModel
@@ -62,8 +63,11 @@ fun fetchStuffForTournament(
     }
 }
 
-fun createBracket(tournament: TournamentDataViewModel, tournamentManager: TournamentManager) {
-    val listOfTournamentData = tournament.tournamentMatchesAndTeamsLiveData.value ?: emptyList()
+fun createBracket(
+    tournament: TournamentDataViewModel,
+    tournamentManager: TournamentManager,
+) {
+    val listOfTournamentData = tournament.tournamentMatchesAndTeamsLiveData.value?.shuffled() ?: emptyList()
     val numberOfRounds = ceil(log2(listOfTournamentData.size.toDouble())).toInt()
     val bracketDisplayModel: BracketDisplayModel?
     if (listOfTournamentData.isNotEmpty()) {
@@ -84,10 +88,16 @@ fun createBracket(tournament: TournamentDataViewModel, tournamentManager: Tourna
                                 isWinner = listOfTournamentData[index + 1].isWinner == 1,
                                 score = listOfTournamentData[index + 1].score.toString()
                             )
-                        )
+                        ) to listOfTournamentData[index]
                     }
                     .map {
-                        BracketMatchDisplayModel(it.first, it.second)
+                        /**
+                         * Pairs of:
+                         *    Pair<BracketTeamDisplayModel, BracketTeamDisplayModel>
+                         *        and
+                         *    TournamentMatchData
+                         * */
+                        BracketMatchDisplayModel(it.first.first, it.first.second, it.second)
                     }
                     .toList()
             )
@@ -131,7 +141,7 @@ fun createRoundWithPlaceholders(
                 )
             }
             .map {
-                BracketMatchDisplayModel(it.first, it.second)
+                BracketMatchDisplayModel(it.first, it.second, null)
             }
             .toList()
     )

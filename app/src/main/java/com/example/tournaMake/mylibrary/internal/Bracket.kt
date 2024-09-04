@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavController
 import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
 import com.example.tournaMake.mylibrary.displaymodels.BracketRoundDisplayModel
 import com.example.tournaMake.mylibrary.ui.BracketColors
@@ -29,6 +30,7 @@ internal fun Bracket(
     onSelectedRoundChanged: (BracketRoundDisplayModel) -> Unit,
     modifier: Modifier = Modifier,
     colors: BracketColors,
+    navController: NavController
 ) {
     Surface(
         modifier = modifier,
@@ -53,6 +55,7 @@ internal fun Bracket(
                 modifier = Modifier
                     .weight(1F),
                 colors = colors,
+                navController = navController
             )
         }
     }

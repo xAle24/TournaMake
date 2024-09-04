@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
 import com.example.tournaMake.mylibrary.internal.Bracket
 import com.example.tournaMake.mylibrary.ui.BracketColors
@@ -24,6 +25,7 @@ fun SingleEliminationBracket(
     bracket: BracketDisplayModel,
     modifier: Modifier = Modifier,
     colors: BracketColors = BracketDefaults.bracketColors(),
+    navController: NavController
 ) {
     val pagerState = rememberPagerState { return@rememberPagerState bracket.rounds.size }
     val coroutineScope = rememberCoroutineScope()
@@ -39,5 +41,6 @@ fun SingleEliminationBracket(
         },
         modifier = modifier,
         colors = colors,
+        navController = navController
     )
 }

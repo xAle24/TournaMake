@@ -1,5 +1,7 @@
 package com.example.tournaMake.mylibrary.displaymodels
 
+import com.example.tournaMake.sampledata.TournamentMatchData
+
 /**
  * Defines a matchup between a [topTeam] and a [bottomTeam] within a bracket.
  *
@@ -9,4 +11,5 @@ package com.example.tournaMake.mylibrary.displaymodels
 data class BracketMatchDisplayModel(
     var topTeam: BracketTeamDisplayModel,
     var bottomTeam: BracketTeamDisplayModel,
+    val tournamentData: TournamentMatchData? // Alin's addition; used to know how to navigate to the match screen when clicked
 )

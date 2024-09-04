@@ -130,6 +130,7 @@ class TournamentManager {
                 this.tournamentDataList.add(
                     TournamentMatchData(
                         matchTmID = uuid,
+                        isOver = 0,
                         gameID = "",
                         tournamentID = "",
                         teamID = "",
@@ -141,6 +142,7 @@ class TournamentManager {
                 this.tournamentDataList.add(
                     TournamentMatchData(
                         matchTmID = uuid,
+                        isOver = 0,
                         gameID = "",
                         tournamentID = "",
                         teamID = "",
