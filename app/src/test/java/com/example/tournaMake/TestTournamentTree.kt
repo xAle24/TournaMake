@@ -12,7 +12,7 @@ import java.util.UUID
 class TestTournamentTree {
     private val staticTree = TournamentTree(8)
 
-    fun createSampleMatch(): MatchTM {
+    private fun createSampleMatch(): MatchTM {
         return MatchTM(
             matchTmID = UUID.randomUUID().toString(),
             favorites = 0,

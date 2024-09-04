@@ -1,7 +1,5 @@
 package com.example.tournaMake.tournamentmanager
 
-import android.util.Log
-import androidx.compose.runtime.MutableState
 import com.example.tournaMake.activities.TournamentManagerUpdateRequest
 import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
 import com.example.tournaMake.mylibrary.displaymodels.BracketMatchDisplayModel
@@ -136,7 +134,7 @@ class TournamentManager {
                         tournamentID = "",
                         teamID = "",
                         name = matchToUpdate.topTeam.name,
-                        isWinner = '0',
+                        isWinner = 0,
                         score = 0
                     )
                 )
@@ -147,7 +145,7 @@ class TournamentManager {
                         tournamentID = "",
                         teamID = "",
                         name = matchToUpdate.bottomTeam.name,
-                        isWinner = '0',
+                        isWinner = 0,
                         score = 0
                     )
                 )

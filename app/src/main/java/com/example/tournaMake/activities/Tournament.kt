@@ -65,7 +65,7 @@ fun fetchStuffForTournament(
 fun createBracket(tournament: TournamentDataViewModel, tournamentManager: TournamentManager) {
     val listOfTournamentData = tournament.tournamentMatchesAndTeamsLiveData.value ?: emptyList()
     val numberOfRounds = ceil(log2(listOfTournamentData.size.toDouble())).toInt()
-    var bracketDisplayModel: BracketDisplayModel? = null
+    val bracketDisplayModel: BracketDisplayModel?
     if (listOfTournamentData.isNotEmpty()) {
         val roundList = mutableListOf(
             BracketRoundDisplayModel(
@@ -76,12 +76,12 @@ fun createBracket(tournament: TournamentDataViewModel, tournamentManager: Tourna
                         Pair(
                             BracketTeamDisplayModel(
                                 name = listOfTournamentData[index].name,
-                                isWinner = listOfTournamentData[index].isWinner == 'Y',
+                                isWinner = listOfTournamentData[index].isWinner == 1,
                                 score = listOfTournamentData[index].score.toString()
                             ),
                             BracketTeamDisplayModel(
                                 name = listOfTournamentData[index + 1].name,
-                                isWinner = listOfTournamentData[index + 1].isWinner == 'Y',
+                                isWinner = listOfTournamentData[index + 1].isWinner == 1,
                                 score = listOfTournamentData[index + 1].score.toString()
                             )
                         )
@@ -197,10 +197,12 @@ fun updateMatch(
 
             if (data.isFirstTeamWinner) {
                 tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.value?.indexOf(
-                    tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.value!!.first { t -> t.teamID == data.firstTeamID })
+                    tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.value!!
+                        .first { t -> t.teamID == data.firstTeamID })
             } else if (data.isSecondTeamWinner) {
                 tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.value?.indexOf(
-                    tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.value!!.first { t -> t.teamID == data.secondTeamID })
+                    tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.value!!
+                        .first { t -> t.teamID == data.secondTeamID })
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -212,12 +214,13 @@ fun updateMatch(
  * Configures our [MainActivity] window so that it reaches edge to edge of the device, meaning
  * content can be rendered underneath the status and navigation bars.
  *
- * This method works hand in hand with [ConfigureTransparentSystemBars], to make sure content
- * behind these bars is visible.
+ * This method works hand in hand with [com.example.tournaMake.ui.screens.tournament.ConfigureTransparentSystemBars],
+ * to make sure content behind these bars is visible.
  *
  * Keep in mind that if you need to make sure your content padding doesn't clash with the status bar text/icons,
  * you can leverage modifiers like `windowInsetsPadding()` and `systemBarsPadding()`. For more information,
- * read the Compose WindowInsets docs: https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets
+ * read the Compose WindowInsets docs:
+ * https://developer.android.com/reference/kotlin/androidx/compose/foundation/layout/WindowInsets
  */
 fun configureEdgeToEdgeWindow(window: Window) {
     WindowCompat.setDecorFitsSystemWindows(window, false)

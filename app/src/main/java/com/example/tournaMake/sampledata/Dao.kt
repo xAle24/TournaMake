@@ -178,7 +178,7 @@ data class TournamentMatchData(
     val tournamentID: String,
     val teamID: String,
     val name: String, // team name
-    val isWinner: Char,
+    val isWinner: Int,
     val score: Int
 )
 @Dao

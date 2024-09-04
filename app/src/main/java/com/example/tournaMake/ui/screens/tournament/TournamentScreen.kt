@@ -131,6 +131,7 @@ fun TournamentScreen(
                         .systemBarsPadding(),
                 ) {
 
+                    /** For now we only handle a single elimination tournament. */
                     SingleEliminationBracket(bracket = bracket)
 
                     Box(
