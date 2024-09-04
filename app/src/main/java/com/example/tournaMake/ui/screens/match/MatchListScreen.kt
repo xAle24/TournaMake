@@ -80,9 +80,10 @@ fun MatchListScreen(
     // Data being fetched from database
     val matchesList = matchListViewModel.matchesListLiveData.observeAsState(emptyList())
     val colorConstants = getThemeColors(themeState = state)
-    val searchbar2 = remember { Searchbar(matchesList.value) }
-    val filteredEntries = searchbar2.getFilteredEntries()
+    val searchbar2 = Searchbar(matchesList.value)
+    var filteredEntries  = searchbar2.getFilteredEntries()
     Log.d("CAZ", "$matchesList")
+    Log.d("DEV-MATCH-LIST", "Filtered entries: $filteredEntries")
     var showDialog by remember { mutableStateOf(false) }
     var selectedPredicate by remember { mutableStateOf<(MatchGameData) -> Boolean>({ true }) }
     BasicScreenWithAppBars(
@@ -128,6 +129,7 @@ fun MatchListScreen(
                 onPredicateSelected = { predicate ->
                     selectedPredicate = predicate
                     searchbar2.filterEntries(predicate)
+                    filteredEntries = searchbar2.getFilteredEntries()
                     showDialog = false
                 }
             )

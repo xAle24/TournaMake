@@ -11,6 +11,7 @@ import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.ui.screens.match.TeamUIImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent.inject
 
 fun fetchMatchData(matchViewModel: MatchViewModel, owner: LifecycleOwner) {
@@ -103,7 +104,8 @@ fun endMatch(
         appDatabase.value.teamInTmDao().updateTeamInTms(newTeamInTms)
         // Ending the match
         appDatabase.value.matchDao().endMatch(matchID)
-
-        navController.navigate(navigationRoute)
+        withContext(Dispatchers.Main) {
+            navController.navigate(navigationRoute)
+        }
     }
 }
