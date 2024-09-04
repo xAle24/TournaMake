@@ -133,7 +133,7 @@ fun NavGraph(
             TournamentScreen(navController = navController, owner = owner)
         }
         composable(NavigationRoute.SettingsScreen.route) {
-            SettingsScreen()
+            SettingsScreen(navController = navController)
         }
     }
 }
