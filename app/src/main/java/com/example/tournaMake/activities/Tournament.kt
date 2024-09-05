@@ -4,7 +4,6 @@ import android.view.Window
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
 import com.example.tournaMake.data.models.TournamentDataViewModel
 import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
 import com.example.tournaMake.mylibrary.displaymodels.BracketMatchDisplayModel
@@ -58,9 +57,9 @@ fun fetchStuffForTournament(
                 appDatabase.tournamentDao().getMatchesAndTeamsFromTournamentID(tournamentID)
             val matchesInTournament = appDatabase.matchDao().getMatchesInTournament(tournamentID)
             val tournament = appDatabase.tournamentDao().getTournamentFromID(tournamentID)
-            tournamentDataViewModel.changeMatchesList(tournamentMatchesAndTeamsData)
+            //tournamentDataViewModel.changeMatchesList(tournamentMatchesAndTeamsData)
             tournamentDataViewModel.changeDbMatches(matchesInTournament)
-            tournamentDataViewModel.changeTournamentName(tournament.name)
+            tournamentDataViewModel.refresh(tournament.name, tournamentID)
         } catch (e: Exception) {
             e.printStackTrace()
         }

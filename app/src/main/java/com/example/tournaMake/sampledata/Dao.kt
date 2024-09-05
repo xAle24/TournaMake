@@ -1,5 +1,6 @@
 package com.example.tournaMake.sampledata
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -238,6 +239,28 @@ interface TournamentDao {
     """
     )
     fun getMatchesAndTeamsFromTournamentID(tournamentID: String): List<TournamentMatchData>
+
+    @Query(
+        """
+    SELECT 
+        MATCH_TM.matchTmID,
+        MATCH_TM.isOver,
+        MATCH_TM.indexInTournamentTree,
+        MATCH_TM.gameID, 
+        MATCH_TM.tournamentID,
+        TEAM.*,
+        TEAM_IN_TM.*
+    FROM
+        MATCH_TM
+    JOIN
+        TEAM_IN_TM ON TEAM_IN_TM.matchTmID = MATCH_TM.matchTmID
+    JOIN
+        TEAM ON TEAM.teamID = TEAM_IN_TM.teamID
+    WHERE 
+        MATCH_TM.tournamentID = :tournamentID
+    """
+    )
+    fun getTournamentMatchLiveData(tournamentID: String): LiveData<List<TournamentMatchData>>
 
     @Query("SELECT * FROM TOURNAMENT WHERE tournamentID = :tournamentID")
     fun getTournamentFromID(tournamentID: String): Tournament

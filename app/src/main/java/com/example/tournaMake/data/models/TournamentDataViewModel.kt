@@ -3,23 +3,35 @@ package com.example.tournaMake.data.models
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.sampledata.TournamentMatchData
+import org.koin.java.KoinJavaComponent.inject
 
 class TournamentDataViewModel: ViewModel() {
-    private val _tournamentData = MutableLiveData<List<TournamentMatchData>>()
-    val tournamentMatchesAndTeamsLiveData: LiveData<List<TournamentMatchData>> = _tournamentData
+    val appDatabase = inject<AppDatabase>(AppDatabase::class.java)
+
     private val _tournamentName = MutableLiveData<String>()
     val tournamentName: LiveData<String> = _tournamentName
     private val _dbMatchesInTournament = MutableLiveData<List<MatchTM>>()
     val dbMatchesInTournament: LiveData<List<MatchTM>> = _dbMatchesInTournament
+    private val _tournamentID = MutableLiveData<String>()
+    val tournamentID: LiveData<String> = _tournamentID
+    var tournamentMatchesAndTeamsLiveData: LiveData<List<TournamentMatchData>> = MutableLiveData()
+    private set
 
     fun changeMatchesList(list: List<TournamentMatchData>) {
-        _tournamentData.postValue(list)
+        //_tournamentData.postValue(list)
+        // TODO: eliminate dependencies and then this method
+
     }
 
-    fun changeTournamentName(name: String) {
+    fun refresh(name: String, tournamentID: String) {
         _tournamentName.postValue(name)
+        _tournamentID.postValue(tournamentID)
+        tournamentMatchesAndTeamsLiveData = appDatabase.value
+            .tournamentDao()
+            .getTournamentMatchLiveData(tournamentID)
     }
 
     fun changeDbMatches(matches: List<MatchTM>) {
