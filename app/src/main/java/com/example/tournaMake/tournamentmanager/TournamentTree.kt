@@ -118,6 +118,21 @@ class TournamentTree(
         return matchesList.indexOf(match)
     }
 
+    fun getRound(matchIndex: Int): Int {
+        assert(isIndexInArrayBounds(matchIndex))
+        for (i in 0 until roundsNumber) {
+            if (getAllMatchIndexesFromRound(i).contains(matchIndex)) {
+                return i
+            }
+        }
+        throw java.lang.IllegalArgumentException("Can't get round from match index $matchIndex")
+    }
+
+    fun getRound(match: MatchTM): Int {
+        assert(matchesList.contains(match))
+        return getRound(matchesList.indexOf(match))
+    }
+
     fun getMatchesAtIndexes(indexes: List<Int>): List<MatchTM?> {
         indexes.forEach { assert(isIndexInArrayBounds(it)) }
         return matchesList.filter { indexes.contains(matchesList.indexOf(it)) }

@@ -262,4 +262,25 @@ class TestTournamentTree {
         assertEquals(4, tree.leavesNumber)
         assertEquals(3, tree.roundsNumber)
     }
+
+    @Test
+    fun testRoundFromIndexAndMatch() {
+        val matches = listOf(
+            createSampleMatch(withIndex = 0),
+            createSampleMatch(withIndex = 1),
+            null,
+            createSampleMatch(withIndex = 3),
+            null,
+            null,
+            null
+        )
+        val tree = TournamentTree(8)
+        tree.setMatches(matches)
+        assertEquals(0, tree.getRound(3))
+        assertEquals(0, tree.getRound(matches[3]!!))
+        assertEquals(1, tree.getRound(1))
+        assertEquals(1, tree.getRound(matches[1]!!))
+        assertEquals(2, tree.getRound(0))
+        assertEquals(2, tree.getRound(matches[0]!!))
+    }
 }
