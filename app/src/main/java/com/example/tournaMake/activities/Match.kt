@@ -89,13 +89,13 @@ fun saveMatch(
                 return@map teamInTM
             }
         appDatabase.value.teamInTmDao().updateTeamInTms(newTeamInTms)
-        if (match.tournamentID != null) {
+        /*if (match.tournamentID != null) {
             fetchStuffForTournament(
                 match.tournamentID,
                 inject<TournamentDataViewModel>(TournamentDataViewModel::class.java).value,
                 owner
             )
-        }
+        }*/
     }
 }
 
@@ -119,13 +119,13 @@ fun endMatch(
         // Ending the match
         appDatabase.value.matchDao().endMatch(match.matchTmID)
 
-        if (match.tournamentID != null) {
+        /*if (match.tournamentID != null) {
             fetchStuffForTournament(
                 match.tournamentID,
                 inject<TournamentDataViewModel>(TournamentDataViewModel::class.java).value,
                 owner
             )
-        }
+        }*/
 
         withContext(Dispatchers.Main) {
             val navBackStackEntry = navController.previousBackStackEntry

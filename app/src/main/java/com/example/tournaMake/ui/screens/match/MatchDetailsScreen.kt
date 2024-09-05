@@ -85,7 +85,7 @@ fun MatchDetailsScreen(
     val isDraw by vm.isDraw.observeAsState()
     BasicScreenWithAppBars(
         state = state,
-        backFunction = { navController.navigate(NavigationRoute.MatchesListScreen.route) },
+        backFunction = { navController.navigateUp() },
         showTopBar = true,
         showBottomBar = false
     ) {
