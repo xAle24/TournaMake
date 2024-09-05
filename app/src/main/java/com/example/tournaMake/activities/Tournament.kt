@@ -67,9 +67,6 @@ fun createBracket(
     tournament: TournamentDataViewModel,
     tournamentManager: TournamentManager,
 ) {
-    /* TODO: this function now takes team data, shuffles them randomly and then
-    *   couples the teams based on the random shuffle, instead of the actual matches
-    * ids*/
     val listOfTournamentData = tournament.tournamentMatchesAndTeamsLiveData.value ?: emptyList()
     val numberOfRounds = ceil(log2(listOfTournamentData.size.toDouble())).toInt()
     val bracketDisplayModel: BracketDisplayModel?

@@ -13,7 +13,7 @@ class TournamentManager {
     /*
     * A map of TeamID -> Team's current Round
     * */
-    private val map: MutableMap<String, Int> = mutableMapOf()
+    private val teamRoundsMap: MutableMap<String, Int> = mutableMapOf()
     private lateinit var bracket: BracketDisplayModel
     private var wasInitialised = false
     private var tournamentDataList = mutableListOf<TournamentMatchData>()
@@ -33,7 +33,7 @@ class TournamentManager {
     fun initMap() {
         this.tournamentDataList
             .map { elem -> elem.teamID }
-            .forEach { teamName -> map[teamName] = 0 }
+            .forEach { teamName -> teamRoundsMap[teamName] = 0 }
     }
 
     /**
@@ -54,7 +54,7 @@ class TournamentManager {
      * */
     private fun mapTeamNameToIndex(teamName: String): Int {
         var index = 0
-        bracket.rounds[this.map[teamName]!!].matches.forEach { match ->
+        bracket.rounds[this.teamRoundsMap[teamName]!!].matches.forEach { match ->
             if (match.topTeam.name == teamName) {
                 return index
             } else {
@@ -69,7 +69,7 @@ class TournamentManager {
     }
 
     private fun getTeamRound(teamName: String): Int {
-        return map[teamName]!!
+        return teamRoundsMap[teamName]!!
     }
 
     private fun getMatchFromTeamNameAndRoundNumber(teamName: String, roundNumber: Int): BracketMatchDisplayModel {
@@ -104,13 +104,13 @@ class TournamentManager {
     }
 
     private fun setTeamRound(teamName: String, roundNumber: Int) {
-        map[teamName] = roundNumber
+        teamRoundsMap[teamName] = roundNumber
     }
 
     private fun teamWon(teamName: String, oldIndex: Int, data: TournamentManagerUpdateRequest) {
         val newTeamIndex = oldIndex / 2
         val matchIndex = newTeamIndex / 2
-        val teamCurrentRound = map[teamName]!!
+        val teamCurrentRound = teamRoundsMap[teamName]!!
         if (teamCurrentRound + 1 < bracket.rounds.size) {
             this.setTeamRound(teamName, teamCurrentRound + 1)
             val matchToUpdate = bracket.rounds[teamCurrentRound + 1].matches[matchIndex]
