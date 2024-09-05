@@ -234,6 +234,11 @@ interface MainProfileDao {
     fun getProfileByEmail(email: String): MainProfile
     @Query("SELECT MAIN_PROFILE.password FROM MAIN_PROFILE WHERE email = :email")
     fun checkPassword(email: String): String
+    @Query("""SELECT COUNT(*) 
+        FROM MAIN_PROFILE 
+        WHERE email = :email;
+        """)
+    fun checkEmail(email: String): Int
     @Insert
     fun insert(mainProfiles: MainProfile)
 

@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -58,6 +59,7 @@ fun RegistrationScreen(
     val state by themeViewModel.state.collectAsStateWithLifecycle()
     val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
     val colorConstants = getThemeColors(themeState = state)
+    val context = LocalContext.current
     BasicScreenWithTheme(
         state = state,
     ) {
@@ -128,7 +130,7 @@ fun RegistrationScreen(
             }
             Spacer(modifier = Modifier.height(20.dp))
             Button(onClick = {
-                handleRegistration(username, password, email, rememberMe, authenticationViewModel, owner, navController)
+                handleRegistration(username, password, email, rememberMe, authenticationViewModel, owner, navController, context)
                 /* SETTING THE "GLOBAL" VARIABLE LOGGED EMAIL! */
                 Log.d("DEV", "In RegistrationScreen.kt, email = $email")
             }, modifier = Modifier
