@@ -83,13 +83,6 @@ fun TournamentScreen(
     navController: NavController,
     owner: LifecycleOwner,
 ) {
-    val refresh = navController.currentBackStackEntry
-        ?.savedStateHandle
-        ?.getLiveData<Boolean>("refresh")
-        ?.observeAsState()
-    val refreshString = navController.currentBackStackEntry?.arguments?.getString("refresh")
-    var refresh2 = refreshString?.toBoolean() ?: true
-
     // Initial variables
     var tournamentManager: TournamentManagerV2? = null
 
@@ -100,14 +93,8 @@ fun TournamentScreen(
     val tournamentID = tournamentIDViewModel.tournamentID.collectAsStateWithLifecycle()
     val tournamentDataViewModel = koinViewModel<TournamentDataViewModel>()
 
-    if (refresh?.value == true || refresh2) {
-        // Trigger the refresh logic here, for example, by reloading data
-        fetchStuffForTournament(tournamentID.value, tournamentDataViewModel, owner)
-
-        // Reset the refresh flag after the UI is refreshed
-        navController.currentBackStackEntry?.savedStateHandle?.set("refresh", false)
-        refresh2 = false
-    }
+    // Trigger the refresh logic here, for example, by reloading data
+    fetchStuffForTournament(tournamentID.value, tournamentDataViewModel, owner)
 
     // Observing live data
     val tournamentMatchLiveData by tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.observeAsState()

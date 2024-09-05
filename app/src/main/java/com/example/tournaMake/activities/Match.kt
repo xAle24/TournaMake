@@ -1,17 +1,16 @@
 package com.example.tournaMake.activities
 
-import androidx.activity.compose.BackHandler
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.NavDirections
-import androidx.navigation.navOptions
 import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.data.constants.MatchResult
 import com.example.tournaMake.data.constants.mapMatchResultToInteger
 import com.example.tournaMake.data.models.MatchViewModel
 import com.example.tournaMake.data.models.TeamDataPacket
+import com.example.tournaMake.data.models.TournamentDataViewModel
 import com.example.tournaMake.sampledata.AppDatabase
+import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.ui.screens.match.TeamUIImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -78,18 +77,25 @@ fun fetchMatchData(matchViewModel: MatchViewModel, owner: LifecycleOwner) {
  * */
 fun saveMatch(
     teamScores: Map<String, Pair<Int, MatchResult>>,
-    matchID: String,
+    match: MatchTM,
     owner: LifecycleOwner
 ) {
     val appDatabase = inject<AppDatabase>(AppDatabase::class.java)
     owner.lifecycleScope.launch(Dispatchers.IO) {
         val newTeamInTms = teamScores
             .map {
-                val teamInTM = appDatabase.value.teamInTmDao().findByID(it.key, matchID)
+                val teamInTM = appDatabase.value.teamInTmDao().findByID(it.key, match.matchTmID)
                 teamInTM.score = it.value.first
                 return@map teamInTM
             }
         appDatabase.value.teamInTmDao().updateTeamInTms(newTeamInTms)
+        if (match.tournamentID != null) {
+            fetchStuffForTournament(
+                match.tournamentID,
+                inject<TournamentDataViewModel>(TournamentDataViewModel::class.java).value,
+                owner
+            )
+        }
     }
 }
 
@@ -97,21 +103,30 @@ fun endMatch(
     navController: NavController,
     navigationRoute: String, // may vary from MatchListScreen to TournamentScreen
     teamScores: Map<String, Pair<Int, MatchResult>>,
-    matchID: String,
+    match: MatchTM,
     owner: LifecycleOwner
 ) {
     val appDatabase = inject<AppDatabase>(AppDatabase::class.java)
     owner.lifecycleScope.launch(Dispatchers.IO) {
         val newTeamInTms = teamScores
             .map {
-                val teamInTM = appDatabase.value.teamInTmDao().findByID(it.key, matchID)
+                val teamInTM = appDatabase.value.teamInTmDao().findByID(it.key, match.matchTmID)
                 teamInTM.score = it.value.first
                 teamInTM.isWinner = mapMatchResultToInteger(it.value.second)
                 return@map teamInTM
             }
         appDatabase.value.teamInTmDao().updateTeamInTms(newTeamInTms)
         // Ending the match
-        appDatabase.value.matchDao().endMatch(matchID)
+        appDatabase.value.matchDao().endMatch(match.matchTmID)
+
+        if (match.tournamentID != null) {
+            fetchStuffForTournament(
+                match.tournamentID,
+                inject<TournamentDataViewModel>(TournamentDataViewModel::class.java).value,
+                owner
+            )
+        }
+
         withContext(Dispatchers.Main) {
             val navBackStackEntry = navController.previousBackStackEntry
             // If we got to this screen from the match creation, we need to go back twice

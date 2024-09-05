@@ -7,8 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.tournaMake.ui.screens.login.LoginScreen
 import com.example.tournaMake.ui.screens.main.MainScreen
 import com.example.tournaMake.ui.screens.match.MatchCreationScreen
@@ -128,7 +130,13 @@ fun NavGraph(
         composable(NavigationRoute.RegistrationPhotoScreen.route) {
             RegistrationPhotoScreen(navController = navController, owner = owner, contentResolver = contentResolver)
         }
-        composable(NavigationRoute.TournamentScreen.route) {
+        composable(
+            route = NavigationRoute.TournamentScreen.route,
+            arguments = listOf(navArgument("refresh") {
+                type = NavType.BoolType
+                defaultValue = true
+            })
+        ) {
             TournamentScreen(navController = navController, owner = owner)
         }
         composable(NavigationRoute.SettingsScreen.route) {

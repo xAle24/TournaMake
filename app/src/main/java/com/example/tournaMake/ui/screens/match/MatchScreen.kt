@@ -66,7 +66,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.tournaMake.R
-import com.example.tournaMake.activities.MainActivity
 import com.example.tournaMake.activities.addMatchToFavorites
 import com.example.tournaMake.activities.endMatch
 import com.example.tournaMake.activities.fetchMatchData
@@ -77,7 +76,6 @@ import com.example.tournaMake.data.constants.MatchResult
 import com.example.tournaMake.data.models.MatchViewModel
 import com.example.tournaMake.data.models.TeamDataPacket
 import com.example.tournaMake.data.models.ThemeEnum
-import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.repositories.MatchRepository
 import com.example.tournaMake.dataStore
@@ -176,7 +174,7 @@ fun MatchScreen(
                     navController = navController,
                     navigationRoute = callerRoute,
                     teamScores = map,
-                    matchID = match!!.matchTmID,
+                    match = match!!,
                     owner = owner
                 )
             })
@@ -228,7 +226,7 @@ fun MatchScreen(
                                 )
                                 saveMatch(
                                     teamScores = buildMap(dataPackets!!),
-                                    matchID = match!!.matchTmID,
+                                    match = match!!,
                                     owner = owner
                                 )
                             }
