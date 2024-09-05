@@ -83,7 +83,7 @@ fun TournamentListScreen(
                         onClick = {
                             /* Trying to ensure that writing the repository is completed before moving to next screen */
                             runBlocking { selectedTournamentIDViewModel.saveTournamentIDInPreferences(item.tournamentID) }
-                            navController.navigate(NavigationRoute.TournamentScreen.route)
+                            navController.navigate("${NavigationRoute.TournamentScreen.route}?refresh=true")
                         },
                         modifier = Modifier
                             .fillMaxWidth(0.8f)

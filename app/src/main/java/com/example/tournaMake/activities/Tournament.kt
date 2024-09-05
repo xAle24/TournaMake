@@ -56,7 +56,11 @@ fun fetchStuffForTournament(
         try {
             val tournamentMatchesAndTeamsData =
                 appDatabase.tournamentDao().getMatchesAndTeamsFromTournamentID(tournamentID)
+            val matchesInTournament = appDatabase.matchDao().getMatchesInTournament(tournamentID)
+            val tournament = appDatabase.tournamentDao().getTournamentFromID(tournamentID)
             tournamentDataViewModel.changeMatchesList(tournamentMatchesAndTeamsData)
+            tournamentDataViewModel.changeDbMatches(matchesInTournament)
+            tournamentDataViewModel.changeTournamentName(tournament.name)
         } catch (e: Exception) {
             e.printStackTrace()
         }

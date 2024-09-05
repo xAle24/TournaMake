@@ -3,6 +3,7 @@ package com.example.tournaMake.ui.screens.match
 import android.net.Uri
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -95,6 +96,26 @@ fun MatchScreen(
     navController: NavController,
     owner: LifecycleOwner
 ) {
+    val navBackStackEntry = navController.previousBackStackEntry
+    BackHandler {
+        when(navBackStackEntry?.arguments?.getString("source")) {
+            "tournament" -> {
+                // If the user came from the tournament, pop back to refresh tournament screen
+                navController.popBackStack(NavigationRoute.TournamentScreen.route, false)
+                // You can also pass back arguments via savedStateHandle to refresh UI
+                //navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+            }
+            "creation" -> {
+                // If the user came from match creation, pop directly to the matches list
+                navController.popBackStack(NavigationRoute.MatchesListScreen.route, false)
+            }
+            else -> {
+                // Default behavior if coming from the matches list or another source
+                navController.popBackStack()
+            }
+        }
+    }
+
     val themeViewModel = koinViewModel<ThemeViewModel>()
     val state by themeViewModel.state.collectAsStateWithLifecycle()
     val matchViewModel = koinViewModel<MatchViewModel>()
@@ -173,10 +194,22 @@ fun MatchScreen(
                     // Back button
                     // If we got to this screen from the match creation, we need to go back twice
                     // to skip that screen and go back to the match list
-                    if (callerRoute == NavigationRoute.MatchCreationScreen.route) {
-                        navController.navigateUp()
+                    when(navBackStackEntry?.arguments?.getString("source")) {
+                        "tournament" -> {
+                            // If the user came from the tournament, pop back to refresh tournament screen
+                            navController.popBackStack(NavigationRoute.TournamentScreen.route, false)
+                            // You can also pass back arguments via savedStateHandle to refresh UI
+                            navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+                        }
+                        "creation" -> {
+                            // If the user came from match creation, pop directly to the matches list
+                            navController.popBackStack(NavigationRoute.MatchesListScreen.route, false)
+                        }
+                        else -> {
+                            // Default behavior if coming from the matches list or another source
+                            navController.popBackStack()
+                        }
                     }
-                    navController.navigateUp()
                 }
             },
             bottomBar = {
@@ -205,7 +238,6 @@ fun MatchScreen(
                         Spacer(Modifier.width(16.dp))
                         /** END MATCH BUTTON */
                         Button(onClick = {
-
                             shouldShowAlertDialog = true
                         }) {
                             Text("End")

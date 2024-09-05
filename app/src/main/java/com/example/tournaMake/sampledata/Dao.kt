@@ -18,6 +18,7 @@ interface AchievementDao {
     @Delete
     fun delete(achievement: Achievement)
 }
+
 data class AchievementResult(
     val achievementID: String,
     val name: String,
@@ -31,10 +32,13 @@ data class AchievementResult(
 interface AchievementPlayerDao {
     @Query("SELECT * FROM ACHIEVEMENT_PLAYER")
     fun getAll(): List<AchievementPlayer>
-    @Query("SELECT ACHIEVEMENT.*, ACHIEVEMENT_PLAYER.status, ACHIEVEMENT_PLAYER.email \n" +
-            "FROM ACHIEVEMENT \n" +
-            "INNER JOIN ACHIEVEMENT_PLAYER ON ACHIEVEMENT.achievementID = ACHIEVEMENT_PLAYER.achievementID \n" +
-            "WHERE ACHIEVEMENT_PLAYER.email = :email\n")
+
+    @Query(
+        "SELECT ACHIEVEMENT.*, ACHIEVEMENT_PLAYER.status, ACHIEVEMENT_PLAYER.email \n" +
+                "FROM ACHIEVEMENT \n" +
+                "INNER JOIN ACHIEVEMENT_PLAYER ON ACHIEVEMENT.achievementID = ACHIEVEMENT_PLAYER.achievementID \n" +
+                "WHERE ACHIEVEMENT_PLAYER.email = :email\n"
+    )
     fun getAchievementsByEmail(email: String): List<AchievementResult>
 
     @Insert
@@ -43,19 +47,24 @@ interface AchievementPlayerDao {
     @Delete
     fun delete(achievementPlayer: AchievementPlayer)
 }
-data class PlayedGame(val gameID: String,
-                      val name: String,
-                      val description : String,
-                      val duration: Int,
-                      val minPlayers: Int,
-                      val maxPlayers: Int,
-                      val timesPlayed: Int)
+
+data class PlayedGame(
+    val gameID: String,
+    val name: String,
+    val description: String,
+    val duration: Int,
+    val minPlayers: Int,
+    val maxPlayers: Int,
+    val timesPlayed: Int
+)
 
 @Dao
 interface GameDao {
     @Query("SELECT * FROM GAME")
     fun getAll(): List<Game>
-    @Query("""
+
+    @Query(
+        """
         SELECT GAME.*, COUNT(MATCH_TM.matchTmID) as timesPlayed
         FROM GAME
         JOIN MATCH_TM ON GAME.gameID = MATCH_TM.gameID
@@ -64,7 +73,8 @@ interface GameDao {
         JOIN MAIN_PARTICIPANT ON TEAM.teamID = MAIN_PARTICIPANT.teamID
         WHERE MAIN_PARTICIPANT.email = :email
         GROUP BY GAME.name;
-    """)
+    """
+    )
     fun getPlayedGames(email: String): List<PlayedGame>
 
     @Query("SELECT * FROM GAME WHERE gameID = :gameID")
@@ -76,6 +86,7 @@ interface GameDao {
     @Delete
     fun delete(game: Game)
 }
+
 data class MatchGameData(
     val matchTmID: String,
     val favorites: Int,
@@ -86,22 +97,27 @@ data class MatchGameData(
     val tournamentID: String?,
     val name: String // the game name
 )
+
 @Dao
 interface MatchDao {
     @Query("SELECT * FROM `MATCH_TM`")
     fun getAll(): List<MatchTM>
 
-    @Query("""SELECT MATCH_TM.*, GAME.name
+    @Query(
+        """SELECT MATCH_TM.*, GAME.name
         FROM MATCH_TM
-        JOIN GAME ON GAME.gameID = MATCH_TM.gameID""")
+        JOIN GAME ON GAME.gameID = MATCH_TM.gameID"""
+    )
     fun getAllWithGamesNames(): List<MatchGameData>
 
-    @Query("""SELECT MATCH_TM.*, GAME.name
+    @Query(
+        """SELECT MATCH_TM.*, GAME.name
             FROM MATCH_TM
             JOIN TEAM_IN_TM ON MATCH_TM.matchTmID = TEAM_IN_TM.matchTmID
             JOIN MAIN_PARTICIPANT ON TEAM_IN_TM.teamID = MAIN_PARTICIPANT.teamID
             JOIN GAME ON GAME.gameID = MATCH_TM.gameID
-            WHERE MAIN_PARTICIPANT.email = :email""")
+            WHERE MAIN_PARTICIPANT.email = :email"""
+    )
     fun getMyMatches(email: String): List<MatchGameData>
 
     @Query("""SELECT * FROM MATCH_TM WHERE favorites = 1""")
@@ -109,6 +125,7 @@ interface MatchDao {
 
     @Query("""UPDATE MATCH_TM SET favorites = 1 WHERE matchTmID = :matchTmID""")
     fun setMatchFavorites(matchTmID: String)
+
     @Query("""UPDATE MATCH_TM SET favorites = 0 WHERE matchTmID = :matchTmID""")
     fun removeMatchFavorites(matchTmID: String)
 
@@ -118,7 +135,8 @@ interface MatchDao {
     @Query("UPDATE MATCH_TM SET isOver = 1 WHERE matchTmID = :matchID")
     fun endMatch(matchID: String)
 
-    @Query("""
+    @Query(
+        """
         SELECT
             NOT EXISTS (
                 SELECT *
@@ -126,8 +144,12 @@ interface MatchDao {
                 WHERE TEAM_IN_TM.matchTmID = :matchID
                 AND TEAM_IN_TM.isWinner <> 2 -- 2 means "Draw"
             ) AS allScoredADraw
-    """)
+    """
+    )
     fun isDraw(matchID: String): Boolean
+
+    @Query("SELECT * FROM MATCH_TM WHERE tournamentID = :tournamentID")
+    fun getMatchesInTournament(tournamentID: String): List<MatchTM>
 
     @Insert
     fun insertAll(vararg matches: MatchTM)
@@ -183,6 +205,7 @@ data class TournamentMatchData(
     val isWinner: Int,
     val score: Int
 )
+
 @Dao
 interface TournamentDao {
     @Query("SELECT * FROM TOURNAMENT")
@@ -194,7 +217,8 @@ interface TournamentDao {
     @Delete
     fun delete(tournament: Tournament)
 
-    @Query("""
+    @Query(
+        """
     SELECT 
         MATCH_TM.matchTmID,
         MATCH_TM.isOver,
@@ -211,8 +235,12 @@ interface TournamentDao {
         TEAM ON TEAM.teamID = TEAM_IN_TM.teamID
     WHERE 
         MATCH_TM.tournamentID = :tournamentID
-    """)
+    """
+    )
     fun getMatchesAndTeamsFromTournamentID(tournamentID: String): List<TournamentMatchData>
+
+    @Query("SELECT * FROM TOURNAMENT WHERE tournamentID = :tournamentID")
+    fun getTournamentFromID(tournamentID: String): Tournament
 }
 
 @Dao
@@ -231,10 +259,13 @@ interface TournamentTypeDao {
 interface MainProfileDao {
     @Query("SELECT * FROM MAIN_PROFILE")
     fun getAll(): List<MainProfile>
+
     @Query("SELECT * FROM MAIN_PROFILE WHERE email = :email")
     fun getProfileByEmail(email: String): MainProfile
+
     @Query("SELECT MAIN_PROFILE.password FROM MAIN_PROFILE WHERE email = :email")
     fun checkPassword(email: String): String
+
     @Insert
     fun insert(mainProfiles: MainProfile)
 
@@ -259,6 +290,7 @@ interface GuestProfileDao {
     @Delete
     fun delete(guestProfile: GuestProfile)
 }
+
 @Dao
 interface TeamDao {
     @Query("SELECT * FROM TEAM")
@@ -297,6 +329,7 @@ interface TeamInTmDao {
     @Delete
     suspend fun delete(teamInTm: TeamInTm)
 }
+
 @Dao
 interface NotificationDao {
     @Query("SELECT * FROM NOTIFICATION WHERE email = :email")

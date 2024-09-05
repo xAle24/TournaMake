@@ -58,7 +58,6 @@ fun NavGraph(
     modifier: Modifier,
     owner: LifecycleOwner,
     contentResolver: ContentResolver,
-    window: Window
 ) {
     NavHost(
         navController = navController,

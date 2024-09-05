@@ -17,7 +17,6 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier,
                 owner = this,
                 contentResolver = contentResolver,
-                window = window
             )
         }
     }

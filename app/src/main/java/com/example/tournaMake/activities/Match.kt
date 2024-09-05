@@ -1,8 +1,11 @@
 package com.example.tournaMake.activities
 
+import androidx.activity.compose.BackHandler
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import androidx.navigation.NavDirections
+import androidx.navigation.navOptions
 import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.data.constants.MatchResult
 import com.example.tournaMake.data.constants.mapMatchResultToInteger
@@ -73,7 +76,11 @@ fun fetchMatchData(matchViewModel: MatchViewModel, owner: LifecycleOwner) {
  * The string is the TeamID. The integer is the score, and the match result
  * is an enum representing if the team won, lost or obtained a draw.
  * */
-fun saveMatch(teamScores: Map<String, Pair<Int, MatchResult>>, matchID: String, owner: LifecycleOwner) {
+fun saveMatch(
+    teamScores: Map<String, Pair<Int, MatchResult>>,
+    matchID: String,
+    owner: LifecycleOwner
+) {
     val appDatabase = inject<AppDatabase>(AppDatabase::class.java)
     owner.lifecycleScope.launch(Dispatchers.IO) {
         val newTeamInTms = teamScores
@@ -106,12 +113,29 @@ fun endMatch(
         // Ending the match
         appDatabase.value.matchDao().endMatch(matchID)
         withContext(Dispatchers.Main) {
+            val navBackStackEntry = navController.previousBackStackEntry
             // If we got to this screen from the match creation, we need to go back twice
             // to skip that screen and go back to the match list
-            if (navigationRoute == NavigationRoute.MatchCreationScreen.route) {
-                navController.navigateUp()
+
+            when (navBackStackEntry?.arguments?.getString("source")) {
+                "tournament" -> {
+                    // If the user came from the tournament, pop back to refresh tournament screen
+                    navController.popBackStack(NavigationRoute.TournamentScreen.route, false)
+                    // You can also pass back arguments via savedStateHandle to refresh UI
+                    //navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+                }
+
+                "creation" -> {
+                    // If the user came from match creation, pop directly to the matches list
+                    navController.popBackStack(NavigationRoute.MatchesListScreen.route, false)
+                }
+
+                else -> {
+                    // Default behavior if coming from the matches list or another source
+                    navController.popBackStack()
+                }
             }
-            navController.navigateUp()
+
         }
     }
 }

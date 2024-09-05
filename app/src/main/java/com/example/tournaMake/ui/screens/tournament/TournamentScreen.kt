@@ -2,6 +2,7 @@ package com.example.tournaMake.ui.screens.tournament
 
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -55,6 +56,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -63,12 +65,14 @@ import com.example.tournaMake.activities.TournamentManagerUpdateRequest
 import com.example.tournaMake.activities.createBracket
 import com.example.tournaMake.activities.fetchStuffForTournament
 import com.example.tournaMake.activities.getMatchesNamesAsCompetingTeams
+import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.models.TournamentDataViewModel
 import com.example.tournaMake.data.models.TournamentIDViewModel
 import com.example.tournaMake.mylibrary.ui.SingleEliminationBracket
 import com.example.tournaMake.sampledata.TournamentMatchData
 import com.example.tournaMake.tournamentmanager.TournamentManager
+import com.example.tournaMake.tournamentmanager.TournamentManagerV2
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import org.koin.androidx.compose.koinViewModel
@@ -77,10 +81,17 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun TournamentScreen(
     navController: NavController,
-    owner: LifecycleOwner
+    owner: LifecycleOwner,
 ) {
+    val refresh = navController.currentBackStackEntry
+        ?.savedStateHandle
+        ?.getLiveData<Boolean>("refresh")
+        ?.observeAsState()
+    val refreshString = navController.currentBackStackEntry?.arguments?.getString("refresh")
+    var refresh2 = refreshString?.toBoolean() ?: true
+
     // Initial variables
-    val tournamentManager = TournamentManager()
+    var tournamentManager: TournamentManagerV2? = null
 
     // Former activity code
     val themeViewModel = koinViewModel<ThemeViewModel>()
@@ -88,37 +99,32 @@ fun TournamentScreen(
     val tournamentIDViewModel = koinViewModel<TournamentIDViewModel>()
     val tournamentID = tournamentIDViewModel.tournamentID.collectAsStateWithLifecycle()
     val tournamentDataViewModel = koinViewModel<TournamentDataViewModel>()
-    var wasTournamentCreated by remember { mutableStateOf(false) }
-    fetchStuffForTournament(tournamentID.value, tournamentDataViewModel, owner)
 
-    val liveDataObserver = Observer<List<TournamentMatchData>> {
-        Log.d("DEV", "In TournamentActivity: Observer code called! List size = ${it.size}")
-        // When data arrives, create the bracket
-        createBracket(tournamentDataViewModel, tournamentManager)
-        // Update wasTournamentCreated state to trigger recomposition
-        wasTournamentCreated = tournamentManager.wasBracketInitialised()
-        Log.d("DEV", "Guard variable wasTournamentCreated = $wasTournamentCreated")
+    if (refresh?.value == true || refresh2) {
+        // Trigger the refresh logic here, for example, by reloading data
+        fetchStuffForTournament(tournamentID.value, tournamentDataViewModel, owner)
+
+        // Reset the refresh flag after the UI is refreshed
+        navController.currentBackStackEntry?.savedStateHandle?.set("refresh", false)
+        refresh2 = false
     }
-    tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.observe(
-        owner,
-        liveDataObserver
-    )
 
-    if (tournamentManager.wasBracketInitialised()) {
-        val privateBracket = tournamentManager.getBracket()
+    // Observing live data
+    val tournamentMatchLiveData by tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.observeAsState()
+    val dbMatches by tournamentDataViewModel.dbMatchesInTournament.observeAsState()
+    val tournamentName by tournamentDataViewModel.tournamentName.observeAsState()
+
+    if (tournamentMatchLiveData != null && dbMatches != null && tournamentName != null) {
+        tournamentManager =
+            TournamentManagerV2(tournamentMatchLiveData!!, dbMatches!!, tournamentName!!)
+    }
+
+    if (tournamentManager != null) {
+        val privateBracket = tournamentManager.produceBracket()
         val bracket by remember { mutableStateOf(privateBracket) }
-        val privateData =
-            getMatchesNamesAsCompetingTeams(tournamentManager.getTournamentMatchData())
-        val data = remember {
-            mutableStateOf(privateData)
-        }
-        Log.d(
-            "DEV",
-            "TournamentActivity: Alert data size = ${data.value.size}, elements = ${data.value}"
-        )
 
         // UI Code
-        key(bracket, data) {
+        key(bracket) {
             BasicScreenWithTheme(
                 state = state
             ) {
@@ -138,10 +144,27 @@ fun TournamentScreen(
                         contentAlignment = Alignment.BottomStart
                     ) {
                         FloatingActionButton(
-                            onClick = { navController.navigateUp() },
+                            onClick = {
+                                /** Looks in the back stack for the tournaments list screen */
+                                Log.d(
+                                    "DEV-TOURNAMENT-SCREEN",
+                                    "Previous stack entry is: ${navController.previousBackStackEntry?.destination?.route}"
+                                )
+                                if (!navController.popBackStack(
+                                        route = NavigationRoute.TournamentsListScreen.route,
+                                        inclusive = false, // maybe this will force recomposition?
+                                        saveState = false
+                                    )
+                                ) {
+                                    throw IllegalStateException("Could not pop back to tournament list screen!")
+                                }
+                            },
                             modifier = Modifier.padding(16.dp)
                         ) {
-                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Add")
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Add"
+                            )
                         }
                     }
                 }
@@ -247,7 +270,7 @@ fun ModifyMatchesAlert(
                             onValueChange = {
                                 if (it.isNotEmpty() && it.length < 9)
                                     firstTeamScore.intValue = it.toInt()
-                                else if(it.isEmpty())
+                                else if (it.isEmpty())
                                     secondTeamScore.intValue = 0
                             },
                             label = {
@@ -303,7 +326,7 @@ fun ModifyMatchesAlert(
                             onValueChange = {
                                 if (it.isNotEmpty() && it.length < 9)
                                     secondTeamScore.intValue = it.toInt()
-                                else if(it.isEmpty())
+                                else if (it.isEmpty())
                                     secondTeamScore.intValue = 0
                             },
                             label = {
