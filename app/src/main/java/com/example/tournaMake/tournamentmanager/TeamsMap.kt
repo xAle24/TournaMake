@@ -9,7 +9,7 @@ class TeamsMap(
     // WARNING: if a team is in a match in a higher round, it's not
     // guaranteed that there will also be a team in the second element
     // of the pair!
-    private val teamsMap: Map<String, Pair<TournamentMatchData, TournamentMatchData?>>
+    val teamsMap: Map<String, Pair<TournamentMatchData, TournamentMatchData?>>
 
     init {
         teamsMap = tournamentMatchData

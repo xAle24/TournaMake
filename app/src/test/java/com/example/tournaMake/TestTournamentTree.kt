@@ -1,83 +1,15 @@
 package com.example.tournaMake
 
 import com.example.tournaMake.sampledata.MatchTM
-import com.example.tournaMake.sampledata.TournamentMatchData
 import com.example.tournaMake.tournamentmanager.TournamentTree
 import com.example.tournaMake.tournamentmanager.isPowerOf2
-import okhttp3.internal.toImmutableList
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.util.UUID
-import kotlin.math.log2
-import kotlin.math.pow
 
 class TestTournamentTree {
     private val staticTree = TournamentTree(8)
-
-    private fun createSampleMatch(withIndex: Int = 0): MatchTM {
-        return MatchTM(
-            matchTmID = UUID.randomUUID().toString(),
-            favorites = 0,
-            date = System.currentTimeMillis(),
-            duration = 0,
-            isOver = 0,
-            gameID = "sampleGame",
-            tournamentID = "sampleTournament",
-            indexInTournamentTree = withIndex
-        )
-    }
-
-    /**
-     * [leavesMatchIDs] is the list of match ids in round 0.
-     * The index of each match is calculated as:
-     * - first index in round = sum for i = roundsNumber - 1 - r
-     * to i = roundsNumber - 1 of 2^i (but r equals 0, so
-     * first index in round 0 is matchesNumber - 2^(roundsNumber - 1),
-     * which for 7 matches with 3 rounds would be 7 - 2^2 = 3)
-     * - number of indexes: 2^(roundsNumber - 1 - r)
-     * */
-    private fun createSampleTournamentMatchData(leavesMatchIDs: List<String>): List<TournamentMatchData> {
-        val mutableList = mutableListOf<TournamentMatchData>()
-        val teamsNumber = leavesMatchIDs.size * 2
-        val roundsNumber = log2(teamsNumber.toDouble()).toInt()
-        val matchesNumber = (2.0.pow(roundsNumber) - 1).toInt()
-        val subtrahend = 2.0.pow(roundsNumber - 1).toInt()
-        val firstIndexInRound0 = matchesNumber - subtrahend
-
-        var indexToPlace = firstIndexInRound0
-        for (i in leavesMatchIDs.indices) {
-            mutableList.add(
-                TournamentMatchData(
-                    matchTmID = leavesMatchIDs[i],
-                    indexInTournamentTree = indexToPlace,
-                    isOver = 0,
-                    gameID = "sampleGame",
-                    tournamentID = "sampleTournament",
-                    teamID = UUID.randomUUID().toString(),
-                    name = "Team${i}1",
-                    isWinner = 0,
-                    score = 0
-                )
-            )
-            mutableList.add(
-                TournamentMatchData(
-                    matchTmID = leavesMatchIDs[i],
-                    indexInTournamentTree = indexToPlace,
-                    isOver = 0,
-                    gameID = "sampleGame",
-                    tournamentID = "sampleTournament",
-                    teamID = UUID.randomUUID().toString(),
-                    name = "Team${i}2",
-                    isWinner = 0,
-                    score = 0
-                )
-            )
-            indexToPlace++
-        }
-        return mutableList.toImmutableList()
-    }
 
     @Test
     fun testPowersOf2() {
