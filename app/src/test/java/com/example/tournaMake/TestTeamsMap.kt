@@ -169,4 +169,48 @@ class TestTeamsMap {
         assertTrue(teamsMap2.getDanglingTeams(::canContinueDouble).map { it.teamID }.contains(team3ID))
         assertFalse(teamsMap2.getDanglingTeams(::canContinueSingle).map { it.teamID }.contains(team3ID))
     }
+
+    @Test
+    fun testMatchesWithFreeSlotsSelection() {
+        val matchesList = listOf(
+            createSampleMatch(withIndex = 3, isOver = 1),
+            createSampleMatch(withIndex = 4, isOver = 0),
+            createSampleMatch(withIndex = 5, isOver = 0),
+            createSampleMatch(withIndex = 6, isOver = 0),
+            // Matches in next rounds
+            createSampleMatch(withIndex = 1),
+            createSampleMatch(withIndex = 2),
+            createSampleMatch(withIndex = 0)
+        )
+        val tournamentMatchData = mutableListOf(
+            createTournamentMatchData(
+                matchID = matchesList[0].matchTmID,
+                indexInTree = matchesList[0].indexInTournamentTree!!,
+                isOver = matchesList[0].isOver,
+                isWinner = 1
+            ),
+            createTournamentMatchData(
+                matchID = matchesList[0].matchTmID,
+                indexInTree = matchesList[0].indexInTournamentTree!!,
+                isOver = matchesList[0].isOver,
+                isWinner = 0
+            )
+        )
+        for (i in 1..3) {
+            tournamentMatchData.add(createTournamentMatchData(
+                matchID = matchesList[i].matchTmID,
+                indexInTree = matchesList[i].indexInTournamentTree!!
+            ))
+            tournamentMatchData.add(createTournamentMatchData(
+                matchID = matchesList[i].matchTmID,
+                indexInTree = matchesList[i].indexInTournamentTree!!
+            ))
+        }
+        val teamsMap = TeamsMap(tournamentMatchData)
+        /* Match at index 4 has one slots, while the other two have both 2 slots. */
+        assertEquals(
+            listOf(matchesList[4], matchesList[5], matchesList[6]),
+            teamsMap.selectMatchesWithEmptySlots(matchesList)
+        )
+    }
 }

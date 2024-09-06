@@ -20,6 +20,10 @@ class TournamentManagerV2(
         bracket = produceBracket()
     }
 
+    /**
+     * Creates the [BracketDisplayModel] needed by the UI that represents
+     * the current state of this tournament.
+     * */
     fun produceBracket(): BracketDisplayModel {
         val roundDisplayModels = mutableListOf<BracketRoundDisplayModel>()
         for (i in 0 until tree.roundsNumber) {
@@ -87,7 +91,7 @@ class TournamentManagerV2(
 
     /**
      * Returns a list of the matches created for the new round.
-     * Should be followed by a call to [findDanglingTeams].
+     * Should be followed by a call to [getDanglingTeams].
      * */
     fun generateNextRoundMatches(): List<MatchTM> {
         // First, find the round to create the matches in
@@ -134,5 +138,20 @@ class TournamentManagerV2(
                 )
             }
         }
+    }
+
+    fun isTournamentOver(): Boolean {
+        return dbMatches.all { it.isOver == 1 }
+    }
+
+    fun getTournamentWinner(): TournamentMatchData {
+        assert(isTournamentOver())
+        val finalMatch = tree.getMatchAtIndex(0)!!
+        val finalists = matchesAndTeamsMap.getTeamsInMatch(finalMatch.matchTmID)!!
+        return if (finalists.first.isWinner == 1) finalists.first else finalists.second!!
+    }
+
+    fun getLoserBracketWinner(): TournamentMatchData? {
+        return null
     }
 }

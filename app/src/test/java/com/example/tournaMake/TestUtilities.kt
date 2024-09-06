@@ -27,6 +27,8 @@ fun createSampleMatch(
 
 /**
  * [leavesMatchIDs] is the list of match ids in round 0.
+ * This function creates sample data for all the teams
+ * competing in round 0, setting all the matches to ongoing.
  * The index of each match is calculated as:
  * - first index in round = sum for i = roundsNumber - 1 - r
  * to i = roundsNumber - 1 of 2^i (but r equals 0, so

@@ -1,5 +1,6 @@
 package com.example.tournaMake.tournamentmanager
 
+import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.sampledata.TournamentMatchData
 
 class TeamsMap(
@@ -57,5 +58,21 @@ class TeamsMap(
             .flatMap { pair -> listOf(pair.first, pair.second) }
             .filterNotNull()
             .filter { it.teamID == teamID }
+    }
+
+    fun selectMatchesWithEmptySlots(allTournamentCreatedMatches: List<MatchTM>): List<MatchTM> {
+        return allTournamentCreatedMatches.filter { match ->
+            val teamsOfMatch = getTeamsInMatch(match.matchTmID)
+            /* This return is a bit strange, but it says:
+            * - if the teamsOfMatch are null, it means the teamsOfMatch?. safe call
+            * "fails" and returns null, so this match is filtered because there are 2
+            * available spots;
+            * - if the teamsOfMatch are not null, but the second team is null, then return
+            * true because there's one available spot
+            * - else if both of the teams are present in teamsOfMatch, return false, because
+            * the match has already all the teams it needs to be played.
+            * */
+            return@filter teamsOfMatch?.second == null
+        }
     }
 }
