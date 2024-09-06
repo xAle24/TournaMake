@@ -13,11 +13,11 @@ class TournamentDataViewModel: ViewModel() {
 
     private val _tournamentName = MutableLiveData<String>()
     val tournamentName: LiveData<String> = _tournamentName
-    private val _dbMatchesInTournament = MutableLiveData<List<MatchTM>>()
-    val dbMatchesInTournament: LiveData<List<MatchTM>> = _dbMatchesInTournament
     private val _tournamentID = MutableLiveData<String>()
     val tournamentID: LiveData<String> = _tournamentID
     var tournamentMatchesAndTeamsLiveData: LiveData<List<TournamentMatchData>> = MutableLiveData()
+    private set
+    var dbMatchesInTournament: LiveData<List<MatchTM>> = MutableLiveData()
     private set
 
     fun changeMatchesList(list: List<TournamentMatchData>) {
@@ -32,9 +32,8 @@ class TournamentDataViewModel: ViewModel() {
         tournamentMatchesAndTeamsLiveData = appDatabase.value
             .tournamentDao()
             .getTournamentMatchLiveData(tournamentID)
-    }
-
-    fun changeDbMatches(matches: List<MatchTM>) {
-        _dbMatchesInTournament.postValue(matches)
+        dbMatchesInTournament = appDatabase.value
+            .matchDao()
+            .getMatchesInTournament(tournamentID)
     }
 }

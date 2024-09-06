@@ -81,6 +81,7 @@ fun createTournamentMatchData(
     matchID: String,
     indexInTree: Int,
     teamID: String = UUID.randomUUID().toString(),
+    teamName: String = "Team",
     isOver: Int = 0,
     isWinner: Int = 0
 ): TournamentMatchData {
@@ -91,7 +92,7 @@ fun createTournamentMatchData(
         gameID = "sampleGame",
         tournamentID = "sampleTournament",
         teamID = teamID,
-        name = "Team",
+        name = teamName,
         isWinner = isWinner,
         score = 0
     )

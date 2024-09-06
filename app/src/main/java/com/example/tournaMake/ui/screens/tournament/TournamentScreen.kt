@@ -9,16 +9,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,7 +30,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.example.tournaMake.activities.endTournament
 import com.example.tournaMake.activities.fetchStuffForTournament
+import com.example.tournaMake.activities.insertNewMatches
+import com.example.tournaMake.activities.insertNewTeamInTms
 import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.models.TournamentDataViewModel
@@ -64,11 +71,50 @@ fun TournamentScreen(
     if (tournamentMatchLiveData != null && dbMatches != null && tournamentName != null) {
         tournamentManager =
             TournamentManagerV2(tournamentMatchLiveData!!, dbMatches!!, tournamentName!!)
+        if (tournamentManager.shouldOtherMatchesBeCreated()) {
+            val matches = tournamentManager.generateNextRoundMatches()
+            insertNewMatches(matches, owner)
+        }
+
+        val danglingTeams = tournamentManager.getDanglingTeams()
+        if (danglingTeams.isNotEmpty()) {
+            val matchesWithAvailableSlots = tournamentManager.filterMatchesWithAvailableSlots()
+            val mapOfTeamsAndMatches = tournamentManager.associateTeamsWithNextMatches(
+                teams = danglingTeams,
+                newMatches = matchesWithAvailableSlots
+            )
+            if (mapOfTeamsAndMatches.isNotEmpty()) {
+                insertNewTeamInTms(mapOfTeamsAndMatches, owner)
+            }
+        }
+        if (tournamentManager.isTournamentOver()) {
+            endTournament(
+                tournamentID = tournamentID.value,
+                winnerTeamID = tournamentManager.getTournamentWinner().teamID,
+                owner = owner
+            )
+        }
     }
 
     if (tournamentManager != null) {
         val privateBracket = tournamentManager.produceBracket()
         val bracket by remember { mutableStateOf(privateBracket) }
+        var shouldDisplayDialog by remember {
+            mutableStateOf(tournamentManager.isTournamentOver())
+        }
+        if (shouldDisplayDialog) {
+            AlertDialog(
+                onDismissRequest = { shouldDisplayDialog = false },
+                confirmButton = {
+                    Button(onClick = { shouldDisplayDialog = false }) {
+                        Text("Good stuff!")
+                    }
+                },
+                title = {
+                    Text("Tournament is over! ${tournamentManager.getTournamentWinner().name} WIN!")
+                }
+            )
+        }
 
         // UI Code
         BasicScreenWithTheme(

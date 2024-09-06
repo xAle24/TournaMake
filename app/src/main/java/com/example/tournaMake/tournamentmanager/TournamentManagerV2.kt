@@ -38,23 +38,39 @@ class TournamentManagerV2(
                         if (dbMatch == null) {
                             return@map createMatchWithPlaceholders()
                         } else {
-                            val teams = matchesAndTeamsMap.getTeamsInMatch(dbMatch.matchTmID)!!
+                            val teams = matchesAndTeamsMap.getTeamsInMatch(dbMatch.matchTmID)
                             val tournamentMatchData =
-                                tournamentDataList.first { it.matchTmID == dbMatch.matchTmID }
-                            return@map BracketMatchDisplayModel(
-                                topTeam = BracketTeamDisplayModel(
-                                    name = teams.first.name,
-                                    isWinner = teams.first.isWinner == 1,
-                                    score = teams.first.score.toString()
-                                ),/* The second team might be null if the first one is alone in a match
-                                * in a higher round and nobody else has completed their match yet. */
-                                bottomTeam = if (teams.second != null) BracketTeamDisplayModel(
-                                    name = teams.second!!.name,
-                                    isWinner = teams.second!!.isWinner == 1,
-                                    score = teams.second!!.score.toString()
+                                tournamentDataList.firstOrNull { it.matchTmID == dbMatch.matchTmID }
+                            if (teams?.first != null && teams.second != null)
+                                return@map BracketMatchDisplayModel(
+                                    topTeam = BracketTeamDisplayModel(
+                                        name = teams.first.name,
+                                        isWinner = teams.first.isWinner == 1,
+                                        score = teams.first.score.toString()
+                                    ),
+                                    bottomTeam = BracketTeamDisplayModel(
+                                        name = teams.second!!.name,
+                                        isWinner = teams.second!!.isWinner == 1,
+                                        score = teams.second!!.score.toString()
+                                    ),
+                                    tournamentData = tournamentMatchData
                                 )
-                                else createPlaceholderTeam(), tournamentData = tournamentMatchData
-                            )
+                            else if (teams?.first != null)
+                                return@map BracketMatchDisplayModel(
+                                    topTeam = BracketTeamDisplayModel(
+                                        name = teams.first.name,
+                                        isWinner = teams.first.isWinner == 1,
+                                        score = teams.first.score.toString()
+                                    ),
+                                    bottomTeam = createPlaceholderTeam(),
+                                    tournamentData = tournamentMatchData
+                                )
+                            else
+                                return@map BracketMatchDisplayModel(
+                                    topTeam = createPlaceholderTeam(),
+                                    bottomTeam = createPlaceholderTeam(),
+                                    tournamentData = null
+                                )
                         }
                     })
             )
@@ -115,11 +131,19 @@ class TournamentManagerV2(
     /**
      * In a Single Elimination Tournament, a team can continue
      * only if it always won.
+     * After getting the dangling teams, you should call [filterMatchesWithAvailableSlots]
+     * to get a list of the matches with free slots, than combine each of these
+     * matches with the teams got through this method by calling
+     * [associateTeamsWithNextMatches].
      * */
     fun getDanglingTeams(): List<TournamentMatchData> {
-        return this.matchesAndTeamsMap.getDanglingTeams { teamParticipations ->
-            teamParticipations.all { it.isWinner == 1 }
-        }
+        /* This if is necessary because current implementation
+        * considers the winning finalist as dangling
+        * */
+        return if (this.isTournamentOver()) emptyList() else
+            this.matchesAndTeamsMap.getDanglingTeams { teamParticipations ->
+                teamParticipations.all { it.isWinner == 1 }
+            }
     }
 
     fun associateTeamsWithNextMatches(
@@ -138,6 +162,10 @@ class TournamentManagerV2(
                 )
             }
         }
+    }
+
+    fun filterMatchesWithAvailableSlots(): List<MatchTM> {
+        return matchesAndTeamsMap.selectMatchesWithEmptySlots(this.tree.matchesList.filterNotNull())
     }
 
     fun isTournamentOver(): Boolean {

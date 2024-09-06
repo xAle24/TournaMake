@@ -150,7 +150,7 @@ interface MatchDao {
     fun isDraw(matchID: String): Boolean
 
     @Query("SELECT * FROM MATCH_TM WHERE tournamentID = :tournamentID")
-    fun getMatchesInTournament(tournamentID: String): List<MatchTM>
+    fun getMatchesInTournament(tournamentID: String): LiveData<List<MatchTM>>
 
     @Insert
     fun insertAll(vararg matches: MatchTM)
@@ -264,6 +264,33 @@ interface TournamentDao {
 
     @Query("SELECT * FROM TOURNAMENT WHERE tournamentID = :tournamentID")
     fun getTournamentFromID(tournamentID: String): Tournament
+
+    @Query("""
+    UPDATE 
+        TOURNAMENT 
+    SET 
+        isOver = 1 
+    WHERE 
+        tournamentID = :tournamentID;
+    """)
+    fun endTournament(tournamentID: String)
+
+    @Query("""
+    UPDATE 
+        MAIN_PROFILE
+    SET
+        wonTournamentsNumber = wonTournamentsNumber + 1
+    WHERE
+        MAIN_PROFILE.email
+    IN (
+        SELECT MAIN_PROFILE.email
+        FROM MAIN_PROFILE
+        JOIN MAIN_PARTICIPANT ON MAIN_PARTICIPANT.email = MAIN_PROFILE.email
+        JOIN TEAM ON TEAM.teamID = MAIN_PARTICIPANT.teamID
+        WHERE TEAM.teamID = :teamID
+    )
+    """)
+    fun incrementWonTournamentsNumberOfMembersInTeam(teamID: String)
 }
 
 @Dao
@@ -348,6 +375,9 @@ interface TeamInTmDao {
 
     @Update
     fun updateTeamInTms(teamInTMs: List<TeamInTm>)
+
+    @Insert
+    fun insertAll(vararg teamInTm: TeamInTm)
 
     @Delete
     suspend fun delete(teamInTm: TeamInTm)

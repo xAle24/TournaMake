@@ -60,6 +60,11 @@ class TeamsMap(
             .filter { it.teamID == teamID }
     }
 
+    /**
+     * Filters the given [allTournamentCreatedMatches] list, and returns
+     * a list of all the matches that have one or two empty slots.
+     * Use this to create the correct TEAM_IN_TM entities.
+     * */
     fun selectMatchesWithEmptySlots(allTournamentCreatedMatches: List<MatchTM>): List<MatchTM> {
         return allTournamentCreatedMatches.filter { match ->
             val teamsOfMatch = getTeamsInMatch(match.matchTmID)

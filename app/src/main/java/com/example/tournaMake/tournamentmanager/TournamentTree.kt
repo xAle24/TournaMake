@@ -63,8 +63,11 @@ class TournamentTree(
             val matchesFromTournamentMatchData = tournamentMatchDataList
                 .groupBy { it.matchTmID }
             assert(matchesFromTournamentMatchData.size <= totalMatches)
-            assert(matchesFromTournamentMatchData.size == dbMatchesList.size)
-            assert(matchesFromTournamentMatchData.keys.containsAll(dbMatchesList.map { it.matchTmID }))
+            /* The following assert would not be correct with ==, because
+            * sometimes matches can be created even if there are no teams
+            * that can play in them yet!*/
+            assert(matchesFromTournamentMatchData.size <= dbMatchesList.size)
+            assert(dbMatchesList.map { it.matchTmID }.containsAll(matchesFromTournamentMatchData.keys))
             dbMatchesList.forEach { nullMatchesList[it.indexInTournamentTree!!] = it }
         }
         matchesList = nullMatchesList.toImmutableList()
