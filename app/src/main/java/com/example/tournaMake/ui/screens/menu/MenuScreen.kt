@@ -101,7 +101,6 @@ fun MenuScreen(
         }
         Column(
             modifier = Modifier.fillMaxHeight(1f),
-            verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
@@ -120,19 +119,25 @@ fun MenuScreen(
             }
             Row(
                 modifier = Modifier.fillMaxWidth(0.95f),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                MenuButton(
-                    "Logout", { navController.navigate(NavigationRoute.MainScreen.route) }, R.drawable.backicon, state,
-                    modifier = Modifier
-                        .fillMaxWidth(0.4f)
-                        .fillMaxHeight(0.05f)
-                )
-                MenuButton("", { showDialog.value = true }, R.drawable.bellnotification, state,
-                    modifier = Modifier
-                        .fillMaxWidth(0.3f)
-                        .fillMaxHeight(0.05f)
-                )
+                Box {
+                    MenuButton(
+                        "Logout", { navController.navigate(NavigationRoute.MainScreen.route) }, R.drawable.backicon, state,
+                        modifier = Modifier
+                            .fillMaxWidth(0.4f)
+                            .fillMaxHeight(0.05f)
+                    )
+                }
+                Box {
+                    MenuButton("", { showDialog.value = true },
+                        if(notifications.value?.size == 0) R.drawable.bellnotification else R.drawable.bellnotificationtoread,
+                        state,
+                        modifier = Modifier
+                            .fillMaxWidth(0.3f)
+                            .fillMaxHeight(0.05f)
+                    )
+                }
             }
             Image(
                 painter = painterResource(id = imageLogoId),
@@ -254,7 +259,9 @@ fun NotificationCard(
         ) {
             Text(
                 notification.description,
-                modifier = Modifier.padding(0.dp, 10.dp).fillMaxWidth(0.8f),
+                modifier = Modifier
+                    .padding(0.dp, 10.dp)
+                    .fillMaxWidth(0.8f),
                 style = MaterialTheme.typography.displaySmall,
                 fontSize = 22.sp
             )
