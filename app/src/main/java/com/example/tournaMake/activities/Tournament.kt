@@ -95,8 +95,8 @@ fun insertNewTeamInTms(
         TeamInTm(
             teamID = it.key.teamID,
             matchTmID = it.value.matchTmID,
-            score = it.key.score,
-            isWinner = it.key.isWinner
+            score = 0,
+            isWinner = 0
         )
     }
     owner.lifecycleScope.launch(Dispatchers.IO) {
@@ -104,6 +104,7 @@ fun insertNewTeamInTms(
             appDatabase.teamInTmDao().insertAll(*teamInTms.toTypedArray())
         } catch (e: Exception) {
             e.printStackTrace()
+            throw e
         }
     }
 }

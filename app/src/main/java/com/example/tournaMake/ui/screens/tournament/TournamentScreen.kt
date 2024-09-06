@@ -42,6 +42,7 @@ import com.example.tournaMake.mylibrary.ui.SingleEliminationBracket
 import com.example.tournaMake.tournamentmanager.TournamentManagerV2
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.runBlocking
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -64,8 +65,8 @@ fun TournamentScreen(
     fetchStuffForTournament(tournamentID.value, tournamentDataViewModel, owner)
 
     // Observing live data
-    val tournamentMatchLiveData by tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.observeAsState()
     val dbMatches by tournamentDataViewModel.dbMatchesInTournament.observeAsState()
+    val tournamentMatchLiveData by tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.observeAsState()
     val tournamentName by tournamentDataViewModel.tournamentName.observeAsState()
 
     if (tournamentMatchLiveData != null && dbMatches != null && tournamentName != null) {
@@ -73,26 +74,33 @@ fun TournamentScreen(
             TournamentManagerV2(tournamentMatchLiveData!!, dbMatches!!, tournamentName!!)
         if (tournamentManager.shouldOtherMatchesBeCreated()) {
             val matches = tournamentManager.generateNextRoundMatches()
-            insertNewMatches(matches, owner)
-        }
-
-        val danglingTeams = tournamentManager.getDanglingTeams()
-        if (danglingTeams.isNotEmpty()) {
+            runBlocking {
+                insertNewMatches(matches, owner) // asynchronous
+            }
+        } else {
+            val danglingTeams = tournamentManager.getDanglingTeams()
+            Log.d("DEV-DANGLING", "Dangling teams: $danglingTeams")
             val matchesWithAvailableSlots = tournamentManager.filterMatchesWithAvailableSlots()
-            val mapOfTeamsAndMatches = tournamentManager.associateTeamsWithNextMatches(
-                teams = danglingTeams,
-                newMatches = matchesWithAvailableSlots
-            )
-            if (mapOfTeamsAndMatches.isNotEmpty()) {
-                insertNewTeamInTms(mapOfTeamsAndMatches, owner)
+            if (matchesWithAvailableSlots.isNotEmpty() && danglingTeams.isNotEmpty()) {
+                val mapOfTeamsAndMatches = tournamentManager.associateTeamsWithNextMatches(
+                    teams = danglingTeams,
+                    newMatches = matchesWithAvailableSlots
+                )
+                if (mapOfTeamsAndMatches.isNotEmpty()) {
+                    runBlocking {
+                        insertNewTeamInTms(mapOfTeamsAndMatches, owner) // asynchronous
+                    }
+                }
             }
         }
         if (tournamentManager.isTournamentOver()) {
-            endTournament(
-                tournamentID = tournamentID.value,
-                winnerTeamID = tournamentManager.getTournamentWinner().teamID,
-                owner = owner
-            )
+            runBlocking {
+                endTournament( // asynchronous
+                    tournamentID = tournamentID.value,
+                    winnerTeamID = tournamentManager.getTournamentWinner().teamID,
+                    owner = owner
+                )
+            }
         }
     }
 

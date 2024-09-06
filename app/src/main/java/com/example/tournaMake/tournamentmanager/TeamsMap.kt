@@ -38,10 +38,13 @@ class TeamsMap(
     fun getDanglingTeams(canContinue: (List<TournamentMatchData>) -> Boolean): List<TournamentMatchData> {
         return this.teamsMap.values
             .flatMap { pair -> listOf(pair.first, pair.second) }
+            .asSequence()
             .filterNotNull()
             .groupBy { it.teamID }
             .filter { canContinue(it.value) }
             .map { getLatestMatchData(it.value) }
+            .filter { it.isOver == 1 } // we only want the teams whose last match is over
+            .toList()
     }
 
     /**

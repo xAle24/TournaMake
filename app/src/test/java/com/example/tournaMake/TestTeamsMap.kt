@@ -164,8 +164,8 @@ class TestTeamsMap {
         assertEquals(team2ID, teamsMap.getDanglingTeams(::canContinueSingle).first().teamID)
 
         val teamsMap2 = TeamsMap(team1History + team2History + team3History)
-        assertEquals(1, teamsMap.getDanglingTeams(::canContinueSingle).size)
-        assertEquals(2, teamsMap.getDanglingTeams(::canContinueDouble).size)
+        assertEquals(1, teamsMap2.getDanglingTeams(::canContinueSingle).size)
+        assertEquals(2, teamsMap2.getDanglingTeams(::canContinueDouble).size)
         assertTrue(teamsMap2.getDanglingTeams(::canContinueDouble).map { it.teamID }.contains(team3ID))
         assertFalse(teamsMap2.getDanglingTeams(::canContinueSingle).map { it.teamID }.contains(team3ID))
     }
