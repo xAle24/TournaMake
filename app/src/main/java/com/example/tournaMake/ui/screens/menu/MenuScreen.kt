@@ -1,5 +1,6 @@
 package com.example.tournaMake.ui.screens.menu
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +37,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -126,7 +128,7 @@ fun MenuScreen(
                         "Logout", { navController.navigate(NavigationRoute.MainScreen.route) }, R.drawable.backicon, state,
                         modifier = Modifier
                             .fillMaxWidth(0.4f)
-                            .fillMaxHeight(0.05f)
+                            .fillMaxHeight(0.06f)
                     )
                 }
                 Box {
@@ -134,8 +136,8 @@ fun MenuScreen(
                         if(notifications.value?.size == 0) R.drawable.bellnotification else R.drawable.bellnotificationtoread,
                         state,
                         modifier = Modifier
-                            .fillMaxWidth(0.3f)
-                            .fillMaxHeight(0.05f)
+                            .fillMaxWidth(0.35f)
+                            .fillMaxHeight(0.06f)
                     )
                 }
             }
@@ -186,10 +188,15 @@ fun MenuButton(
     val colorConstants = getThemeColors(themeState = state)
     Button(
         onClick = onClick,
-        modifier = modifier.background(colorConstants.getButtonBackground()),
+        modifier = modifier
+            .clip(RoundedCornerShape(30.dp))
+            .height(60.dp)
+            .fillMaxWidth(0.9f)
+            .background(colorConstants.getButtonBackground()),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent
-        )
+        ),
+        border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
     ) {
         Icon(
             painter = painterResource(id = iconId),
