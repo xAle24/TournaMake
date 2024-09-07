@@ -105,7 +105,7 @@ fun ProfileListScreen(
 
     BasicScreenWithAppBars(
         state = state,
-        backFunction = { navController.navigate(NavigationRoute.MenuScreen.route) },
+        backFunction = { navController.navigateUp() },
         showTopBar = true,
         showBottomBar = true
     ) {

@@ -48,7 +48,6 @@ import androidx.navigation.NavController
 import com.example.tournaMake.R
 import com.example.tournaMake.activities.createMatch
 import com.example.tournaMake.activities.fetchDataForMatchCreation
-import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.data.models.GuestProfileListViewModel
 import com.example.tournaMake.data.models.MatchCreationViewModel
 import com.example.tournaMake.data.models.MatchViewModel
@@ -81,7 +80,7 @@ fun MatchCreationScreen(
     val context = LocalContext.current
     BasicScreenWithAppBars(
         state = state,
-        backFunction = { navController.navigate(NavigationRoute.MatchesListScreen.route) },
+        backFunction = { navController.navigateUp() },
         showTopBar = true,
         showBottomBar = false
     ) {

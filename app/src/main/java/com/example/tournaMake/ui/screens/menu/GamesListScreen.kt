@@ -51,7 +51,6 @@ import androidx.navigation.NavController
 import com.example.tournaMake.R
 import com.example.tournaMake.activities.addGame
 import com.example.tournaMake.activities.addGameToFavorites
-import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.activities.removeGameFromFavorites
 import com.example.tournaMake.data.models.GamesListViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
@@ -76,7 +75,7 @@ fun GamesListScreen(
 
     BasicScreenWithAppBars(
         state = state,
-        backFunction = { navController.navigate(NavigationRoute.MenuScreen.route) },
+        backFunction = { navController.navigateUp() },
         showTopBar = true,
         showBottomBar = false
     ) {

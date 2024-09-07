@@ -2,7 +2,6 @@ package com.example.tournaMake.activities.navgraph
 
 import android.content.ContentResolver
 import android.util.Log
-import android.view.Window
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.LifecycleOwner
@@ -73,7 +72,6 @@ fun NavGraph(
             LoginScreen(navController, owner)
         }
         composable(NavigationRoute.RegistrationScreen.route) {
-            // TODO: the user is not informed if there is a duplicate email
             RegistrationScreen(navController, owner)
         }
         composable(NavigationRoute.MenuScreen.route) {
@@ -93,7 +91,7 @@ fun NavGraph(
         }
         composable(NavigationRoute.MatchScreen.route) {
             val previousStackEntry = navController.previousBackStackEntry
-            var callerRoute = previousStackEntry?.destination?.route
+            val callerRoute = previousStackEntry?.destination?.route
 
             /**
              * Navigation, based on the callerRoute:
