@@ -18,7 +18,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -106,15 +108,20 @@ fun TournamentScreen(
 
     if (tournamentManager != null) {
         val privateBracket = tournamentManager.produceBracket()
-        val bracket by remember { mutableStateOf(privateBracket) }
-        var shouldDisplayDialog by remember {
-            mutableStateOf(tournamentManager.isTournamentOver())
+        var show by remember {
+            mutableStateOf(false)
         }
-        if (shouldDisplayDialog) {
+
+        // Trigger a check (if needed)
+        LaunchedEffect(Unit) {
+            show = tournamentManager.isTournamentOver()
+        }
+
+        if (show) {
             AlertDialog(
-                onDismissRequest = { shouldDisplayDialog = false },
+                onDismissRequest = { show = false },
                 confirmButton = {
-                    Button(onClick = { shouldDisplayDialog = false }) {
+                    Button(onClick = { show = false }) {
                         Text("Good stuff!")
                     }
                 },
@@ -137,7 +144,7 @@ fun TournamentScreen(
             ) {
 
                 /** For now we only handle a single elimination tournament. */
-                SingleEliminationBracket(bracket = bracket, navController = navController)
+                SingleEliminationBracket(bracket = privateBracket, navController = navController)
 
                 Box(
                     modifier = Modifier.fillMaxSize(),

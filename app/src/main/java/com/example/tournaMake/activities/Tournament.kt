@@ -1,24 +1,15 @@
 package com.example.tournaMake.activities
 
-import android.view.Window
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.tournaMake.data.models.TournamentDataViewModel
-import com.example.tournaMake.mylibrary.displaymodels.BracketDisplayModel
-import com.example.tournaMake.mylibrary.displaymodels.BracketMatchDisplayModel
-import com.example.tournaMake.mylibrary.displaymodels.BracketRoundDisplayModel
-import com.example.tournaMake.mylibrary.displaymodels.BracketTeamDisplayModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.sampledata.TeamInTm
 import com.example.tournaMake.sampledata.TournamentMatchData
-import com.example.tournaMake.tournamentmanager.TournamentManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.inject
-import kotlin.math.ceil
-import kotlin.math.log2
 
 data class MatchAsCompetingTeams(
     val matchID: String, // needed for database
@@ -57,10 +48,9 @@ fun fetchStuffForTournament(
         try {
             val tournamentMatchesAndTeamsData =
                 appDatabase.tournamentDao().getMatchesAndTeamsFromTournamentID(tournamentID)
-            val matchesInTournament = appDatabase.matchDao().getMatchesInTournament(tournamentID)
             val tournament = appDatabase.tournamentDao().getTournamentFromID(tournamentID)
             //tournamentDataViewModel.changeMatchesList(tournamentMatchesAndTeamsData)
-            tournamentDataViewModel.refresh(tournament.name, tournamentID)
+            tournamentDataViewModel.refresh(tournament.name)
         } catch (e: Exception) {
             e.printStackTrace()
         }

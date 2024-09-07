@@ -14,7 +14,7 @@ class TournamentIDRepository(private val dataStore: DataStore<Preferences>) {
         private val TOURNAMENT_ID = stringPreferencesKey("tournamentID")
     }
 
-    val tournamentID = dataStore.data.map { data -> data[TOURNAMENT_ID]}
+    val tournamentID = dataStore.data.map { data -> data[TOURNAMENT_ID] }
 
     suspend fun setTournamentID(id: String) {
         dataStore.edit { it[TOURNAMENT_ID] = id }

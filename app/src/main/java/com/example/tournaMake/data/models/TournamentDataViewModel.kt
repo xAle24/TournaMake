@@ -1,39 +1,49 @@
 package com.example.tournaMake.data.models
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.tournaMake.sampledata.AppDatabase
+import androidx.lifecycle.asLiveData
+import com.example.tournaMake.data.repositories.TournamentIDRepository
+import com.example.tournaMake.data.repositories.TournamentLiveDataRepository
 import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.sampledata.TournamentMatchData
-import org.koin.java.KoinJavaComponent.inject
 
-class TournamentDataViewModel: ViewModel() {
-    val appDatabase = inject<AppDatabase>(AppDatabase::class.java)
-
+class TournamentDataViewModel(
+    private val liveDataRepository: TournamentLiveDataRepository,
+    tournamentIDRepository: TournamentIDRepository
+): ViewModel() {
     private val _tournamentName = MutableLiveData<String>()
     val tournamentName: LiveData<String> = _tournamentName
-    private val _tournamentID = MutableLiveData<String>()
-    val tournamentID: LiveData<String> = _tournamentID
-    var tournamentMatchesAndTeamsLiveData: LiveData<List<TournamentMatchData>> = MutableLiveData()
-    private set
-    var dbMatchesInTournament: LiveData<List<MatchTM>> = MutableLiveData()
-    private set
+    val tournamentID = tournamentIDRepository.tournamentID.asLiveData()
 
-    fun changeMatchesList(list: List<TournamentMatchData>) {
-        //_tournamentData.postValue(list)
-        // TODO: eliminate dependencies and then this method
+    private val _tournamentMatchesLiveData = MediatorLiveData<List<TournamentMatchData>>()
+    val tournamentMatchesAndTeamsLiveData: LiveData<List<TournamentMatchData>> = _tournamentMatchesLiveData
 
+    private val _dbMatchesInTournament = MediatorLiveData<List<MatchTM>>()
+    val dbMatchesInTournament: LiveData<List<MatchTM>> = _dbMatchesInTournament
+
+    init {
+        _tournamentMatchesLiveData.addSource(tournamentID) {
+            if (tournamentID.value != null) {
+                val tournamentDataSource = liveDataRepository.getTournamentMatchesLiveData(tournamentID.value!!)
+                _tournamentMatchesLiveData.addSource(tournamentDataSource) {
+                    _tournamentMatchesLiveData.value = it
+                }
+            }
+        }
+        _dbMatchesInTournament.addSource(tournamentID) {
+            if (tournamentID.value != null) {
+                val dbMatchesSource = liveDataRepository.getMatchesLiveData(tournamentID.value!!)
+                _dbMatchesInTournament.addSource(dbMatchesSource) {
+                    _dbMatchesInTournament.value = it
+                }
+            }
+        }
     }
 
-    fun refresh(name: String, tournamentID: String) {
+    fun refresh(name: String) {
         _tournamentName.postValue(name)
-        _tournamentID.postValue(tournamentID)
-        tournamentMatchesAndTeamsLiveData = appDatabase.value
-            .tournamentDao()
-            .getTournamentMatchLiveData(tournamentID)
-        dbMatchesInTournament = appDatabase.value
-            .matchDao()
-            .getMatchesInTournament(tournamentID)
     }
 }
