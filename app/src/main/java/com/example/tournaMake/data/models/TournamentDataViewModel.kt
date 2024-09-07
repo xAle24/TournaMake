@@ -5,6 +5,7 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.switchMap
 import com.example.tournaMake.data.repositories.TournamentIDRepository
 import com.example.tournaMake.data.repositories.TournamentLiveDataRepository
 import com.example.tournaMake.sampledata.MatchTM

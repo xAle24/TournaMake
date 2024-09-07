@@ -71,6 +71,8 @@ fun TournamentScreen(
     val tournamentMatchLiveData by tournamentDataViewModel.tournamentMatchesAndTeamsLiveData.observeAsState()
     val tournamentName by tournamentDataViewModel.tournamentName.observeAsState()
 
+    Log.d("DEV-TOURNAMENT-SCREEN", "Tournament name: $tournamentName")
+
     if (tournamentMatchLiveData != null && dbMatches != null && tournamentName != null) {
         tournamentManager =
             TournamentManagerV2(tournamentMatchLiveData!!, dbMatches!!, tournamentName!!)
@@ -113,7 +115,7 @@ fun TournamentScreen(
         }
 
         // Trigger a check (if needed)
-        LaunchedEffect(Unit) {
+        LaunchedEffect(tournamentManager.isTournamentOver()) {
             show = tournamentManager.isTournamentOver()
         }
 
