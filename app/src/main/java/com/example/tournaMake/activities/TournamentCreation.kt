@@ -122,8 +122,6 @@ fun navigateToTournament(
         owner.lifecycleScope.launch(Dispatchers.IO) {
             try { //insert tournament in database
                 db.value.tournamentDao().insertAll(tournament)
-                // Saving to shared preferences
-                tournamentIDViewModel.saveTournamentIDInPreferences(tournamentID)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -206,5 +204,7 @@ fun navigateToTournament(
             }
         }
     }
+    // Saving to shared preferences
+    tournamentIDViewModel.saveTournamentIDInPreferences(tournamentID)
     navController.navigate(NavigationRoute.TournamentScreen.route)
 }
