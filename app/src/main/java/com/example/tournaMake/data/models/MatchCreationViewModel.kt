@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.tournaMake.data.repositories.GamesListRepository
 import com.example.tournaMake.sampledata.Game
 import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainProfile
@@ -11,14 +12,9 @@ import com.example.tournaMake.ui.screens.match.TeamUI
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class MatchCreationViewModel: ViewModel() {
+class MatchCreationViewModel(repository: GamesListRepository): ViewModel() {
     // The list of games visible when selecting the game played in this match
-    private val _games = MutableLiveData<List<Game>>()
-    val games: LiveData<List<Game>> = _games
-
-    fun changeGamesList(list: List<Game>) {
-        this._games.postValue(list)
-    }
+    val games: LiveData<List<Game>> = repository.getAllGames()
 
     // List of main profiles
     private val _mainProfiles = MutableLiveData<List<MainProfile>>()

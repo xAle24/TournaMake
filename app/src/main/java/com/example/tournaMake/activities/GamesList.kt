@@ -9,18 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.inject
 
-fun fetchAndUpdateGameList(gamesListViewModel: GamesListViewModel, owner: LifecycleOwner) {
-    val appDatabase = inject<AppDatabase>(AppDatabase::class.java)
-    var gamesList: List<Game>
-    owner.lifecycleScope.launch(Dispatchers.IO) {
-        try {
-            gamesList = appDatabase.value.gameDao().getAll()
-            gamesListViewModel.changeGameList(gamesList)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-}
 fun addGame(game: Game, owner: LifecycleOwner) {
     val appDatabase = inject<AppDatabase>(AppDatabase::class.java)
     owner.lifecycleScope.launch(Dispatchers.IO) {

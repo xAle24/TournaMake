@@ -40,11 +40,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.tournaMake.R
-import com.example.tournaMake.activities.fetchAndUpdateGamesList
 import com.example.tournaMake.activities.fetchAndUpdateGuestProfileList
 import com.example.tournaMake.activities.fetchAndUpdateMainProfileList
 import com.example.tournaMake.activities.fetchAndUpdateTournamentTypeList
@@ -52,22 +50,15 @@ import com.example.tournaMake.activities.fetchData
 import com.example.tournaMake.activities.navigateToTournament
 import com.example.tournaMake.data.models.MatchCreationViewModel
 import com.example.tournaMake.data.models.ThemeEnum
-import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.models.TournamentCreationViewModel
 import com.example.tournaMake.sampledata.Game
-import com.example.tournaMake.sampledata.GuestProfile
-import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.sampledata.TournamentType
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.screens.match.TeamContainer
-import com.example.tournaMake.ui.screens.match.TeamUI
 import com.example.tournaMake.ui.screens.match.TeamUIImpl
 import com.example.tournaMake.ui.theme.getThemeColors
-import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.koinViewModel
-import java.util.stream.Collectors
-import kotlin.reflect.KFunction4
 
 @Composable
 fun TournamentCreationScreen(
@@ -78,7 +69,6 @@ fun TournamentCreationScreen(
     val state by themeViewModel.state.collectAsStateWithLifecycle()
     val tournamentCreationViewModel = koinViewModel<TournamentCreationViewModel>()
     val matchCreationViewModel = koinViewModel<MatchCreationViewModel>()
-    fetchAndUpdateGamesList(tournamentCreationViewModel, owner)
     fetchAndUpdateTournamentTypeList(tournamentCreationViewModel, owner)
     fetchAndUpdateGuestProfileList(tournamentCreationViewModel, owner)
     fetchAndUpdateMainProfileList(tournamentCreationViewModel, owner)

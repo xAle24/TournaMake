@@ -51,7 +51,6 @@ import androidx.navigation.NavController
 import com.example.tournaMake.R
 import com.example.tournaMake.activities.addGame
 import com.example.tournaMake.activities.addGameToFavorites
-import com.example.tournaMake.activities.fetchAndUpdateGameList
 import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.activities.removeGameFromFavorites
 import com.example.tournaMake.data.models.GamesListViewModel
@@ -72,7 +71,6 @@ fun GamesListScreen(
     val colorConstants = getThemeColors(themeState = state)
     // View Model of profile list
     val gamesListViewModel = koinViewModel<GamesListViewModel>()
-    fetchAndUpdateGameList(gamesListViewModel, owner)
     val gameList = gamesListViewModel.gamesListLiveData.observeAsState()
     var showDialog by remember { mutableStateOf(false) }
 

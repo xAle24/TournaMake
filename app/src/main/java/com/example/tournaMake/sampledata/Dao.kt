@@ -62,7 +62,7 @@ data class PlayedGame(
 @Dao
 interface GameDao {
     @Query("SELECT * FROM GAME")
-    fun getAll(): List<Game>
+    fun getAll(): LiveData<List<Game>>
 
     @Query(
         """

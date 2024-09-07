@@ -33,21 +33,8 @@ fun fetchData(vm: MatchCreationViewModel, owner: LifecycleOwner) {
             val games = db.value.gameDao().getAll()
             val mainProfiles = db.value.mainProfileDao().getAll()
             val guestProfiles = db.value.guestProfileDao().getAll()
-            vm.changeGamesList(games ?: emptyList())
             vm.changeMainProfiles(mainProfiles ?: emptyList())
             vm.changeGuestProfiles(guestProfiles ?: emptyList())
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-}
-fun fetchAndUpdateGamesList(tournamentCreationViewModel: TournamentCreationViewModel, owner: LifecycleOwner) {
-    var gamesList: List<Game>
-    val db = KoinJavaComponent.inject<AppDatabase>(AppDatabase::class.java)
-    owner.lifecycleScope.launch(Dispatchers.IO) {
-        try {
-            gamesList = db.value.gameDao().getAll()
-            tournamentCreationViewModel.changeGameList(gamesList)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -67,7 +54,7 @@ fun fetchAndUpdateTournamentTypeList(tournamentCreationViewModel: TournamentCrea
 }
 fun fetchAndUpdateGuestProfileList(tournamentCreationViewModel: TournamentCreationViewModel, owner: LifecycleOwner) {
     var guestProfileList: List<GuestProfile>
-    val db = KoinJavaComponent.inject<AppDatabase>(AppDatabase::class.java)
+    val db = inject<AppDatabase>(AppDatabase::class.java)
     owner.lifecycleScope.launch(Dispatchers.IO) {
         try {
             guestProfileList = db.value.guestProfileDao().getAll()
@@ -79,7 +66,7 @@ fun fetchAndUpdateGuestProfileList(tournamentCreationViewModel: TournamentCreati
 }
 fun fetchAndUpdateMainProfileList(tournamentCreationViewModel: TournamentCreationViewModel, owner: LifecycleOwner) {
     var mainProfileList: List<MainProfile>
-    val db = KoinJavaComponent.inject<AppDatabase>(AppDatabase::class.java)
+    val db = inject<AppDatabase>(AppDatabase::class.java)
     owner.lifecycleScope.launch(Dispatchers.IO) {
         try {
             mainProfileList = db.value.mainProfileDao().getAll()

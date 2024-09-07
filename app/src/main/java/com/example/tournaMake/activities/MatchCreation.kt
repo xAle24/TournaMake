@@ -22,10 +22,8 @@ fun fetchDataForMatchCreation(vm: MatchCreationViewModel, owner: LifecycleOwner)
     val appDatabase = inject<AppDatabase>(AppDatabase::class.java)
     owner.lifecycleScope.launch (Dispatchers.IO) {
         try {
-            val games = appDatabase.value.gameDao().getAll()
             val mainProfiles = appDatabase.value.mainProfileDao().getAll()
             val guestProfiles = appDatabase.value.guestProfileDao().getAll()
-            vm.changeGamesList(games)
             vm.changeMainProfiles(mainProfiles)
             vm.changeGuestProfiles(guestProfiles)
         } catch (e: Exception) {
