@@ -52,7 +52,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.tournaMake.R
 import com.example.tournaMake.activities.addMatchToFavorites
-import com.example.tournaMake.activities.fetchAndUpdateMatches
 import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.activities.navigateToSpecifiedMatch
 import com.example.tournaMake.activities.removeMatchFromFavorites
@@ -76,9 +75,8 @@ fun MatchListScreen(
     val themeViewModel = koinViewModel<ThemeViewModel>()
     val state by themeViewModel.state.collectAsStateWithLifecycle()
     val matchListViewModel = koinViewModel<MatchListViewModel>()
-    fetchAndUpdateMatches(matchListViewModel, owner)
     // Data being fetched from database
-    val matchesList = matchListViewModel.matchesListLiveData.observeAsState(emptyList())
+    val matchesList = matchListViewModel.allMatchesListLiveData.observeAsState(emptyList())
     val colorConstants = getThemeColors(themeState = state)
     val searchbar2 = Searchbar(matchesList.value)
     var filteredEntries  = searchbar2.getFilteredEntries()
@@ -94,7 +92,6 @@ fun MatchListScreen(
     ) {
         Column {
             Row(
-                /*TODO remove sto cazzo di spazio che mette a caso tra se e la barra superiore*/
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround,
             ) {

@@ -11,18 +11,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.java.KoinJavaComponent
 
-fun fetchAndUpdateMatches(vm: MatchListViewModel, owner: LifecycleOwner) {
-    val db = KoinJavaComponent.inject<AppDatabase>(AppDatabase::class.java)
-    owner.lifecycleScope.launch(Dispatchers.IO) {
-        try {
-            val matches = db.value.matchDao().getAllWithGamesNames()
-            vm.changeMatchesList(matches)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-}
-
 fun addMatchToFavorites(matchTmID: String, owner: LifecycleOwner) {
     val db = KoinJavaComponent.inject<AppDatabase>(AppDatabase::class.java)
     owner.lifecycleScope.launch(Dispatchers.IO) {

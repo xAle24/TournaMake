@@ -2,7 +2,6 @@ package com.example.tournaMake.activities
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import com.example.tournaMake.data.models.NotificationViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.Notification
 import kotlinx.coroutines.Dispatchers

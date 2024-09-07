@@ -59,7 +59,7 @@ val appModule = module {
     viewModel { MatchDetailsViewModel(get()) }
     viewModel { MatchViewModel(get()) }
     single { MatchDetailsRepository(get()) }
-    single { MatchRepository(get()) }
+    single { MatchRepository(get(), get()) }
     single { TournamentLiveDataRepository() }
     single { NotificationsRepository(get()) }
     single {

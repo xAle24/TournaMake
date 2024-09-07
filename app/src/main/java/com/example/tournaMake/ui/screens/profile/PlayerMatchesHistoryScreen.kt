@@ -48,8 +48,8 @@ fun PlayerMatchesHistoryScreen(
     val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
     val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
     val matchListViewModel = koinViewModel<MatchListViewModel>()
-    fetchAndUpdateMatch(loggedEmail.value.loggedProfileEmail, matchListViewModel, owner)
-    val matchList = matchListViewModel.matchesListLiveData.observeAsState()
+    fetchAndUpdateMatch(loggedEmail.value.loggedProfileEmail, matchListViewModel)
+    val matchList = matchListViewModel.loggedPlayerMatchesHistory.observeAsState()
 
     BasicScreenWithTheme(state = state) {
         Column(

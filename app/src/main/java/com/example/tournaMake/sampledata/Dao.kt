@@ -112,7 +112,7 @@ interface MatchDao {
         FROM MATCH_TM
         JOIN GAME ON GAME.gameID = MATCH_TM.gameID"""
     )
-    fun getAllWithGamesNames(): List<MatchGameData>
+    fun getAllWithGamesNames(): LiveData<List<MatchGameData>>
 
     @Query(
         """SELECT MATCH_TM.*, GAME.name
@@ -122,7 +122,7 @@ interface MatchDao {
             JOIN GAME ON GAME.gameID = MATCH_TM.gameID
             WHERE MAIN_PARTICIPANT.email = :email"""
     )
-    fun getMyMatches(email: String): List<MatchGameData>
+    fun getMyMatches(email: String): LiveData<List<MatchGameData>>
 
     @Query("""SELECT * FROM MATCH_TM WHERE favorites = 1""")
     fun getFavoritesMatch(): List<MatchTM>

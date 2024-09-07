@@ -78,12 +78,14 @@ import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.repositories.MatchRepository
 import com.example.tournaMake.dataStore
+import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.screens.common.TournaMakeTopAppBar
 import com.example.tournaMake.ui.screens.registration.createImageRequest
 import org.koin.androidx.compose.koinViewModel
+import org.koin.java.KoinJavaComponent.inject
 
 private val spacerHeight = 20.dp
 
@@ -491,7 +493,7 @@ fun MiniProfileImage(
 @Preview
 @Composable
 fun MyMatchScreenPreview() {
-    val vm = MatchViewModel(MatchRepository(LocalContext.current.dataStore))
+    val vm = MatchViewModel(MatchRepository(LocalContext.current.dataStore, inject<AppDatabase>(AppDatabase::class.java).value))
     vm.changeTeamDataPackets(
         listOf(
             TeamDataPacket(testTeam1, 200, "team1ID", false),
