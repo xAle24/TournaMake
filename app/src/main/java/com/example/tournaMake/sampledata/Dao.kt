@@ -79,7 +79,7 @@ interface GameDao {
     fun getPlayedGames(email: String): List<PlayedGame>
 
     @Query("SELECT * FROM GAME WHERE gameID = :gameID")
-    fun getGameFromID(gameID: String): Game
+    fun getGameFromID(gameID: String): LiveData<Game>
     @Query("""UPDATE GAME SET favorites = 1 WHERE gameID = :gameID""")
     fun setGameFavorites(gameID: String)
     @Query("""UPDATE GAME SET favorites = 0 WHERE gameID = :gameID""")

@@ -72,6 +72,7 @@ import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.activities.removeMatchFromFavorites
 import com.example.tournaMake.activities.saveMatch
 import com.example.tournaMake.data.constants.MatchResult
+import com.example.tournaMake.data.models.GameDetailsViewModel
 import com.example.tournaMake.data.models.MatchViewModel
 import com.example.tournaMake.data.models.TeamDataPacket
 import com.example.tournaMake.data.models.ThemeEnum
@@ -91,7 +92,6 @@ private val spacerHeight = 20.dp
 
 @Composable
 fun MatchScreen(
-    callerRoute: String,
     navController: NavController,
     owner: LifecycleOwner
 ) {
@@ -118,12 +118,12 @@ fun MatchScreen(
     val themeViewModel = koinViewModel<ThemeViewModel>()
     val state by themeViewModel.state.collectAsStateWithLifecycle()
     val matchViewModel = koinViewModel<MatchViewModel>()
-
+    val gameDetailsViewModel = koinViewModel<GameDetailsViewModel>()
     val gameImage: Uri? = null // TODO: IMPLEMENT GAME IMAGE
 
     fetchMatchData(matchViewModel, owner)
     val match by matchViewModel.match.observeAsState()
-    val playedGameLiveData = matchViewModel.playedGame.observeAsState()
+    val playedGameLiveData = gameDetailsViewModel.gameDetailsListLiveData.observeAsState()
     val dataPackets by matchViewModel.teamDataPackets.observeAsState()
     var winnerDataPackets: List<TeamDataPacket>
     var shouldShowAlertDialog by remember {
@@ -173,7 +173,6 @@ fun MatchScreen(
                 }
                 endMatch(
                     navController = navController,
-                    navigationRoute = callerRoute,
                     teamScores = map,
                     match = match!!,
                     owner = owner
@@ -501,7 +500,6 @@ fun MyMatchScreenPreview() {
         )
     )
     MatchScreen(
-        callerRoute = "",
         navController = NavController(LocalContext.current),
         owner = ComponentActivity()
     )

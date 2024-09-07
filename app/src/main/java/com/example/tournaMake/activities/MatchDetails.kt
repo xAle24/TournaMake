@@ -16,7 +16,6 @@ fun fetchMatchData(matchDetailsViewModel: MatchDetailsViewModel, owner: Lifecycl
         matchDetailsViewModel.selectedMatchId.collect { matchID ->
             if (matchID != null) {
                 val playedMatch = appDatabase.value.matchDao().getMatchFromID(matchID)
-                val playedGame = appDatabase.value.gameDao().getGameFromID(playedMatch.gameID)
                 val teamsInTm =
                     appDatabase.value.teamInTmDao().getTeamsInTmFromMatch(playedMatch.matchTmID)
                 val teams = appDatabase.value.teamDao().getAll()
@@ -54,7 +53,7 @@ fun fetchMatchData(matchDetailsViewModel: MatchDetailsViewModel, owner: Lifecycl
                 val isDraw = appDatabase.value.matchDao().isDraw(matchID)
                 matchDetailsViewModel.changeTeamDataPackets(teamDataPackets)
                 matchDetailsViewModel.changeTeamUIs(teamDataPackets.map { it.teamUI })
-                matchDetailsViewModel.changePlayedGame(playedGame)
+                matchDetailsViewModel.changeRepository(playedMatch.gameID)
                 matchDetailsViewModel.changeTeams(teams)
                 matchDetailsViewModel.changeTeamsInMatch(teamsInTm)
                 matchDetailsViewModel.changeIsDraw(isDraw)

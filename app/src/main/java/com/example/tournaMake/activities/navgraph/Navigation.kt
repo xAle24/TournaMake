@@ -1,7 +1,6 @@
 package com.example.tournaMake.activities.navgraph
 
 import android.content.ContentResolver
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.LifecycleOwner
@@ -16,6 +15,7 @@ import com.example.tournaMake.ui.screens.match.MatchCreationScreen
 import com.example.tournaMake.ui.screens.match.MatchDetailsScreen
 import com.example.tournaMake.ui.screens.match.MatchListScreen
 import com.example.tournaMake.ui.screens.match.MatchScreen
+import com.example.tournaMake.ui.screens.menu.GameDetailsScreen
 import com.example.tournaMake.ui.screens.menu.GamesListScreen
 import com.example.tournaMake.ui.screens.menu.MenuScreen
 import com.example.tournaMake.ui.screens.profile.ChartScreen
@@ -45,6 +45,7 @@ sealed class NavigationRoute(
     data object MatchCreationScreen : NavigationRoute("MatchCreationScreen")
     data object MatchScreen : NavigationRoute("MatchScreen")
     data object GamesListScreen : NavigationRoute("GamesListScreen")
+    data object GameDetailsScreen : NavigationRoute("GameDetailsScreen")
     data object ProfilesListScreen : NavigationRoute("ProfilesListScreen")
     data object ProfileScreen : NavigationRoute("ProfileScreen")
     data object ChartScreen : NavigationRoute("ChartScreen")
@@ -90,25 +91,13 @@ fun NavGraph(
             MatchCreationScreen(navController = navController, owner = owner)
         }
         composable(NavigationRoute.MatchScreen.route) {
-            val previousStackEntry = navController.previousBackStackEntry
-            val callerRoute = previousStackEntry?.destination?.route
-
-            /**
-             * Navigation, based on the callerRoute:
-             * - if it's the creation screen, go back to matches list
-             * - if it's the matches list, go back to it
-             * - if it's the tournament, go back to the tournament
-             * */
-            if (callerRoute == null) {
-                Log.e("DEV-NAVGRAPH", "CallerRoute is null in Navigation.kt: " +
-                        "somebody is trying to instantiate a MatchScreen without specifying proper arguments!")
-            }/* else if (callerRoute == NavigationRoute.MatchCreationScreen.route) {
-                callerRoute = NavigationRoute.MatchesListScreen.route
-            }*/
-            MatchScreen(callerRoute = callerRoute!!, navController = navController, owner = owner)// TODO: ADD NAVIGATION TO TOURNAMENT
+            MatchScreen(navController = navController, owner = owner)
         }
         composable(NavigationRoute.GamesListScreen.route) {
             GamesListScreen(navController = navController, owner = owner)
+        }
+        composable(NavigationRoute.GameDetailsScreen.route) {
+            GameDetailsScreen(navController = navController, owner = owner)
         }
         composable(NavigationRoute.ProfilesListScreen.route) {
             ProfileListScreen(owner = owner, navController = navController)
