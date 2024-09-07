@@ -47,7 +47,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.tournaMake.R
-import com.example.tournaMake.activities.fetchAndUpdateNotification
 import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.activities.removeNotification
 import com.example.tournaMake.data.models.AuthenticationViewModel
@@ -75,11 +74,7 @@ fun MenuScreen(
     val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
     val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
     val notificationViewModel = koinViewModel<NotificationViewModel>()
-    fetchAndUpdateNotification(
-        notificationViewModel,
-        loggedEmail.value.loggedProfileEmail,
-        owner
-    )
+    notificationViewModel.changeLoggedEmail(loggedEmail.value.loggedProfileEmail)
     val notifications = notificationViewModel.notificationLiveData.observeAsState()
     BasicScreenWithTheme(
         state = state,

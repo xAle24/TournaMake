@@ -9,22 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.java.KoinJavaComponent.inject
 
-fun fetchAndUpdateNotification(
-    notificationViewModel: NotificationViewModel,
-    email: String,
-    owner: LifecycleOwner
-) {
-    val appDatabase = inject<AppDatabase>(AppDatabase::class.java)
-    var notificationList: List<Notification>
-    owner.lifecycleScope.launch(Dispatchers.IO) {
-        try {
-            notificationList = appDatabase.value.notificationDao().getNotificationsByEmail(email)
-            notificationViewModel.changeNotificationList(notificationList)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-}
 fun removeNotification(notification: Notification, owner: LifecycleOwner) {
     val db = inject<AppDatabase>(AppDatabase::class.java)
     owner.lifecycleScope.launch(Dispatchers.IO) {

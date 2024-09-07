@@ -25,6 +25,7 @@ import com.example.tournaMake.data.models.TournamentListViewModel
 import com.example.tournaMake.data.repositories.AuthenticationRepository
 import com.example.tournaMake.data.repositories.MatchDetailsRepository
 import com.example.tournaMake.data.repositories.MatchRepository
+import com.example.tournaMake.data.repositories.NotificationsRepository
 import com.example.tournaMake.data.repositories.ThemeRepository
 import com.example.tournaMake.data.repositories.TournamentIDRepository
 import com.example.tournaMake.data.repositories.TournamentLiveDataRepository
@@ -54,12 +55,13 @@ val appModule = module {
     viewModel { TournamentIDViewModel(get()) }
     viewModel { TournamentDataViewModel(get(), get()) }
     viewModel { CoordinatesViewModel() }
-    viewModel { NotificationViewModel() }
+    viewModel { NotificationViewModel(get()) }
     viewModel { MatchDetailsViewModel(get()) }
     viewModel { MatchViewModel(get()) }
     single { MatchDetailsRepository(get()) }
     single { MatchRepository(get()) }
     single { TournamentLiveDataRepository() }
+    single { NotificationsRepository(get()) }
     single {
         Room.databaseBuilder(
             get(),
