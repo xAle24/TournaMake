@@ -101,7 +101,6 @@ fun saveMatch(
 
 fun endMatch(
     navController: NavController,
-    navigationRoute: String, // may vary from MatchListScreen to TournamentScreen
     teamScores: Map<String, Pair<Int, MatchResult>>,
     match: MatchTM,
     owner: LifecycleOwner
@@ -118,14 +117,6 @@ fun endMatch(
         appDatabase.value.teamInTmDao().updateTeamInTms(newTeamInTms)
         // Ending the match
         appDatabase.value.matchDao().endMatch(match.matchTmID)
-
-        /*if (match.tournamentID != null) {
-            fetchStuffForTournament(
-                match.tournamentID,
-                inject<TournamentDataViewModel>(TournamentDataViewModel::class.java).value,
-                owner
-            )
-        }*/
 
         withContext(Dispatchers.Main) {
             val navBackStackEntry = navController.previousBackStackEntry
@@ -150,7 +141,6 @@ fun endMatch(
                     navController.popBackStack()
                 }
             }
-
         }
     }
 }

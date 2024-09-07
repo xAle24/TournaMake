@@ -92,22 +92,7 @@ fun NavGraph(
             MatchCreationScreen(navController = navController, owner = owner)
         }
         composable(NavigationRoute.MatchScreen.route) {
-            val previousStackEntry = navController.previousBackStackEntry
-            var callerRoute = previousStackEntry?.destination?.route
-
-            /**
-             * Navigation, based on the callerRoute:
-             * - if it's the creation screen, go back to matches list
-             * - if it's the matches list, go back to it
-             * - if it's the tournament, go back to the tournament
-             * */
-            if (callerRoute == null) {
-                Log.e("DEV-NAVGRAPH", "CallerRoute is null in Navigation.kt: " +
-                        "somebody is trying to instantiate a MatchScreen without specifying proper arguments!")
-            }/* else if (callerRoute == NavigationRoute.MatchCreationScreen.route) {
-                callerRoute = NavigationRoute.MatchesListScreen.route
-            }*/
-            MatchScreen(callerRoute = callerRoute!!, navController = navController, owner = owner)// TODO: ADD NAVIGATION TO TOURNAMENT
+            MatchScreen(navController = navController, owner = owner)
         }
         composable(NavigationRoute.GamesListScreen.route) {
             GamesListScreen(navController = navController, owner = owner)
@@ -130,13 +115,7 @@ fun NavGraph(
         composable(NavigationRoute.RegistrationPhotoScreen.route) {
             RegistrationPhotoScreen(navController = navController, owner = owner, contentResolver = contentResolver)
         }
-        composable(
-            route = NavigationRoute.TournamentScreen.route,
-            arguments = listOf(navArgument("refresh") {
-                type = NavType.BoolType
-                defaultValue = true
-            })
-        ) {
+        composable(NavigationRoute.TournamentScreen.route) {
             TournamentScreen(navController = navController, owner = owner)
         }
         composable(NavigationRoute.SettingsScreen.route) {
