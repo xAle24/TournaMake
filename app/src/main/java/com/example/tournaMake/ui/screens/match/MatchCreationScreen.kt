@@ -49,6 +49,7 @@ import com.example.tournaMake.R
 import com.example.tournaMake.activities.createMatch
 import com.example.tournaMake.activities.fetchDataForMatchCreation
 import com.example.tournaMake.activities.navgraph.NavigationRoute
+import com.example.tournaMake.data.models.GuestProfileListViewModel
 import com.example.tournaMake.data.models.MatchCreationViewModel
 import com.example.tournaMake.data.models.MatchViewModel
 import com.example.tournaMake.data.models.ThemeEnum
@@ -70,10 +71,11 @@ fun MatchCreationScreen(
     val matchCreationViewModel = koinViewModel<MatchCreationViewModel>()
     fetchDataForMatchCreation(matchCreationViewModel, owner)
     val matchViewModel = koinViewModel<MatchViewModel>()
+    val guestProfileViewModel = koinViewModel<GuestProfileListViewModel>()
     val gamesListLiveData = matchCreationViewModel.games
     val teamsSetStateFlow = matchCreationViewModel.teamsSet
     val mainProfilesLiveData = matchCreationViewModel.mainProfiles
-    val guestProfilesLiveData = matchCreationViewModel.guestProfiles
+    val guestProfilesLiveData = guestProfileViewModel.guestProfileListLiveData
     val imageLogoId =
         if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
     val context = LocalContext.current

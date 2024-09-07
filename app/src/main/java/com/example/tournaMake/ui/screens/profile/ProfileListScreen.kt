@@ -1,10 +1,11 @@
 package com.example.tournaMake.ui.screens.profile
 
+import android.content.Context
 import android.net.Uri
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,11 +18,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,11 +48,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.tournaMake.R
-import com.example.tournaMake.activities.fetchAndUpdateGuestProfiles
+import com.example.tournaMake.activities.createGuestProfile
 import com.example.tournaMake.activities.fetchAndUpdateProfile
 import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.data.models.AuthenticationViewModel
-import com.example.tournaMake.data.models.ProfileListViewModel
+import com.example.tournaMake.data.models.GuestProfileListViewModel
 import com.example.tournaMake.data.models.ProfileViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.filemanager.AppDirectoryNames
@@ -67,11 +74,11 @@ fun ProfileListScreen(
     val state by themeViewModel.state.collectAsStateWithLifecycle()
     val profileViewModel = koinViewModel<ProfileViewModel>()
     // View Model of profiles list
-    val profileListViewModel = koinViewModel<ProfileListViewModel>()
-    fetchAndUpdateGuestProfiles(profileListViewModel, owner)
-    val profileNamesList = profileListViewModel.profileNamesListLiveData.observeAsState()
     val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
     val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
+    val guestProfileListViewModel = koinViewModel<GuestProfileListViewModel>()
+    val guestProfileList = guestProfileListViewModel.guestProfileListLiveData.observeAsState()
+    var showDialog by remember { mutableStateOf(false) }
     var selectedImageURI by remember {
         mutableStateOf(
             if (doesDirectoryContainFile(
@@ -100,13 +107,14 @@ fun ProfileListScreen(
         state = state,
         backFunction = { navController.navigate(NavigationRoute.MenuScreen.route) },
         showTopBar = true,
-        showBottomBar = false
+        showBottomBar = true
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
             Card(
                 shape = RoundedCornerShape(8.dp),
                 elevation = CardDefaults.cardElevation(),
@@ -137,21 +145,56 @@ fun ProfileListScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxHeight(1f)
-                    .background(MaterialTheme.colorScheme.secondary)
             ) {
-                if (profileNamesList.value != null) {
-                    items(profileNamesList.value!!) { item ->
+                if (guestProfileList.value != null) {
+                    items(guestProfileList.value!!) { item ->
                         Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = { /* Do something when button is clicked */ },
+                        Card(
+                            shape = RoundedCornerShape(8.dp),
+                            elevation = CardDefaults.cardElevation(),
                             modifier = Modifier
-                                .fillMaxWidth(0.8f)
-                                .height(60.dp)
+                                .fillMaxWidth()
+                                .padding(4.dp),
+                            colors = CardColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
+                                disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
+                                disabledContentColor = MaterialTheme.colorScheme.error
+                            )
                         ) {
-                            Text(item)
+                            Row(
+                                modifier = Modifier.fillMaxWidth().height(50.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = item.username,
+                                    style = MaterialTheme.typography.displaySmall,
+                                )
+                            }
                         }
                     }
                 }
+            }
+        }
+        if (showDialog) {
+            CreateGuestDialog(
+                onDismiss = { showDialog = false },
+                owner = owner,
+                context = context
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(5.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            FloatingActionButton(
+                onClick = { showDialog = true },
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add")
             }
         }
     }
@@ -182,4 +225,39 @@ fun ProfileListImage(
             )
         }
     }
+}
+
+@Composable
+fun CreateGuestDialog(
+    onDismiss: () -> Unit,
+    owner: LifecycleOwner,
+    context: Context
+) {
+    var email by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add guest profile") },
+        text = {
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Profile name to add") }
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    createGuestProfile(email, context = context, owner = owner)
+                    onDismiss()
+                }
+            ) {
+                Text("Create")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }

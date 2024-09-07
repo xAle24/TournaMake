@@ -23,9 +23,7 @@ fun fetchDataForMatchCreation(vm: MatchCreationViewModel, owner: LifecycleOwner)
     owner.lifecycleScope.launch (Dispatchers.IO) {
         try {
             val mainProfiles = appDatabase.value.mainProfileDao().getAll()
-            val guestProfiles = appDatabase.value.guestProfileDao().getAll()
             vm.changeMainProfiles(mainProfiles)
-            vm.changeGuestProfiles(guestProfiles)
         } catch (e: Exception) {
             e.printStackTrace()
         }

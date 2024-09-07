@@ -338,10 +338,15 @@ interface MainProfileDao {
 @Dao
 interface GuestProfileDao {
     @Query("SELECT * FROM GUEST_PROFILE")
-    fun getAll(): List<GuestProfile>
+    fun getAll(): LiveData<List<GuestProfile>>
 
     @Query("SELECT * FROM GUEST_PROFILE WHERE username = :username")
     fun getFromUsername(username: String): GuestProfile
+    @Query("""SELECT COUNT(*) 
+        FROM GUEST_PROFILE 
+        WHERE username = :username;
+        """)
+    fun checkGuestProfile(username: String): Int
 
     @Insert
     fun insert(guestProfile: GuestProfile)

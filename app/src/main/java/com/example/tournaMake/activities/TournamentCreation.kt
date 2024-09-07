@@ -10,7 +10,6 @@ import com.example.tournaMake.data.models.TournamentIDViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.Game
 import com.example.tournaMake.sampledata.GuestParticipant
-import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainParticipant
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.sampledata.MatchTM
@@ -22,19 +21,17 @@ import com.example.tournaMake.tournamentmanager.TournamentTree
 import com.example.tournaMake.ui.screens.match.TeamUI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.koin.java.KoinJavaComponent
 import org.koin.java.KoinJavaComponent.inject
 import java.util.UUID
 
 fun fetchData(vm: MatchCreationViewModel, owner: LifecycleOwner) {
-    val db = KoinJavaComponent.inject<AppDatabase>(AppDatabase::class.java)
+    val db = inject<AppDatabase>(AppDatabase::class.java)
     owner.lifecycleScope.launch (Dispatchers.IO) {
         try {
-            val games = db.value.gameDao().getAll()
             val mainProfiles = db.value.mainProfileDao().getAll()
             val guestProfiles = db.value.guestProfileDao().getAll()
-            vm.changeMainProfiles(mainProfiles ?: emptyList())
-            vm.changeGuestProfiles(guestProfiles ?: emptyList())
+            vm.changeMainProfiles(mainProfiles)
+            vm.changeGuestProfiles(guestProfiles.value ?: emptyList())
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -42,23 +39,11 @@ fun fetchData(vm: MatchCreationViewModel, owner: LifecycleOwner) {
 }
 fun fetchAndUpdateTournamentTypeList(tournamentCreationViewModel: TournamentCreationViewModel, owner: LifecycleOwner) {
     var typeList: List<TournamentType>
-    val db = KoinJavaComponent.inject<AppDatabase>(AppDatabase::class.java)
+    val db = inject<AppDatabase>(AppDatabase::class.java)
     owner.lifecycleScope.launch(Dispatchers.IO) {
         try {
             typeList = db.value.tournamentTypeDao().getAll()
             tournamentCreationViewModel.changeTournamentTypeList(typeList)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-}
-fun fetchAndUpdateGuestProfileList(tournamentCreationViewModel: TournamentCreationViewModel, owner: LifecycleOwner) {
-    var guestProfileList: List<GuestProfile>
-    val db = inject<AppDatabase>(AppDatabase::class.java)
-    owner.lifecycleScope.launch(Dispatchers.IO) {
-        try {
-            guestProfileList = db.value.guestProfileDao().getAll()
-            tournamentCreationViewModel.changeGuestProfileList(guestProfileList)
         } catch (e: Exception) {
             e.printStackTrace()
         }
