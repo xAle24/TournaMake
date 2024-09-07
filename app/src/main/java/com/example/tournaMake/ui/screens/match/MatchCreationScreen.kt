@@ -1,6 +1,5 @@
 package com.example.tournaMake.ui.screens.match
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -47,7 +45,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import com.example.tournaMake.R
 import com.example.tournaMake.activities.createMatch
 import com.example.tournaMake.activities.fetchDataForMatchCreation
@@ -58,12 +55,9 @@ import com.example.tournaMake.data.models.ThemeEnum
 import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.Game
-import com.example.tournaMake.sampledata.GuestProfile
-import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.theme.getThemeColors
-import kotlinx.coroutines.flow.StateFlow
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -130,7 +124,11 @@ fun MatchCreationScreen(
                         iconEnabled = false,
                         text = "Create Match",
                         onClick = {
-                            if (selectedGame != null) {
+                            if (selectedGame == null) {
+                                Toast.makeText(context, "Must choose a game first!", Toast.LENGTH_SHORT).show()
+                            } else if (teamsSetStateFlow.value.size < 2){
+                                Toast.makeText(context, "At least 2 teams must be present!", Toast.LENGTH_SHORT).show()
+                            } else {
                                 createMatch(
                                     selectedGame!!.gameID,
                                     matchCreationViewModel,
@@ -138,9 +136,6 @@ fun MatchCreationScreen(
                                     owner,
                                     navController
                                 )
-                                Log.d("DEV-MATCH-CREATION", "Clicked create match!")
-                            } else {
-                                Toast.makeText(context, "Must choose a game first!", Toast.LENGTH_SHORT).show()
                             }
                         }
                     )

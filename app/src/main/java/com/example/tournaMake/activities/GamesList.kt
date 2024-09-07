@@ -31,3 +31,23 @@ fun addGame(game: Game, owner: LifecycleOwner) {
         }
     }
 }
+fun addGameToFavorites(gameID: String, owner: LifecycleOwner) {
+    val db = inject<AppDatabase>(AppDatabase::class.java)
+    owner.lifecycleScope.launch(Dispatchers.IO) {
+        try {
+            db.value.gameDao().setGameFavorites(gameID)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+}
+fun removeGameFromFavorites(gameID: String, owner: LifecycleOwner) {
+    val db = inject<AppDatabase>(AppDatabase::class.java)
+    owner.lifecycleScope.launch(Dispatchers.IO) {
+        try {
+            db.value.gameDao().removeGameFavorites(gameID)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+}

@@ -3,7 +3,6 @@ package com.example.tournaMake.ui.screens.profile
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -24,19 +23,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -84,8 +77,7 @@ import com.example.tournaMake.filemanager.ProfileImageHelperImpl
 import com.example.tournaMake.filemanager.doesDirectoryContainFile
 import com.example.tournaMake.filemanager.loadImageUriFromDirectory
 import com.example.tournaMake.sampledata.AchievementResult
-import com.example.tournaMake.sampledata.MainProfile
-import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
+import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.theme.getThemeColors
 import com.example.tournaMake.utils.rememberCameraLauncher
 import org.koin.androidx.compose.koinViewModel
@@ -93,7 +85,6 @@ import org.koin.androidx.compose.koinViewModel
 /**
  * The screen seen when clicking on a specific profile.
  * */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     navController: NavController,
@@ -108,10 +99,6 @@ fun ProfileScreen(
     val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
     val profileViewModel = koinViewModel<ProfileViewModel>()
     val profileLiveData = profileViewModel.profileLiveData
-    val profileObserver = Observer<MainProfile?> { profile ->
-        Log.d("DEV", "In profile observer profile = ${profile?.email}")
-    }
-    profileViewModel.profileLiveData.observe(owner, profileObserver)
     val achievementsProfileViewModel = koinViewModel<AchievementsProfileViewModel>()
     val achievementPlayerLiveData = achievementsProfileViewModel.achievementProfileListLiveData
     val achievementsObserver = Observer<List<AchievementResult>> { }
@@ -166,9 +153,6 @@ fun ProfileScreen(
                 contentResolver = contentResolver
             )
         }
-        Log.d(
-            "DEV", "In onResult function in Profile.kt: everything went fine!"
-        )
     }
 
     // To update profile picture by means of camera
@@ -217,25 +201,19 @@ fun ProfileScreen(
     * */
     val profile = profileLiveData.observeAsState()
     val achievements = achievementPlayerLiveData.observeAsState()
-    Log.d("DEV", "In ProfileScreen.kt, profile email = ${profile.value?.email}")
 
-    BasicScreenWithTheme(
-        state = state
+    BasicScreenWithAppBars(
+        state = state,
+        backFunction = { navController.navigate(NavigationRoute.ProfilesListScreen.route) },
+        showTopBar = true,
+        showBottomBar = true
     ) {
         Column(
+            modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Back button at the top
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigate(NavigationRoute.ProfilesListScreen.route) }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
-                title = { Text(text = "My Profile") }
-            )
-            Spacer(modifier = Modifier.height(24.dp))
+            
             // Tabs for "Profile Info" and "Player Games"
             var selectedTabIndex by remember { mutableIntStateOf(0) }
             TabRow(
@@ -248,16 +226,17 @@ fun ProfileScreen(
                 Text("Profile Info",
                     Modifier
                         .clickable { selectedTabIndex = 0 }
-                        .padding(start = 5.dp),
+                        .padding(5.dp),
                     color = getThemeColors(themeState = state).getNormalTextColor()
                 )
                 Text("Achievements",
                     Modifier
                         .clickable { selectedTabIndex = 1 }
-                        .padding(start = 5.dp),
+                        .padding(5.dp),
                     color = getThemeColors(themeState = state).getNormalTextColor()
                 )
             }
+            Spacer(modifier = Modifier.height(4.dp))
             // Display content based on selected tab
             when (selectedTabIndex) {
                 0 -> {

@@ -1,7 +1,6 @@
 package com.example.tournaMake.ui.screens.match
 
 import Converters.fromTimestamp
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -34,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
@@ -82,10 +82,10 @@ fun MatchListScreen(
     val colorConstants = getThemeColors(themeState = state)
     val searchbar2 = Searchbar(matchesList.value)
     var filteredEntries  = searchbar2.getFilteredEntries()
-    Log.d("CAZ", "$matchesList")
-    Log.d("DEV-MATCH-LIST", "Filtered entries: $filteredEntries")
     var showDialog by remember { mutableStateOf(false) }
     var selectedPredicate by remember { mutableStateOf<(MatchGameData) -> Boolean>({ true }) }
+    val options = listOf("All", "Favorites", "Completed")
+    val selectedOption = remember { mutableStateOf(options[0]) }
     BasicScreenWithAppBars(
         state = state,
         backFunction = { navController.navigateUp() },
@@ -126,6 +126,8 @@ fun MatchListScreen(
         if (showDialog) {
             FilterDialog(
                 onDismiss = { showDialog = false },
+                options = options,
+                selectedOption = selectedOption,
                 onPredicateSelected = { predicate ->
                     selectedPredicate = predicate
                     searchbar2.filterEntries(predicate)
@@ -146,7 +148,6 @@ fun CreateMatchButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .padding(0.dp, 40.dp, 0.dp, 4.dp)
             .clip(RoundedCornerShape(30.dp))
             .height(60.dp)
             .fillMaxWidth(0.6f)
@@ -184,7 +185,6 @@ fun FilterButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .padding(0.dp, 40.dp, 0.dp, 4.dp)
             .fillMaxWidth(0.55f)
             .clip(RoundedCornerShape(30.dp))
             .height(60.dp)
@@ -313,10 +313,11 @@ fun Content(
 @Composable
 fun FilterDialog(
     onDismiss: () -> Unit,
+    options: List<String>,
+    selectedOption: MutableState<String>,
     onPredicateSelected: (predicate: (MatchGameData) -> Boolean) -> Unit
 ) {
-    val options = listOf("All", "Favorites", "Completed")
-    var selectedOption by remember { mutableStateOf(options[0]) }
+
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -328,8 +329,8 @@ fun FilterDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
-                            selected = (selectedOption == option),
-                            onClick = { selectedOption = option }
+                            selected = (selectedOption.value == option),
+                            onClick = { selectedOption.value = option }
                         )
                         Text(option)
                     }
@@ -339,7 +340,7 @@ fun FilterDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val predicate: (MatchGameData) -> Boolean = when (selectedOption) {
+                    val predicate: (MatchGameData) -> Boolean = when (selectedOption.value) {
                         "Favorites" -> { match -> match.favorites == 1 }
                         "Completed" -> { match -> match.isOver == 1 }
                         else -> { _ -> true }

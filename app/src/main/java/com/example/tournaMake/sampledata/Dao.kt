@@ -80,7 +80,10 @@ interface GameDao {
 
     @Query("SELECT * FROM GAME WHERE gameID = :gameID")
     fun getGameFromID(gameID: String): Game
-
+    @Query("""UPDATE GAME SET favorites = 1 WHERE gameID = :gameID""")
+    fun setGameFavorites(gameID: String)
+    @Query("""UPDATE GAME SET favorites = 0 WHERE gameID = :gameID""")
+    fun removeGameFavorites(gameID: String)
     @Insert
     fun insertAll(vararg games: Game)
 
@@ -316,6 +319,12 @@ interface MainProfileDao {
     @Query("SELECT MAIN_PROFILE.password FROM MAIN_PROFILE WHERE email = :email")
     fun checkPassword(email: String): String
 
+    @Query("""SELECT COUNT(*) 
+        FROM MAIN_PROFILE 
+        WHERE email = :email;
+        """)
+    fun checkEmail(email: String): Int
+
     @Insert
     fun insert(mainProfiles: MainProfile)
 
@@ -387,4 +396,7 @@ interface TeamInTmDao {
 interface NotificationDao {
     @Query("SELECT * FROM NOTIFICATION WHERE email = :email")
     fun getNotificationsByEmail(email: String): List<Notification>
+
+    @Delete
+    fun removeNotification(notificationID: Notification)
 }
