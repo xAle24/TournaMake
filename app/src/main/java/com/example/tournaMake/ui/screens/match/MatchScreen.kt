@@ -76,6 +76,7 @@ import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.activities.removeMatchFromFavorites
 import com.example.tournaMake.activities.saveMatch
 import com.example.tournaMake.data.constants.MatchResult
+import com.example.tournaMake.data.models.GameDetailsViewModel
 import com.example.tournaMake.data.models.MatchViewModel
 import com.example.tournaMake.data.models.TeamDataPacket
 import com.example.tournaMake.data.models.ThemeEnum
@@ -124,12 +125,12 @@ fun MatchScreen(
     val themeViewModel = koinViewModel<ThemeViewModel>()
     val state by themeViewModel.state.collectAsStateWithLifecycle()
     val matchViewModel = koinViewModel<MatchViewModel>()
-
+    val gameDetailsViewModel = koinViewModel<GameDetailsViewModel>()
     val gameImage: Uri? = null // TODO: IMPLEMENT GAME IMAGE
 
     fetchMatchData(matchViewModel, owner)
     val match by matchViewModel.match.observeAsState()
-    val playedGameLiveData = matchViewModel.playedGame.observeAsState()
+    val playedGameLiveData = gameDetailsViewModel.gameDetailsListLiveData.observeAsState()
     val dataPackets by matchViewModel.teamDataPackets.observeAsState()
     var winnerDataPackets: List<TeamDataPacket>
     var shouldShowAlertDialog by remember {
@@ -140,6 +141,51 @@ fun MatchScreen(
         if (state.theme == ThemeEnum.Dark) R.drawable.dark_back_button else R.drawable.light_back_button
     val topAppBarBackground =
         if (state.theme == ThemeEnum.Dark) R.drawable.dark_topbarbackground else R.drawable.light_topbarbackground
+
+    if (shouldShowAlertDialog && dataPackets != null && match != null) {
+        WinnerSelectionAlertDialog(allTeams = dataPackets!!,
+            onDismissRequest = { shouldShowAlertDialog = false },
+            /*
+            * When the match ends, the user should be prompted to insert all the winning
+            * teams (we can show a modal dialog with some checkboxes)
+            * Create the map necessary to the callback, but remember to modify its pairs
+            * values to reflect the actual match result for each team.
+            *
+            * If the user selects some teams as winners, then all the other teams are losers.
+            * If no winner is selected, all the teams will end up with a draw.
+            * This is necessary for updating the headings in the match details screen afterwards -
+            * it'd be nice to know if a team has got a draw or some other result.
+            * */
+            processWinners = {
+                winnerDataPackets = it
+                var map = buildMap(data = dataPackets!!)
+                if (winnerDataPackets.isEmpty()) {
+                    // There are no winners, so everybody should score a draw
+                    map =
+                        map.map { entry -> entry.key to Pair(entry.value.first, MatchResult.Draw) }
+                            .toMap()
+                } else {
+                    val teamIDs = winnerDataPackets.map { packet -> packet.teamID }
+                    // I didn't manage to use the functional style to map entries to
+                    // a new immutable map, so I used this support map.
+                    val mutableMap = mutableMapOf<String, Pair<Int, MatchResult>>()
+                    map.forEach { entry ->
+                        if (teamIDs.contains(entry.key)) {
+                            mutableMap[entry.key] = Pair(entry.value.first, MatchResult.Winner)
+                        } else {
+                            mutableMap[entry.key] = Pair(entry.value.first, entry.value.second)
+                        }
+                    }
+                    map = mutableMap
+                }
+                endMatch(
+                    navController = navController,
+                    teamScores = map,
+                    match = match!!,
+                    owner = owner
+                )
+            })
+    }
 
     BasicScreenWithTheme(state = state) {
         if (shouldShowAlertDialog && dataPackets != null && match != null) {

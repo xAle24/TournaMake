@@ -264,10 +264,10 @@ fun TeamElement(
              * */
             AddMemberButton(
                 team,
-                mainProfileListFromDatabase,
-                guestProfileListFromDatabase,
-                changeMain = { selectedMainProfiles = it },
-                changeGuest = { selectedGuestProfiles = it }
+                mainProfileListFromDatabase.minus(selectedMainProfiles),
+                guestProfileListFromDatabase.minus(selectedGuestProfiles),
+                changeMain = { selectedMainProfiles = selectedMainProfiles.plus(it) },
+                changeGuest = { selectedGuestProfiles = selectedGuestProfiles.plus(it) }
             )
 
             //HorizontalDivider(thickness = 2.dp)
@@ -523,7 +523,10 @@ fun ShowAddMember(
                         }
                     }
                     items(filteredProfileList.guestProfile) { item ->
-                        Button(onClick = { team.addGuestProfile(item); changeGuest(team.getGuestProfiles()) }) {
+                        Button(onClick = {
+                            team.addGuestProfile(item)
+                            changeGuest(team.getGuestProfiles())
+                        }) {
                             Text(text = item.username)
                         }
                     }

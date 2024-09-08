@@ -26,7 +26,6 @@ class MatchCreationViewModel(repository: GamesListRepository): ViewModel() {
 
     // List of guest profiles
     private val _guestProfiles = MutableLiveData<List<GuestProfile>>()
-    val guestProfiles: LiveData<List<GuestProfile>> = _guestProfiles
 
     fun changeGuestProfiles(list: List<GuestProfile>) {
         this._guestProfiles.postValue(list)
@@ -44,6 +43,6 @@ class MatchCreationViewModel(repository: GamesListRepository): ViewModel() {
 
     fun removeTeam(team: TeamUI) {
         _teamsSet.value = _teamsSet.value.filter { it != team }.toSet()
-        Log.d("DEV-MATCH-CREATION", "Content of teams set after deletion: ${_teamsSet.value.toString()}")
+        Log.d("DEV-MATCH-CREATION", "Content of teams set after deletion: ${_teamsSet.value}")
     }
 }

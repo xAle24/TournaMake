@@ -8,7 +8,6 @@ import com.example.tournaMake.data.constants.MatchResult
 import com.example.tournaMake.data.constants.mapMatchResultToInteger
 import com.example.tournaMake.data.models.MatchViewModel
 import com.example.tournaMake.data.models.TeamDataPacket
-import com.example.tournaMake.data.models.TournamentDataViewModel
 import com.example.tournaMake.sampledata.AppDatabase
 import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.ui.screens.match.TeamUIImpl
@@ -24,7 +23,6 @@ fun fetchMatchData(matchViewModel: MatchViewModel, owner: LifecycleOwner) {
         matchViewModel.selectedMatchId.collect {
             if (it != null) {
                 val playedMatch = appDatabase.value.matchDao().getMatchFromID(it)
-                val playedGame = appDatabase.value.gameDao().getGameFromID(playedMatch.gameID)
                 val teamsInTm =
                     appDatabase.value.teamInTmDao().getTeamsInTmFromMatch(playedMatch.matchTmID)
                 val teams = appDatabase.value.teamDao().getAll()
@@ -61,7 +59,7 @@ fun fetchMatchData(matchViewModel: MatchViewModel, owner: LifecycleOwner) {
                 }
                 matchViewModel.changeTeamDataPackets(teamDataPackets)
                 matchViewModel.changeTeamUIs(teamDataPackets.map { packet -> packet.teamUI })
-                matchViewModel.changePlayedGame(playedGame)
+                //matchViewModel.changePlayedGame(playedGame)
                 matchViewModel.changeTeams(teams)
                 matchViewModel.changeTeamsInMatch(teamsInTm)
                 matchViewModel.changeMatch(playedMatch)

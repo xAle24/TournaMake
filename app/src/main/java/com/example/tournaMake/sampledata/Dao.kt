@@ -58,7 +58,11 @@ data class PlayedGame(
     val maxPlayers: Int,
     val timesPlayed: Int
 )
-
+data class GameHighScores(
+    val username: String,
+    val timesPlayed: Int,
+    val highScore: Int
+)
 @Dao
 interface GameDao {
     @Query("SELECT * FROM GAME")
@@ -79,11 +83,35 @@ interface GameDao {
     fun getPlayedGames(email: String): List<PlayedGame>
 
     @Query("SELECT * FROM GAME WHERE gameID = :gameID")
-    fun getGameFromID(gameID: String): Game
+    fun getGameFromID(gameID: String): LiveData<Game>
     @Query("""UPDATE GAME SET favorites = 1 WHERE gameID = :gameID""")
     fun setGameFavorites(gameID: String)
     @Query("""UPDATE GAME SET favorites = 0 WHERE gameID = :gameID""")
     fun removeGameFavorites(gameID: String)
+    @Query("""
+        SELECT MAIN_PROFILE.username, COUNT(*) as timesPlayed, MAX(TEAM_IN_TM.score) AS highScore
+        FROM MAIN_PROFILE
+        JOIN MAIN_PARTICIPANT ON MAIN_PARTICIPANT.email = MAIN_PROFILE.email
+        JOIN TEAM ON TEAM.teamID = MAIN_PARTICIPANT.teamID
+        JOIN TEAM_IN_TM ON TEAM_IN_TM.teamID = TEAM.teamID
+        JOIN MATCH_TM ON MATCH_TM.matchTmID = TEAM_IN_TM.matchTmID
+        JOIN GAME ON MATCH_TM.gameID = GAME.gameID
+        WHERE GAME.gameID = :gameID
+        GROUP BY MAIN_PROFILE.email
+    """)
+    fun getHighScoreMain(gameID: String): LiveData<List<GameHighScores>>
+    @Query("""
+        SELECT GUEST_PROFILE.username, COUNT(*) as timesPlayed, MAX(TEAM_IN_TM.score) AS highScore
+        FROM GUEST_PROFILE
+        JOIN GUEST_PARTICIPANT ON GUEST_PARTICIPANT.username = GUEST_PROFILE.username
+        JOIN TEAM ON TEAM.teamID = GUEST_PARTICIPANT.teamID
+        JOIN TEAM_IN_TM ON TEAM_IN_TM.teamID = TEAM.teamID
+        JOIN MATCH_TM ON MATCH_TM.matchTmID = TEAM_IN_TM.matchTmID
+        JOIN GAME ON MATCH_TM.gameID = GAME.gameID
+        WHERE GAME.gameID = :gameID
+        GROUP BY GUEST_PROFILE.username
+    """)
+    fun getHighScoreGuest(gameID: String): LiveData<List<GameHighScores>>
     @Insert
     fun insertAll(vararg games: Game)
 
@@ -352,10 +380,15 @@ interface MainProfileDao {
 @Dao
 interface GuestProfileDao {
     @Query("SELECT * FROM GUEST_PROFILE")
-    fun getAll(): List<GuestProfile>
+    fun getAll(): LiveData<List<GuestProfile>>
 
     @Query("SELECT * FROM GUEST_PROFILE WHERE username = :username")
     fun getFromUsername(username: String): GuestProfile
+    @Query("""SELECT COUNT(*) 
+        FROM GUEST_PROFILE 
+        WHERE username = :username;
+        """)
+    fun checkGuestProfile(username: String): Int
 
     @Insert
     fun insert(guestProfile: GuestProfile)

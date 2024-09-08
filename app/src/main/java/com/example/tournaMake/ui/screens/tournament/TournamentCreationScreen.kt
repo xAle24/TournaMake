@@ -47,7 +47,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.tournaMake.R
-import com.example.tournaMake.activities.fetchAndUpdateGuestProfileList
 import com.example.tournaMake.activities.fetchAndUpdateMainProfileList
 import com.example.tournaMake.activities.fetchAndUpdateTournamentTypeList
 import com.example.tournaMake.activities.fetchData
@@ -74,7 +73,6 @@ fun TournamentCreationScreen(
     val tournamentCreationViewModel = koinViewModel<TournamentCreationViewModel>()
     val matchCreationViewModel = koinViewModel<MatchCreationViewModel>()
     fetchAndUpdateTournamentTypeList(tournamentCreationViewModel, owner)
-    fetchAndUpdateGuestProfileList(tournamentCreationViewModel, owner)
     fetchAndUpdateMainProfileList(tournamentCreationViewModel, owner)
     fetchData(matchCreationViewModel, owner)
     BasicScreenWithAppBars(

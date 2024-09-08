@@ -1,7 +1,6 @@
 package com.example.tournaMake.ui.screens.match
 
 import android.net.Uri
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -42,7 +41,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -53,13 +51,10 @@ import coil.compose.AsyncImage
 import com.example.tournaMake.R
 import com.example.tournaMake.activities.addMatchToFavorites
 import com.example.tournaMake.activities.fetchMatchData
-import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.activities.removeMatchFromFavorites
 import com.example.tournaMake.data.models.MatchDetailsViewModel
 import com.example.tournaMake.data.models.TeamDataPacket
 import com.example.tournaMake.data.models.ThemeViewModel
-import com.example.tournaMake.data.repositories.MatchDetailsRepository
-import com.example.tournaMake.dataStore
 import com.example.tournaMake.sampledata.MatchTM
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.screens.common.RectangleContainer
@@ -295,18 +290,4 @@ fun MiniProfileImageMatchDetails(
         Text(profileName)
     }
     Spacer(modifier = Modifier.width(8.dp))
-}
-
-@Preview
-@Composable
-fun MatchDetailsScreenPreview() {
-    val vm = MatchDetailsViewModel(MatchDetailsRepository(LocalContext.current.dataStore))
-    vm.changeTeamDataPackets(listOf(
-        TeamDataPacket(testTeam1, 200, "team1ID", true),
-        TeamDataPacket(testTeam2, 100, "team2ID", false)
-    ))
-    MatchDetailsScreen(
-        navController = NavController(LocalContext.current),
-        owner = ComponentActivity()
-    )
 }

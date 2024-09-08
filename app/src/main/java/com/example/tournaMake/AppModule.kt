@@ -8,8 +8,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.tournaMake.data.models.AchievementsProfileViewModel
 import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.CoordinatesViewModel
+import com.example.tournaMake.data.models.GameDetailsViewModel
 import com.example.tournaMake.data.models.GamesListViewModel
 import com.example.tournaMake.data.models.GraphViewModel
+import com.example.tournaMake.data.models.GuestProfileListViewModel
 import com.example.tournaMake.data.models.MatchCreationViewModel
 import com.example.tournaMake.data.models.MatchDetailsViewModel
 import com.example.tournaMake.data.models.MatchListViewModel
@@ -23,7 +25,9 @@ import com.example.tournaMake.data.models.TournamentDataViewModel
 import com.example.tournaMake.data.models.TournamentIDViewModel
 import com.example.tournaMake.data.models.TournamentListViewModel
 import com.example.tournaMake.data.repositories.AuthenticationRepository
+import com.example.tournaMake.data.repositories.GameDetailsRepository
 import com.example.tournaMake.data.repositories.GamesListRepository
+import com.example.tournaMake.data.repositories.GuestProfileRepository
 import com.example.tournaMake.data.repositories.MatchDetailsRepository
 import com.example.tournaMake.data.repositories.MatchRepository
 import com.example.tournaMake.data.repositories.NotificationsRepository
@@ -49,21 +53,25 @@ val appModule = module {
     viewModel { MatchCreationViewModel(get()) }
     viewModel { GraphViewModel() }
     viewModel { GamesListViewModel(get()) }
+    viewModel { GuestProfileListViewModel(get()) }
     viewModel { TournamentListViewModel() }
     viewModel { AchievementsProfileViewModel() }
-    viewModel { TournamentCreationViewModel(get()) }
+    viewModel { TournamentCreationViewModel(get(), get()) }
     single { TournamentIDRepository(get()) }
     viewModel { TournamentIDViewModel(get()) }
     viewModel { TournamentDataViewModel(get(), get()) }
     viewModel { CoordinatesViewModel() }
     viewModel { NotificationViewModel(get()) }
-    viewModel { MatchDetailsViewModel(get()) }
+    viewModel { MatchDetailsViewModel(get(), get()) }
+    viewModel { GameDetailsViewModel(get()) }
     viewModel { MatchViewModel(get()) }
     single { MatchDetailsRepository(get()) }
+    single { GameDetailsRepository(get(), get()) }
     single { MatchRepository(get(), get()) }
     single { TournamentLiveDataRepository() }
     single { NotificationsRepository(get()) }
     single { GamesListRepository(get()) }
+    single { GuestProfileRepository(get()) }
     single {
         Room.databaseBuilder(
             get(),

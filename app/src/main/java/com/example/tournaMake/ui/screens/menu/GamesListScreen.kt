@@ -50,17 +50,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.example.tournaMake.R
 import com.example.tournaMake.activities.addGame
 import com.example.tournaMake.activities.addGameToFavorites
 import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.activities.removeGameFromFavorites
+import com.example.tournaMake.data.models.GameDetailsViewModel
 import com.example.tournaMake.data.models.GamesListViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.Game
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.theme.getThemeColors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import java.util.UUID
 
@@ -77,11 +82,12 @@ fun GamesListScreen(
     // View Model of profile list
     val gamesListViewModel = koinViewModel<GamesListViewModel>()
     val gameList = gamesListViewModel.gamesListLiveData.observeAsState()
+    val gameDetailsViewModel = koinViewModel<GameDetailsViewModel>()
     var showDialog by remember { mutableStateOf(false) }
 
     BasicScreenWithAppBars(
         state = state,
-        backFunction = { navController.navigate(NavigationRoute.MenuScreen.route) },
+        backFunction = { navController.navigateUp() },
         showTopBar = true,
         showBottomBar = false
     ) {
@@ -111,7 +117,7 @@ fun GamesListScreen(
             ) {
                 if (gameList.value != null) {
                     items(gameList.value!!) { item ->
-                        GameCard(game = item, navController = navController, owner = owner)
+                        GameCard(game = item, navController = navController, vm = gameDetailsViewModel, owner = owner)
                     }
                 }
             }
@@ -255,6 +261,7 @@ fun GamesListScreen(
 @Composable
 fun GameCard(
     game: Game,
+    vm: GameDetailsViewModel,
     navController: NavController,
     owner: LifecycleOwner
 ) {
@@ -265,7 +272,15 @@ fun GameCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp)
-            .clickable { /*TODO: create screen for details of game*/ },
+            .clickable {
+                owner.lifecycleScope.launch(Dispatchers.IO) {
+                    // Change selected match in repository
+                    vm.changeRepository(game.gameID)
+                    withContext(Dispatchers.Main) {
+                        navController.navigate(NavigationRoute.GameDetailsScreen.route)
+                    }
+                }
+            },
         colors = CardColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,

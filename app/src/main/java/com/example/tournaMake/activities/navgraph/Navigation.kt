@@ -1,8 +1,6 @@
 package com.example.tournaMake.activities.navgraph
 
 import android.content.ContentResolver
-import android.util.Log
-import android.view.Window
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.LifecycleOwner
@@ -17,6 +15,7 @@ import com.example.tournaMake.ui.screens.match.MatchCreationScreen
 import com.example.tournaMake.ui.screens.match.MatchDetailsScreen
 import com.example.tournaMake.ui.screens.match.MatchListScreen
 import com.example.tournaMake.ui.screens.match.MatchScreen
+import com.example.tournaMake.ui.screens.menu.GameDetailsScreen
 import com.example.tournaMake.ui.screens.menu.GamesListScreen
 import com.example.tournaMake.ui.screens.menu.MenuScreen
 import com.example.tournaMake.ui.screens.profile.ChartScreen
@@ -46,6 +45,7 @@ sealed class NavigationRoute(
     data object MatchCreationScreen : NavigationRoute("MatchCreationScreen")
     data object MatchScreen : NavigationRoute("MatchScreen")
     data object GamesListScreen : NavigationRoute("GamesListScreen")
+    data object GameDetailsScreen : NavigationRoute("GameDetailsScreen")
     data object ProfilesListScreen : NavigationRoute("ProfilesListScreen")
     data object ProfileScreen : NavigationRoute("ProfileScreen")
     data object ChartScreen : NavigationRoute("ChartScreen")
@@ -73,7 +73,6 @@ fun NavGraph(
             LoginScreen(navController, owner)
         }
         composable(NavigationRoute.RegistrationScreen.route) {
-            // TODO: the user is not informed if there is a duplicate email
             RegistrationScreen(navController, owner)
         }
         composable(NavigationRoute.MenuScreen.route) {
@@ -96,6 +95,9 @@ fun NavGraph(
         }
         composable(NavigationRoute.GamesListScreen.route) {
             GamesListScreen(navController = navController, owner = owner)
+        }
+        composable(NavigationRoute.GameDetailsScreen.route) {
+            GameDetailsScreen(navController = navController)
         }
         composable(NavigationRoute.ProfilesListScreen.route) {
             ProfileListScreen(owner = owner, navController = navController)
