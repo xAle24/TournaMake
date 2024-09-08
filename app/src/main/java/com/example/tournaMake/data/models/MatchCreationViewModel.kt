@@ -55,24 +55,24 @@ class MatchCreationViewModel(repository: GamesListRepository): ViewModel() {
      * Returns a collection containing all the members that are not currently
      * selected.
      * */
-    fun filterUnselectedMainMembers(mainProfiles: Set<MainProfile>): List<MainProfile> {
+    fun filterUnselectedMainMembers(mainProfiles: List<MainProfile>): List<MainProfile> {
         return _selectedMainProfiles.value?.let {
             mainProfiles.filter {
                 !this._selectedMainProfiles.value!!.contains(it)
             }
-        } ?: mainProfiles.toList()
+        } ?: mainProfiles
     }
 
     /**
      * Returns a collection containing all the members that are not currently
      * selected.
      * */
-    fun filterUnselectedGuestMembers(guestProfiles: Set<GuestProfile>): List<GuestProfile> {
+    fun filterUnselectedGuestMembers(guestProfiles: List<GuestProfile>): List<GuestProfile> {
         return _selectedGuestProfiles.value?.let {
             guestProfiles.filter {
                 !this._selectedGuestProfiles.value!!.contains(it)
             }
-        } ?: guestProfiles.toList()
+        } ?: guestProfiles
     }
 
     fun addMain(profile: MainProfile) {

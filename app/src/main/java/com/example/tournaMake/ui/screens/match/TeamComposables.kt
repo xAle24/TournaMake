@@ -271,13 +271,10 @@ fun TeamElement(
 
             Spacer(modifier = Modifier.height(spacerHeight))
 
-            /**
-             * Here are the callbacks that should trigger recompositions.
-             * */
             AddMemberButton(
                 team,
-                mainProfileList = vm.filterUnselectedMainMembers(mainProfileListFromDatabase.toSet()),
-                guestProfileList = vm.filterUnselectedGuestMembers(guestProfileListFromDatabase.toSet()),
+                mainProfileListFromDatabase,
+                guestProfileListFromDatabase,
                 addMain = {
                     vm.addMain(it)
                     team.addMainProfile(it)
@@ -296,12 +293,20 @@ fun TeamElement(
             // Creating the member bubbles
             // first MainProfiles
             locallySelectedMains.forEach { profile ->
-                TeamMainMemberBubble(teamMember = profile, team, vm::removeMain)
+                TeamMainMemberBubble(teamMember = profile, removeMain = {
+                    vm.removeMain(it)
+                    team.removeMainProfile(it)
+                    locallySelectedMains = team.getMainProfiles()
+                })
                 Spacer(modifier = Modifier.height(spacerHeight))
             }
             // then GuestProfiles
             locallySelectedGuests.forEach { profile ->
-                TeamGuestMemberBubble(teamMember = profile, team, vm::removeGuest)
+                TeamGuestMemberBubble(teamMember = profile, removeGuest = {
+                    vm.removeGuest(it)
+                    team.addGuestProfile(it)
+                    locallySelectedGuests = team.getGuestProfiles()
+                })
                 Spacer(modifier = Modifier.height(spacerHeight))
             }
 
@@ -398,13 +403,24 @@ fun MyTeamTextField() {
 @Composable
 fun AddMemberButton(
     team: TeamUI,
-    mainProfileList: List<MainProfile>, // filtered entries
-    guestProfileList: List<GuestProfile>, // filtered entries
+    dbMains: List<MainProfile>,
+    dbGuests: List<GuestProfile>,
     addMain: (MainProfile) -> Unit,
     addGuest: (GuestProfile) -> Unit,
 ) {
+    val vm = koinViewModel<MatchCreationViewModel>()
+    val globallySelectedMains by vm.selectedMainProfiles.observeAsState()
+    val globallySelectedGuests by vm.selectedGuestProfiles.observeAsState()
+    /**
+     * The view model stores correctly the values of the globally selected profiles.
+     * I hope this forces the Alert Dialog to keep track of them too.
+     * */
+    val unselectedMains = globallySelectedMains?.let { vm.filterUnselectedMainMembers(dbMains) } ?: dbMains
+    val unselectedGuests = globallySelectedGuests?.let { vm.filterUnselectedGuestMembers(dbGuests) } ?: dbGuests
+    Log.d("DEV-TEAMS", "Unselected Mains: $unselectedMains")
+    Log.d("DEV-TEAMS", "Unselected Guests: $unselectedGuests")
     val showDialog = remember { mutableStateOf(false) }
-    val profileUtils = ProfileUtils(mainProfileList, guestProfileList)
+    val profileUtils = ProfileUtils(unselectedMains, unselectedGuests)
     if (showDialog.value) {
         ShowAddMember(
             openDialog = showDialog,
@@ -433,7 +449,6 @@ fun AddMemberButton(
 @Composable
 fun TeamMainMemberBubble(
     teamMember: MainProfile,
-    team: TeamUI,
     removeMain: (MainProfile) -> Unit
 ) {
     Row(
@@ -453,7 +468,6 @@ fun TeamMainMemberBubble(
         )
         Spacer(Modifier.weight(0.1f))
         DeleteTeamMemberButton(onDelete = {
-            team.removeMainProfile(teamMember)
             removeMain(teamMember)
         })
         Spacer(modifier = Modifier.weight(0.02f))
@@ -463,7 +477,6 @@ fun TeamMainMemberBubble(
 @Composable
 fun TeamGuestMemberBubble(
     teamMember: GuestProfile,
-    team: TeamUI,
     removeGuest: (GuestProfile) -> Unit
 ) {
     Row(
@@ -483,7 +496,6 @@ fun TeamGuestMemberBubble(
         )
         Spacer(Modifier.weight(0.1f))
         DeleteTeamMemberButton(onDelete = {
-            team.removeGuestProfile(teamMember)
             removeGuest(teamMember)
         })
         Spacer(modifier = Modifier.weight(0.02f))
