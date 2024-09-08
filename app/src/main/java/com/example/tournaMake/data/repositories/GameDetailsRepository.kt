@@ -18,4 +18,8 @@ class GameDetailsRepository(private val appDatabase: AppDatabase, private val da
         dataStore.edit { it[SELECTED_GAME] = selectedGameId }
 
     fun getGameDetails(gameID: String) = appDatabase.gameDao().getGameFromID(gameID)
+
+    fun getMainHighScores(gameID: String) = appDatabase.gameDao().getHighScoreMain(gameID)
+    fun getGuestHighScores(gameID: String) = appDatabase.gameDao().getHighScoreGuest(gameID)
+
 }
