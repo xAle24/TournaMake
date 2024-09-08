@@ -85,7 +85,7 @@ fun TournamentListScreen(
     var filteredEntries  = searchbar.getFilteredEntries()
     var showDialog by remember { mutableStateOf(false) }
     var selectedPredicate by remember { mutableStateOf<(Tournament) -> Boolean>({ true }) }
-    val options = listOf("All", "Favorites", "Completed")
+    val options = listOf("All", "Favorites", "Completed", "Ongoing")
     val selectedOption = remember { mutableStateOf(options[0]) }
 
     BasicScreenWithAppBars(
@@ -305,6 +305,7 @@ fun TournamentFilterDialog(
                     val predicate: (Tournament) -> Boolean = when (selectedOption.value) {
                         "Favorites" -> { tournament -> tournament.favorites == 1 }
                         "Completed" -> { tournament -> tournament.isOver == 1 }
+                        "Ongoing" -> { tournament -> tournament.isOver == 0 }
                         else -> { _ -> true }
                     }
                     onPredicateSelected(predicate)

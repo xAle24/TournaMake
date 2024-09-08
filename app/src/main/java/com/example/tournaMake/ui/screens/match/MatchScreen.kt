@@ -42,6 +42,8 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -135,7 +137,7 @@ fun MatchScreen(
     }
 
     val backButtonIcon =
-        if (state.theme == ThemeEnum.Dark) R.drawable.dark_tournamake_triangle_no_outline else R.drawable.light_tournamake_triangle_no_outline
+        if (state.theme == ThemeEnum.Dark) R.drawable.dark_back_button else R.drawable.light_back_button
     val topAppBarBackground =
         if (state.theme == ThemeEnum.Dark) R.drawable.dark_topbarbackground else R.drawable.light_topbarbackground
 
@@ -365,8 +367,8 @@ fun MatchHeading(
                         .height(80.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Match", style = MaterialTheme.typography.headlineSmall)
-                    Text(gameName)
+                    Text("Match", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onPrimary)
+                    Text(gameName, color = MaterialTheme.colorScheme.onPrimary)
                 }
                 IconButton(
                     onClick = {
@@ -386,6 +388,7 @@ fun MatchHeading(
                     Icon(
                         imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         contentDescription = "Favourite Match indicator",
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
@@ -460,7 +463,19 @@ fun TeamElementInMatchScreen(
                         Icon(
                             Icons.Filled.Edit, contentDescription = null
                         )
-                    }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                        cursorColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
             }
             Spacer(modifier = Modifier.height(spacerHeight))
@@ -500,7 +515,7 @@ fun MiniProfileImage(
                 )
             }
         }
-        Text(profileName)
+        Text(profileName, color = MaterialTheme.colorScheme.onPrimary)
     }
     Spacer(modifier = Modifier.width(8.dp))
 }

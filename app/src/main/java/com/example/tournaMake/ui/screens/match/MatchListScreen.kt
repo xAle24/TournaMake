@@ -83,7 +83,7 @@ fun MatchListScreen(
     var filteredEntries  = searchbar2.getFilteredEntries()
     var showDialog by remember { mutableStateOf(false) }
     var selectedPredicate by remember { mutableStateOf<(MatchGameData) -> Boolean>({ true }) }
-    val options = listOf("All", "Favorites", "Completed")
+    val options = listOf("All", "Favorites", "Completed", "Ongoing")
     val selectedOption = remember { mutableStateOf(options[0]) }
     BasicScreenWithAppBars(
         state = state,
@@ -348,6 +348,7 @@ fun FilterDialog(
                     val predicate: (MatchGameData) -> Boolean = when (selectedOption.value) {
                         "Favorites" -> { match -> match.favorites == 1 }
                         "Completed" -> { match -> match.isOver == 1 }
+                        "Ongoing" -> { match -> match.isOver == 0 }
                         else -> { _ -> true }
                     }
                     onPredicateSelected(predicate)
