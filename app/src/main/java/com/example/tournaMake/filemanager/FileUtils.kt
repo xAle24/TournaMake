@@ -24,6 +24,7 @@ class AppDirectoryNames {
     * */
     companion object {
         const val profileImageDirectoryName: String = "tournamake_profile_image"
+        const val gameImageDirectoryName: String = "tournamake_games_images"
     }
 }
 
@@ -49,7 +50,7 @@ fun createDirectory(dirName: String, context: Context, email: String? = null) {
  * The email parameter is optional. If specified, the image is saved in the specific directory
  * of the username.
  * */
-fun saveImageToDirectory(bitmap: Bitmap, context: Context, dirName: String, imageName: String, email: String? = null): Boolean {
+fun saveImageToDirectory(bitmap: Bitmap, context: Context, dirName: String, imageName: String = "", email: String? = null): Boolean {
     val path = "${context.filesDir.path}/${dirName}/${convertEmailToPathSegment(email)}$imageName"
     Log.d("DEV", "Path = $path")
     val outputStream = FileOutputStream(path) // creates an OutputStream to write the specified path

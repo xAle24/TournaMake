@@ -9,7 +9,7 @@ data class FilteredProfiles(
 )
 class ProfileUtils(private val mainProfileList : List<MainProfile>,
                    private val guestProfileList: List<GuestProfile>) {
-    fun filteredProfiles(username: String) : FilteredProfiles{
+    fun filteredProfiles(username: String) : FilteredProfiles {
         val mainProfiles = mainProfileList.filter { it.username >= username }
         val guestProfiles = guestProfileList.filter { it.username >= username }
         return FilteredProfiles(mainProfiles, guestProfiles)

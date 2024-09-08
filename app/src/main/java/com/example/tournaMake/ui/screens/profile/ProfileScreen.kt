@@ -536,25 +536,3 @@ fun createImageRequest(context: Context, uri: Uri): ImageRequest {
         .build()
 }
 
-/*@Preview
-@Composable
-fun ProfileScreenPreview() {
-    ProfileScreen(
-        state = ThemeState(ThemeEnum.Light),
-        profileLiveData = MutableLiveData<MainProfile?>(
-            MainProfile(
-                email = "alin@gmail",
-                username = "Alin",
-                password = "",
-                profileImage = "",
-                wonTournamentsNumber = 0,
-                locationLatitude = 0.0f,
-                locationLongitude = 0.0f
-            )
-        ),
-        backButton = {  },
-        navigateToChart = {  },
-
-    )
-}*/
-
