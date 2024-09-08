@@ -34,10 +34,12 @@ fun fetchAndUpdateProfile(
     owner.lifecycleScope.launch(Dispatchers.IO) {
         try {
             val myProfile = appDatabase.value.mainProfileDao().getProfileByEmail(email)
+            val playedTournaments = appDatabase.value.mainProfileDao().getAllTournamentsPlayed(email)
             Log.d("DEV", "In getProfile() coroutine, myProfile.email = ${myProfile.email}")
             // Now update the data in the view model, to trigger the onchange method of the attached
             // observer
             profileViewModel.changeProfileFromCoroutine(myProfile)
+            profileViewModel.changePlayedTournaments(playedTournaments)
             val profileImageUri = loadImageUriFromDirectory(
                 dirName = AppDirectoryNames.profileImageDirectoryName,
                 imageName = PROFILE_PICTURE_NAME,

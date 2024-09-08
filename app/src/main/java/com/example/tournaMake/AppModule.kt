@@ -43,7 +43,7 @@ val appModule = module {
     viewModel { ThemeViewModel(get()) }
     single { AuthenticationRepository(get()) }
     viewModel { AuthenticationViewModel(get()) }
-    viewModel { ProfileViewModel() }
+    viewModel { ProfileViewModel(get()) }
     viewModel { ProfileListViewModel() }
     viewModel { MatchListViewModel(get()) }
     viewModel { MatchCreationViewModel(get()) }

@@ -328,6 +328,17 @@ interface MainProfileDao {
         """)
     fun checkEmail(email: String): Int
 
+    @Query("""
+        SELECT COUNT(*) 
+        FROM TOURNAMENT
+        JOIN MATCH_TM ON TOURNAMENT.tournamentID = MATCH_TM.tournamentID
+        JOIN TEAM_IN_TM ON MATCH_TM.matchTmID = TEAM_IN_TM.matchTmID
+        JOIN TEAM ON TEAM_IN_TM.teamID = TEAM.teamID
+        JOIN MAIN_PARTICIPANT ON TEAM.teamID = MAIN_PARTICIPANT.teamID
+        WHERE MAIN_PARTICIPANT.email = :email
+    """)
+    fun getAllTournamentsPlayed(email: String): Int
+
     @Insert
     fun insert(mainProfiles: MainProfile)
 
