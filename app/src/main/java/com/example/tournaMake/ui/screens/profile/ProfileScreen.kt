@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TabRow
@@ -298,9 +299,17 @@ fun ProfileScreen(
                         Column {
                             achievementList.forEach { achievement ->
                                 Card(
+                                    shape = RoundedCornerShape(8.dp),
+                                    elevation = CardDefaults.cardElevation(),
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(8.dp)
+                                        .fillMaxWidth(0.95f)
+                                        .padding(4.dp),
+                                    colors = CardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                                        disabledContainerColor = MaterialTheme.colorScheme.errorContainer,
+                                        disabledContentColor = MaterialTheme.colorScheme.error
+                                    )
                                 ) {
                                     Column(
                                         modifier = Modifier
@@ -310,17 +319,14 @@ fun ProfileScreen(
                                     ) {
                                         Text(
                                             text = achievement.name,
-                                            color = MaterialTheme.colorScheme.secondary
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
-                                            text = "Status" + achievement.status.toString(),
-                                            color = MaterialTheme.colorScheme.secondary
+                                            text = "Status: " + if(achievement.status == 1) "Completed" else "Not completed",
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
-                                            text = "Description" + achievement.description,
-                                            color = MaterialTheme.colorScheme.secondary
+                                            text = "Description:" + achievement.description,
                                         )
                                     }
                                 }

@@ -25,7 +25,7 @@ data class AchievementResult(
     val name: String,
     val description: String,
     val imagePath: String,
-    val status: Char,
+    val status: Int,
     val email: String
 )
 

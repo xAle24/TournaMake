@@ -97,7 +97,7 @@ fun NavGraph(
             GamesListScreen(navController = navController, owner = owner)
         }
         composable(NavigationRoute.GameDetailsScreen.route) {
-            GameDetailsScreen(navController = navController, owner = owner)
+            GameDetailsScreen(navController = navController)
         }
         composable(NavigationRoute.ProfilesListScreen.route) {
             ProfileListScreen(owner = owner, navController = navController)
