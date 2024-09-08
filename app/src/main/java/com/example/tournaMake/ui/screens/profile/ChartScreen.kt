@@ -6,13 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -24,17 +17,15 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.tournaMake.activities.fetchAndUpdateGraph
-import com.example.tournaMake.activities.navgraph.NavigationRoute
 import com.example.tournaMake.data.models.AuthenticationViewModel
 import com.example.tournaMake.data.models.GraphViewModel
 import com.example.tournaMake.data.models.ThemeViewModel
-import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
+import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.hd.charts.StackedBarChartView
 import com.hd.charts.common.model.MultiChartDataSet
 import okhttp3.internal.toImmutableList
 import org.koin.androidx.compose.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChartScreen(
     navController: NavController,
@@ -69,24 +60,17 @@ fun ChartScreen(
             title = "Games"
         )
 
-    BasicScreenWithTheme(
-        state = state
+    BasicScreenWithAppBars(
+        state = state,
+        backFunction = { navController.navigateUp() },
+        showTopBar = true,
+        showBottomBar = false
     ) {
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
-            // Back button at the top
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigate(NavigationRoute.ProfileScreen.route) }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
-                title = { Text(text = "My Profile") }
-            )
-            Spacer(modifier = Modifier.height(24.dp))
             /*
             * Use the key() function to tell Compose Runtime the value used to identify this
             * part of the tree. Documentation:
