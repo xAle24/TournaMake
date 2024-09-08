@@ -123,9 +123,9 @@ fun MatchCreationScreen(
                         onClick = {
                             if (selectedGame == null) {
                                 Toast.makeText(context, "Must choose a game first!", Toast.LENGTH_SHORT).show()
-                            } else if (matchCreationViewModel.teamsSet.value.size < 2){
+                            } else if (matchCreationViewModel.teamsSet.value != null && matchCreationViewModel.teamsSet.value!!.size < 2){
                                 Toast.makeText(context, "At least 2 teams must be present!", Toast.LENGTH_SHORT).show()
-                            } else {
+                            } else if (matchCreationViewModel.teamsSet.value != null) {
                                 createMatch(
                                     selectedGame!!.gameID,
                                     matchCreationViewModel,
@@ -133,6 +133,8 @@ fun MatchCreationScreen(
                                     owner,
                                     navController
                                 )
+                            } else {
+                                Toast.makeText(context, "Unexpected error: teamsSet is null!", Toast.LENGTH_SHORT).show()
                             }
                         }
                     )

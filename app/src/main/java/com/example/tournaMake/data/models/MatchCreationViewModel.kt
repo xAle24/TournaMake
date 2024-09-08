@@ -32,17 +32,19 @@ class MatchCreationViewModel(repository: GamesListRepository): ViewModel() {
     }
 
     // Management of user data
-    private val _teamsSet = MutableStateFlow<Set<TeamUI>>(setOf())
-    val teamsSet: StateFlow<Set<TeamUI>> = _teamsSet
+    private val _teamsSet = MutableLiveData<Set<TeamUI>>(setOf())
+    val teamsSet: LiveData<Set<TeamUI>> = _teamsSet
 
     // Takes teams from UI data
     fun addTeam(team: TeamUI) {
-        _teamsSet.value = setOf(setOf(team), _teamsSet.value).flatten().toSet()
+        _teamsSet.postValue(setOf(setOf(team), _teamsSet.value ?: emptySet()).flatten().toSet())
         Log.d("DEV-MATCH-CREATION", "Content of teams set after addition: ${_teamsSet.value}")
     }
 
     fun removeTeam(team: TeamUI) {
-        _teamsSet.value = _teamsSet.value.filter { it != team }.toSet()
+        _teamsSet.postValue(_teamsSet.value?.filter { it != team }?.toSet())
+        _selectedMainProfiles.value = _selectedMainProfiles.value?.filter { !team.getMainProfiles().contains(it) }?.toSet()
+        _selectedGuestProfiles.value = _selectedGuestProfiles.value?.filter { !team.getGuestProfiles().contains(it) }?.toSet()
         Log.d("DEV-MATCH-CREATION", "Content of teams set after deletion: ${_teamsSet.value}")
     }
 

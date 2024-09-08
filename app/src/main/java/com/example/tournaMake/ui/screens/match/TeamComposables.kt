@@ -32,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.livedata.observeAsState
@@ -185,11 +186,11 @@ fun TeamContainer(
     val guestListViewModel = koinViewModel<GuestProfileListViewModel>()
     val mainProfiles = matchCreationViewModel.mainProfiles.observeAsState()
     val guestProfiles = guestListViewModel.guestProfileListLiveData.observeAsState()
-    val teamsSet by matchCreationViewModel.teamsSet.collectAsState()
+    val teamsSet by matchCreationViewModel.teamsSet.observeAsState()
 
     val screenHeight = LocalConfiguration.current.screenHeightDp
     RectangleContainer(
-        modifier = if (teamsSet.isNotEmpty())
+        modifier = if (teamsSet != null && teamsSet!!.isNotEmpty())
             Modifier
                 .height((0.4 * screenHeight).dp)
         else
@@ -197,22 +198,24 @@ fun TeamContainer(
                 .height(0.dp)
                 .background(MaterialTheme.colorScheme.tertiaryContainer),
     ) {
-        if (teamsSet.isNotEmpty()) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                items(teamsSet.toList()) { team ->
-                    TeamElement(
-                        team = team,
-                        backgroundColor = null,
-                        backgroundBrush = null,
-                        mainProfileListFromDatabase = mainProfiles.value ?: emptyList(),
-                        guestProfileListFromDatabase = guestProfiles.value ?: emptyList(),
-                        removeTeam = removeTeam,
-                    )
-                    Spacer(modifier = Modifier.height(spacerHeight))
+        if (teamsSet != null && teamsSet!!.isNotEmpty()) {
+            key(teamsSet) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    items(teamsSet!!.toList()) { team ->
+                        TeamElement(
+                            team = team,
+                            backgroundColor = null,
+                            backgroundBrush = null,
+                            mainProfileListFromDatabase = mainProfiles.value ?: emptyList(),
+                            guestProfileListFromDatabase = guestProfiles.value ?: emptyList(),
+                            removeTeam = removeTeam,
+                        )
+                        Spacer(modifier = Modifier.height(spacerHeight))
+                    }
                 }
             }
         }
@@ -233,7 +236,7 @@ fun TeamElement(
     removeTeam: (TeamUI) -> Unit
 ) {
     val vm = koinViewModel<MatchCreationViewModel>()
-
+    val teamName by remember { derivedStateOf { team.getTeamName() } }
     /**
      * Locally selected profiles contain all profiles that are part
      * of THIS specific team.
@@ -265,7 +268,8 @@ fun TeamElement(
 
             // Team name
             TeamOutlinedTextField(
-                team = team
+                teamName = teamName,
+                setTeamName = { team.setTeamName(it) /* boh non posso cambiare il derived*/ }
             )
 
             Spacer(modifier = Modifier.height(spacerHeight))
@@ -331,9 +335,12 @@ fun TeamElement(
 }
 
 @Composable
-fun TeamOutlinedTextField(team: TeamUI) {
-    Log.d("DEV-TEAM-NAME", "In team outlined text field, name = ${team.getTeamName()}")
-    var currentText by remember { mutableStateOf(team.getTeamName()) }
+fun TeamOutlinedTextField(
+    teamName: String,
+    setTeamName: (String) -> Unit
+) {
+    Log.d("DEV-TEAM-NAME", "In team outlined text field, name = $teamName")
+    var currentText by remember { mutableStateOf(teamName) }
     var bigDisplayedText by remember { mutableStateOf(currentText) }
     var shouldDisplayTextField by remember { mutableStateOf(bigDisplayedText.isEmpty()) }
     val focusManager = LocalFocusManager.current
@@ -357,7 +364,7 @@ fun TeamOutlinedTextField(team: TeamUI) {
             ) {
                 OutlinedTextField(
                     value = currentText,
-                    onValueChange = { currentText = it; team.setTeamName(it) },
+                    onValueChange = { currentText = it; setTeamName(it) },
                     label = {
                         Text(
                             text = "Team Name",
@@ -392,12 +399,6 @@ fun TeamOutlinedTextField(team: TeamUI) {
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun MyTeamTextField() {
-    TeamOutlinedTextField(team = testTeam1)
 }
 
 @Composable
@@ -542,7 +543,7 @@ fun ShowAddMember(
                 onDismiss()
             },
             title = {
-                Text(text = "Select member to add:")
+                Text(text = "Select member to add:", color = MaterialTheme.colorScheme.onSurface)
             },
             text = {
                 LazyColumn {
@@ -559,14 +560,14 @@ fun ShowAddMember(
                         Button(onClick = {
                             addGuest(item)
                         }) {
-                            Text(text = item.username)
+                            Text(text = item.username, color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
                 }
             },
             confirmButton = {
                 Button(onClick = { onDismiss() }) {
-                    Text("Close")
+                    Text("Close", color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         )

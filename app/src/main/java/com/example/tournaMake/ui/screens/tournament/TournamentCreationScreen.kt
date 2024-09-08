@@ -1,5 +1,6 @@
 package com.example.tournaMake.ui.screens.tournament
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,6 +74,7 @@ fun TournamentCreationScreen(
     val state by themeViewModel.state.collectAsStateWithLifecycle()
     val tournamentCreationViewModel = koinViewModel<TournamentCreationViewModel>()
     val matchCreationViewModel = koinViewModel<MatchCreationViewModel>()
+    val context = LocalContext.current
     fetchAndUpdateTournamentTypeList(tournamentCreationViewModel, owner)
     fetchAndUpdateMainProfileList(tournamentCreationViewModel, owner)
     fetchData(matchCreationViewModel, owner)
@@ -86,7 +89,7 @@ fun TournamentCreationScreen(
             if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
 
         /* Variable containing all the created teams */
-        val teamsSet by matchCreationViewModel.teamsSet.collectAsState()
+        val teamsSet by matchCreationViewModel.teamsSet.observeAsState()
         var selectedGame by remember { mutableStateOf<Game?>(null) }
         var selectedTournamentType by remember { mutableStateOf<TournamentType?>(null) }
         var selectedTournamentName by remember { mutableStateOf("") }
@@ -151,11 +154,9 @@ fun TournamentCreationScreen(
                 /*
                 * Here begins the huge part of the team container
                 * */
-                key(teamsSet) {
-                    TeamContainer(
-                        removeTeam = matchCreationViewModel::removeTeam
-                    )
-                }
+                TeamContainer(
+                    removeTeam = matchCreationViewModel::removeTeam
+                )
                 Button(
                     onClick = {
                         matchCreationViewModel.addTeam(TeamUIImpl(emptySet(), emptySet(), ""))
@@ -175,14 +176,19 @@ fun TournamentCreationScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
-                        navigateToTournament(
-                            teamsSet,
-                            selectedGame,
-                            selectedTournamentType,
-                            selectedTournamentName,
-                            navController = navController,
-                            owner = owner
-                        )
+                        if (teamsSet != null) {
+                            navigateToTournament(
+                                teamsSet!!,
+                                selectedGame,
+                                selectedTournamentType,
+                                selectedTournamentName,
+                                navController = navController,
+                                owner = owner
+                            )
+                        } else {
+                            Toast.makeText(context, "Teams set is null...", Toast.LENGTH_SHORT)
+                                .show()
+                        }
                     },
                     modifier = Modifier
                         .clip(RoundedCornerShape(30.dp))

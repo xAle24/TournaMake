@@ -54,7 +54,7 @@ fun createMatch(
             tournamentID = null,
             indexInTournamentTree = null,
         ))
-        matchCreationViewModel.teamsSet.value.forEach {
+        matchCreationViewModel.teamsSet.value?.forEach {
             val teamUUID = UUID.randomUUID().toString()
             appDatabase.value.teamDao().insert(Team(teamUUID, it.getTeamName()))
             appDatabase.value.teamInTmDao().insert(TeamInTm(teamUUID, matchUUID, 0, 0))

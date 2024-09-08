@@ -34,6 +34,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -353,8 +354,11 @@ fun WinnerSelectionAlertDialog(
                                 listOf(selectedTeams, listOf(localTeamDataPacket)).flatten()
                             isChecked = true
                         }
-                    })
-                    Text(localTeamDataPacket.teamUI.getTeamName())
+                    }, colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.colorScheme.onSurface,
+                        uncheckedColor = MaterialTheme.colorScheme.onSurface
+                    ))
+                    Text(localTeamDataPacket.teamUI.getTeamName(), color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         }
