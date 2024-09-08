@@ -74,7 +74,7 @@ fun MainScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent
                 ),
-                border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
             ) {
                 Text("Login", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
@@ -89,7 +89,7 @@ fun MainScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent
                 ),
-                border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
             ) {
                 Text("Register", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
