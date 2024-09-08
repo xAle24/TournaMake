@@ -100,4 +100,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.3.0")
     // For Navigation Graph
     implementation("androidx.navigation:navigation-compose:2.7.7")
+    // For Shapes
+    implementation("androidx.graphics:graphics-shapes:1.0.1")
+    // For ConstraintLayout, to allow precise positioning of composables
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 }

@@ -1,6 +1,7 @@
 package com.example.tournaMake.ui.screens.match
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -41,6 +42,8 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -51,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -85,6 +89,8 @@ import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
 import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.screens.common.TournaMakeTopAppBar
 import com.example.tournaMake.ui.screens.registration.createImageRequest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 import org.koin.java.KoinJavaComponent.inject
 
@@ -96,6 +102,7 @@ fun MatchScreen(
     owner: LifecycleOwner
 ) {
     val navBackStackEntry = navController.previousBackStackEntry
+    val context = LocalContext.current
     BackHandler {
         when(navBackStackEntry?.arguments?.getString("source")) {
             "tournament" -> {
@@ -131,7 +138,7 @@ fun MatchScreen(
     }
 
     val backButtonIcon =
-        if (state.theme == ThemeEnum.Dark) R.drawable.dark_tournamake_triangle_no_outline else R.drawable.light_tournamake_triangle_no_outline
+        if (state.theme == ThemeEnum.Dark) R.drawable.dark_back_button else R.drawable.light_back_button
     val topAppBarBackground =
         if (state.theme == ThemeEnum.Dark) R.drawable.dark_topbarbackground else R.drawable.light_topbarbackground
 
@@ -181,6 +188,61 @@ fun MatchScreen(
     }
 
     BasicScreenWithTheme(state = state) {
+        if (shouldShowAlertDialog && dataPackets != null && match != null) {
+            WinnerSelectionAlertDialog(allTeams = dataPackets!!,
+                onDismissRequest = { shouldShowAlertDialog = false },
+                /*
+                * When the match ends, the user should be prompted to insert all the winning
+                * teams (we can show a modal dialog with some checkboxes)
+                * Create the map necessary to the callback, but remember to modify its pairs
+                * values to reflect the actual match result for each team.
+                *
+                * If the user selects some teams as winners, then all the other teams are losers.
+                * If no winner is selected, all the teams will end up with a draw.
+                * This is necessary for updating the headings in the match details screen afterwards -
+                * it'd be nice to know if a team has got a draw or some other result.
+                * */
+                processWinners = {
+                    winnerDataPackets = it
+                    var map = buildMap(data = dataPackets!!)
+                    if (winnerDataPackets == dataPackets!! && match!!.tournamentID == null) {
+                        // There are no winners, so everybody should score a draw (outside of a tournament)
+                        map =
+                            map.map { entry -> entry.key to Pair(entry.value.first, MatchResult.Draw) }
+                                .toMap()
+                        endMatch(
+                            navController = navController,
+                            teamScores = map,
+                            match = match!!,
+                            owner = owner
+                        )
+                    } else if(winnerDataPackets == dataPackets!! && match!!.tournamentID != null) {
+                        // In a tournament, there must be a winner
+                        Toast.makeText(context, "You must select just one winner", Toast.LENGTH_SHORT).show()
+                    } else if (winnerDataPackets.isNotEmpty()) {
+                        val teamIDs = winnerDataPackets.map { packet -> packet.teamID }
+                        // I didn't manage to use the functional style to map entries to
+                        // a new immutable map, so I used this support map.
+                        val mutableMap = mutableMapOf<String, Pair<Int, MatchResult>>()
+                        map.forEach { entry ->
+                            if (teamIDs.contains(entry.key)) {
+                                mutableMap[entry.key] = Pair(entry.value.first, MatchResult.Winner)
+                            } else {
+                                mutableMap[entry.key] = Pair(entry.value.first, entry.value.second)
+                            }
+                        }
+                        map = mutableMap
+                        endMatch(
+                            navController = navController,
+                            teamScores = map,
+                            match = match!!,
+                            owner = owner
+                        )
+                    } else {
+                        Toast.makeText(context, "You must select a winner", Toast.LENGTH_SHORT).show()
+                    }
+                })
+        }
         Scaffold(containerColor = Color.Transparent,
             modifier = Modifier
                 .zIndex(45f)
@@ -351,8 +413,8 @@ fun MatchHeading(
                         .height(80.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Match", style = MaterialTheme.typography.headlineSmall)
-                    Text(gameName)
+                    Text("Match", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onPrimary)
+                    Text(gameName, color = MaterialTheme.colorScheme.onPrimary)
                 }
                 IconButton(
                     onClick = {
@@ -372,6 +434,7 @@ fun MatchHeading(
                     Icon(
                         imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         contentDescription = "Favourite Match indicator",
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
@@ -446,7 +509,19 @@ fun TeamElementInMatchScreen(
                         Icon(
                             Icons.Filled.Edit, contentDescription = null
                         )
-                    }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    },
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                        cursorColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
             }
             Spacer(modifier = Modifier.height(spacerHeight))
@@ -475,16 +550,18 @@ fun MiniProfileImage(
             if (profileImage == null) {
                 Image(
                     painterResource(id = R.drawable.no_profile_picture_icon),
-                    contentDescription = null
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds
                 )
             } else {
                 AsyncImage(
                     model = createImageRequest(LocalContext.current, profileImage),
-                    contentDescription = null
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds
                 )
             }
         }
-        Text(profileName)
+        Text(profileName, color = MaterialTheme.colorScheme.onPrimary)
     }
     Spacer(modifier = Modifier.width(8.dp))
 }

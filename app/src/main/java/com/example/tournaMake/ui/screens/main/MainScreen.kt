@@ -74,9 +74,9 @@ fun MainScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent
                 ),
-                border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
             ) {
-                Text("Login", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                Text("Login", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, style = MaterialTheme.typography.headlineMedium)
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button(
@@ -89,9 +89,9 @@ fun MainScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent
                 ),
-                border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
             ) {
-                Text("Register", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                Text("Register", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, style = MaterialTheme.typography.headlineMedium)
             }
         }
     }

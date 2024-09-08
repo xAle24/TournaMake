@@ -291,7 +291,7 @@ fun RegistrationPhotoScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent
                 ),
-                border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
             ) {
                 Text(
                     text = "Upload Photo",
@@ -313,7 +313,7 @@ fun RegistrationPhotoScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent
                 ),
-                border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
             ) {
                 Text(
                     text = "Take picture",
@@ -345,7 +345,7 @@ fun RegistrationPhotoScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent
                     ),
-                    border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+                    border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
                 ) {
                     Text(text = "Back")
                 }
@@ -362,7 +362,7 @@ fun RegistrationPhotoScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent
                     ),
-                    border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+                    border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
                 ) {
                     Text(text = "Next")
                 }
@@ -415,7 +415,7 @@ fun LocationUIArea(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent
                 ),
-                border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
             ) {
                 Text("Get current location")
             }

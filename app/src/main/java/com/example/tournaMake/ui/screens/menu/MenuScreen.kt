@@ -43,6 +43,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -56,6 +57,8 @@ import com.example.tournaMake.data.models.ThemeState
 import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.sampledata.Notification
 import com.example.tournaMake.ui.screens.common.BasicScreenWithTheme
+import com.example.tournaMake.ui.screens.common.ButtonThickBorder
+import com.example.tournaMake.ui.screens.common.ButtonThickBorderContainer
 import com.example.tournaMake.ui.theme.getThemeColors
 import org.koin.androidx.compose.koinViewModel
 
@@ -120,19 +123,25 @@ fun MenuScreen(
             ) {
                 Box {
                     MenuButton(
-                        "Logout", { navController.navigate(NavigationRoute.MainScreen.route) }, R.drawable.backicon, state,
+                        "Logout",
+                        { navController.navigate(NavigationRoute.MainScreen.route) },
+                        R.drawable.backicon,
+                        state,
                         modifier = Modifier
                             .fillMaxWidth(0.4f)
-                            .fillMaxHeight(0.06f)
+                            .fillMaxHeight(0.06f),
+                        withThickBorder = false
                     )
                 }
                 Box {
-                    MenuButton("", { showDialog.value = true },
-                        if(notifications.value?.size == 0) R.drawable.bellnotification else R.drawable.bellnotificationtoread,
+                    MenuButton(
+                        "", { showDialog.value = true },
+                        if (notifications.value?.size == 0) R.drawable.bellnotification else R.drawable.bellnotificationtoread,
                         state,
                         modifier = Modifier
                             .fillMaxWidth(0.35f)
-                            .fillMaxHeight(0.06f)
+                            .fillMaxHeight(0.06f),
+                        withThickBorder = false
                     )
                 }
             }
@@ -143,11 +152,41 @@ fun MenuScreen(
                     .fillMaxWidth(0.8f)
                     .fillMaxHeight(0.2f)
             )
-            MenuButton("Tournament", { navController.navigate(NavigationRoute.TournamentsListScreen.route) }, R.drawable.triangleicon, state)
-            MenuButton("Matches", { navController.navigate(NavigationRoute.MatchesListScreen.route) }, R.drawable.d20_dark, state)
-            MenuButton("Game list", { navController.navigate(NavigationRoute.GamesListScreen.route) }, R.drawable.listicon, state)
-            MenuButton("Profile", { navController.navigate(NavigationRoute.ProfilesListScreen.route) }, R.drawable.profileicon, state)
-            MenuButton("Settings", { navController.navigate(NavigationRoute.SettingsScreen.route) }, R.drawable.settingsicon, state)
+            MenuButton(
+                "Tournament",
+                { navController.navigate(NavigationRoute.TournamentsListScreen.route) },
+                R.drawable.triangleicon,
+                state,
+                defaultSize = false
+            )
+            MenuButton(
+                "Matches",
+                { navController.navigate(NavigationRoute.MatchesListScreen.route) },
+                R.drawable.d20_dark,
+                state,
+                defaultSize = false
+            )
+            MenuButton(
+                "Game list",
+                { navController.navigate(NavigationRoute.GamesListScreen.route) },
+                R.drawable.listicon,
+                state,
+                defaultSize = false
+            )
+            MenuButton(
+                "Profile",
+                { navController.navigate(NavigationRoute.ProfilesListScreen.route) },
+                R.drawable.profileicon,
+                state,
+                defaultSize = false
+            )
+            MenuButton(
+                "Settings",
+                { navController.navigate(NavigationRoute.SettingsScreen.route) },
+                R.drawable.settingsicon,
+                state,
+                defaultSize = false
+            )
 
             Image(
                 painter = painterResource(id = imageKnightId),
@@ -176,33 +215,52 @@ fun MenuScreen(
 
 @Composable
 fun MenuButton(
-    text: String, onClick: () -> Unit, iconId: Int, state: ThemeState, modifier: Modifier = Modifier
+    text: String,
+    onClick: () -> Unit,
+    iconId: Int,
+    state: ThemeState,
+    modifier: Modifier = Modifier
         .fillMaxWidth(0.8f)
-        .height(60.dp)
+        .height(60.dp),
+    withThickBorder: Boolean = true,
+    defaultSize: Boolean = true,
 ) {
     val colorConstants = getThemeColors(themeState = state)
-    Button(
-        onClick = onClick,
-        modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
-            .height(60.dp)
-            .fillMaxWidth(0.9f)
-            .background(colorConstants.getButtonBackground()),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent
-        ),
-        border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
-    ) {
-        Icon(
-            painter = painterResource(id = iconId),
-            contentDescription = null,
-            modifier = Modifier
-                .width(40.dp)
-                .height(40.dp)
-        )
-        Spacer(modifier = Modifier.width(15.dp))
-        Text(text)
-    }
+    ButtonThickBorderContainer(
+        content = {
+            Button(
+                onClick = onClick,
+                modifier = modifier
+                    .clip(RoundedCornerShape(30.dp))
+                    .height(60.dp)
+                    .fillMaxWidth(0.9f)
+                    .background(colorConstants.getButtonBackground()),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent
+                ),
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
+            ) {
+                Icon(
+                    painter = painterResource(id = iconId),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .width(40.dp)
+                        .height(40.dp)
+                )
+                Spacer(modifier = Modifier.width(15.dp))
+                if (defaultSize) {
+                    Text(text)
+                } else {
+                    Text(text, style = MaterialTheme.typography.headlineSmall)
+                }
+            }
+        },
+        withThickBorder = withThickBorder,
+        radius = 30,
+        thickness = 12,
+        width = 70,
+        offsetX = 9
+    )
     Spacer(modifier = Modifier.height(16.dp))
 }
 

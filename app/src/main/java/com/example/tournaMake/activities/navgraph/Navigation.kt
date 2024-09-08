@@ -117,13 +117,7 @@ fun NavGraph(
         composable(NavigationRoute.RegistrationPhotoScreen.route) {
             RegistrationPhotoScreen(navController = navController, owner = owner, contentResolver = contentResolver)
         }
-        composable(
-            route = NavigationRoute.TournamentScreen.route,
-            arguments = listOf(navArgument("refresh") {
-                type = NavType.BoolType
-                defaultValue = true
-            })
-        ) {
+        composable(NavigationRoute.TournamentScreen.route) {
             TournamentScreen(navController = navController, owner = owner)
         }
         composable(NavigationRoute.SettingsScreen.route) {

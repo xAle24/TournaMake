@@ -116,14 +116,6 @@ fun endMatch(
         // Ending the match
         appDatabase.value.matchDao().endMatch(match.matchTmID)
 
-        /*if (match.tournamentID != null) {
-            fetchStuffForTournament(
-                match.tournamentID,
-                inject<TournamentDataViewModel>(TournamentDataViewModel::class.java).value,
-                owner
-            )
-        }*/
-
         withContext(Dispatchers.Main) {
             val navBackStackEntry = navController.previousBackStackEntry
             // If we got to this screen from the match creation, we need to go back twice
@@ -147,7 +139,6 @@ fun endMatch(
                     navController.popBackStack()
                 }
             }
-
         }
     }
 }

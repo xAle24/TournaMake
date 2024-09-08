@@ -201,6 +201,7 @@ fun ProfileScreen(
     * implementation ("androidx.compose.runtime:runtime-livedata:1.6.8")
     * */
     val profile = profileLiveData.observeAsState()
+    val playedTournamentsNumber = profileViewModel.playedTournaments.observeAsState()
     val achievements = achievementPlayerLiveData.observeAsState()
 
     BasicScreenWithAppBars(
@@ -286,11 +287,11 @@ fun ProfileScreen(
                         }
                         Grid(
                             wonTournamentsNumber = profile.value?.wonTournamentsNumber ?: 0,
-                            playedTournamentsNumber = /*profile.value.playedTournamentsNumber ?: 0*/ 0, // TODO: update
+                            playedTournamentsNumber = playedTournamentsNumber.value ?: 0,
                             onChartClick = { navController.navigate(NavigationRoute.ChartScreen.route) },
                             onActivityClick = { navController.navigate(NavigationRoute.PlayerMatchesHistoryScreen.route) },
                             state = state
-                        ) // TODO: add played tournaments number to database
+                        )
                     }
                 }
 
@@ -541,26 +542,4 @@ fun createImageRequest(context: Context, uri: Uri): ImageRequest {
         .memoryCachePolicy(CachePolicy.DISABLED)
         .build()
 }
-
-/*@Preview
-@Composable
-fun ProfileScreenPreview() {
-    ProfileScreen(
-        state = ThemeState(ThemeEnum.Light),
-        profileLiveData = MutableLiveData<MainProfile?>(
-            MainProfile(
-                email = "alin@gmail",
-                username = "Alin",
-                password = "",
-                profileImage = "",
-                wonTournamentsNumber = 0,
-                locationLatitude = 0.0f,
-                locationLongitude = 0.0f
-            )
-        ),
-        backButton = {  },
-        navigateToChart = {  },
-
-    )
-}*/
 

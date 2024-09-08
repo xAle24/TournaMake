@@ -110,33 +110,33 @@ fun TournamentScreen(
 
     if (tournamentManager != null) {
         val privateBracket = tournamentManager.produceBracket()
-        var show by remember {
-            mutableStateOf(false)
-        }
-
-        // Trigger a check (if needed)
-        LaunchedEffect(tournamentManager.isTournamentOver()) {
-            show = tournamentManager.isTournamentOver()
-        }
-
-        if (show) {
-            AlertDialog(
-                onDismissRequest = { show = false },
-                confirmButton = {
-                    Button(onClick = { show = false }) {
-                        Text("Good stuff!")
-                    }
-                },
-                title = {
-                    Text("Tournament is over! ${tournamentManager.getTournamentWinner().name} WIN!")
-                }
-            )
-        }
 
         // UI Code
         BasicScreenWithTheme(
             state = state
         ) {
+            var show by remember {
+                mutableStateOf(false)
+            }
+
+            // Trigger a check (if needed)
+            LaunchedEffect(tournamentManager.isTournamentOver()) {
+                show = tournamentManager.isTournamentOver()
+            }
+
+            if (show) {
+                AlertDialog(
+                    onDismissRequest = { show = false },
+                    confirmButton = {
+                        Button(onClick = { show = false }) {
+                            Text("Good stuff!")
+                        }
+                    },
+                    title = {
+                        Text("Tournament is over! ${tournamentManager.getTournamentWinner().name} WIN!")
+                    }
+                )
+            }
             ConfigureTransparentSystemBars()
 
             Surface(

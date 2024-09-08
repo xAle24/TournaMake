@@ -72,7 +72,7 @@ fun SettingsScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent
                 ),
-                border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
             ) {
                 // Button Content
                 Text(text = "Toggle Theme")
