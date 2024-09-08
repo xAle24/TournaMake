@@ -79,7 +79,7 @@ val appModule = module {
                 db.execSQL("INSERT INTO ACHIEVEMENT (achievementID, name, description, imagePath) VALUES ('1', 'Welcome', 'Welcome in TournaMake', '');")
                 db.execSQL("INSERT INTO TOURNAMENT_TYPE (tournamentTypeID, name, description) VALUES ('${uuids[0]}', 'Single Bracket', 'Tournament with single elimination bracket');")
                 db.execSQL("INSERT INTO TOURNAMENT_TYPE (tournamentTypeID, name, description) VALUES ('${uuids[1]}', 'Double Bracket', 'Tournament with double elimination bracket');")
-                db.execSQL("INSERT INTO GAME(gameID, name, favorites, description, duration, minPlayers, maxPlayers) VALUES ('${uuids[2]}', 'Pallavolo', 0, '6 vs 6 game', 30, 12, 24);")
+                db.execSQL("INSERT INTO GAME(gameID, name, favorites, description, duration, minPlayers, maxPlayers) VALUES ('${uuids[2]}', 'Volleyball', 0, '6 vs 6 game', 30, 12, 24);")
                 db.execSQL("CREATE TRIGGER IF NOT EXISTS create_achievement_player AFTER INSERT ON MAIN_PROFILE BEGIN INSERT INTO ACHIEVEMENT_PLAYER (achievementID, status, email) VALUES ('1', '1', NEW.email); END;")
                 db.execSQL("CREATE TRIGGER IF NOT EXISTS create_notification AFTER INSERT ON MAIN_PROFILE BEGIN INSERT INTO NOTIFICATION (notificationID, description, email) VALUES (NEW.email, 'You have completed the Welcome achievement!', NEW.email); END;")
             }

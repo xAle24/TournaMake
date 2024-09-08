@@ -1,5 +1,6 @@
 package com.example.tournaMake.ui.screens.tournament
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,10 +37,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -92,7 +96,8 @@ fun TournamentCreationScreen(
         val gamesList = tournamentCreationViewModel.gamesListLiveData.observeAsState()
         val tournamentTypeList = tournamentCreationViewModel.tournamentListLiveData.observeAsState()
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -104,22 +109,47 @@ fun TournamentCreationScreen(
                     .fillMaxWidth(0.8f)
                     .fillMaxHeight(0.15f)
             )
+            Spacer(modifier = Modifier.height(30.dp))
             Column(
                 modifier = Modifier
                     .fillMaxSize(0.9f)
-                    .background(color = MaterialTheme.colorScheme.secondary)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(color = MaterialTheme.colorScheme.secondary.copy(0.8f))
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
-
-                ) {
+            ) {
+                Spacer(modifier = Modifier.height(30.dp))
                 TextField(
                     value = selectedTournamentName,
                     onValueChange = { selectedTournamentName = it },
-                    label = { Text("Label") }
+                    label = { Text("Tournament Name", fontSize = 20.sp) },
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+                            alpha = 0.8f
+                        ),
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                        cursorColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    textStyle = MaterialTheme.typography.headlineLarge,
+                    modifier = Modifier.fillMaxWidth(0.9f)
                 )
+                Spacer(modifier = Modifier.height(40.dp))
+
                 SelectionMenuGame(gamesList) { selectedGame = it }
+
+                Spacer(modifier = Modifier.height(40.dp))
+
                 SelectionMenuTournamentType(tournamentTypeList) { selectedTournamentType = it }
+
+                Spacer(modifier = Modifier.height(40.dp))
+
                 /*
                 * Here begins the huge part of the team container
                 * */
@@ -136,36 +166,47 @@ fun TournamentCreationScreen(
                         matchCreationViewModel.addTeam(TeamUIImpl(emptySet(), emptySet(), ""))
                     },
                     modifier = Modifier
+                        .clip(RoundedCornerShape(30.dp))
+                        .height(60.dp)
                         .background(colorConstants.getButtonBackground())
                         .fillMaxWidth(0.9f),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent
-                    )
+                    ),
+                    border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
                 ) {
                     Text("Add team")
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
-                    onClick = { navigateToTournament(teamsSet,
-                        selectedGame,
-                        selectedTournamentType,
-                        selectedTournamentName,
-                        navController = navController,
-                        owner = owner)
+                    onClick = {
+                        navigateToTournament(
+                            teamsSet,
+                            selectedGame,
+                            selectedTournamentType,
+                            selectedTournamentName,
+                            navController = navController,
+                            owner = owner
+                        )
                     },
                     modifier = Modifier
-                        .background(colorConstants.getButtonBackground())
-                        .fillMaxWidth(0.9f),
+                        .clip(RoundedCornerShape(30.dp))
+                        .height(60.dp)
+                        .fillMaxWidth(0.9f)
+                        .background(colorConstants.getButtonBackground()),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.Transparent
-                    )
+                    ),
+                    border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
                 ) {
                     Text("Start tournament")
                 }
+                Spacer(modifier = Modifier.height(40.dp))
             }
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectionMenuGame(list: State<List<Game>?>, gameCallback: (Game) -> Unit) {
@@ -175,31 +216,42 @@ fun SelectionMenuGame(list: State<List<Game>?>, gameCallback: (Game) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(32.dp)
     ) {
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = {
                 expanded = !expanded
             },
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier
+                .align(Alignment.Center)
+                .background(MaterialTheme.colorScheme.onSecondary)
         ) {
             TextField(
                 value = selectedText?.name ?: "",
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier.menuAnchor(),
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth(0.9f),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.onSecondary,
-                    unfocusedContainerColor = Color.White.copy(alpha = 0.7f)
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 label = {
                     Text(
                         text = "Select Game",
-                        style = MaterialTheme.typography.headlineSmall
+                        fontSize = 20.sp
                     )
-                }
+                },
+                textStyle = MaterialTheme.typography.headlineMedium
             )
 
             ExposedDropdownMenu(
@@ -229,14 +281,16 @@ fun SelectionMenuGame(list: State<List<Game>?>, gameCallback: (Game) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SelectionMenuTournamentType(list: State<List<TournamentType>?>, typeCallback: (TournamentType) -> Unit) {
+private fun SelectionMenuTournamentType(
+    list: State<List<TournamentType>?>,
+    typeCallback: (TournamentType) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf(list.value?.get(0)) }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(32.dp)
     ) {
         ExposedDropdownMenuBox(
             expanded = expanded,
@@ -250,17 +304,27 @@ private fun SelectionMenuTournamentType(list: State<List<TournamentType>?>, type
                 onValueChange = {},
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier.menuAnchor(),
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth(0.9f),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.onSecondary,
-                    unfocusedContainerColor = Color.White.copy(alpha = 0.7f)
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 label = {
                     Text(
-                        text = "Select tournament type",
-                        style = MaterialTheme.typography.headlineSmall
+                        text = "Select Type",
+                        fontSize = 20.sp
                     )
-                }
+                },
+                textStyle = MaterialTheme.typography.headlineMedium
             )
 
             ExposedDropdownMenu(
