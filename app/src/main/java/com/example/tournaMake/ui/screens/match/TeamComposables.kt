@@ -48,12 +48,14 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
+import com.example.tournaMake.data.models.MatchCreationViewModel
 import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainProfile
 import com.example.tournaMake.ui.screens.common.RectangleContainer
 import com.example.tournaMake.ui.screens.tournament.FilteredProfiles
 import com.example.tournaMake.ui.screens.tournament.ProfileUtils
 import kotlinx.coroutines.flow.StateFlow
+import org.koin.androidx.compose.koinViewModel
 import java.util.stream.Collectors
 
 interface TeamUI {
@@ -111,8 +113,8 @@ class TeamUIImpl(
 
     override fun toString(): String {
         val profiles = StringBuilder("${this.teamName}: {")
-        this.mainProfiles.map { it -> it.username }.forEach { profiles.append("$it, ")}
-        this.guestProfiles.map { it -> it.username }.forEach { profiles.append("$it, ")}
+        this.mainProfiles.map { it -> it.username }.forEach { profiles.append("$it, ") }
+        this.guestProfiles.map { it -> it.username }.forEach { profiles.append("$it, ") }
         profiles.append("}")
         return profiles.toString()
     }
@@ -231,8 +233,18 @@ fun TeamElement(
     guestProfileListFromDatabase: List<GuestProfile>,
     removeTeam: (TeamUI) -> Unit
 ) {
-    var selectedMainProfiles by remember { mutableStateOf(emptySet<MainProfile>()) }
-    var selectedGuestProfiles by remember { mutableStateOf(emptySet<GuestProfile>()) }
+    val vm = koinViewModel<MatchCreationViewModel>()
+
+    /**
+     * Locally selected profiles contain all profiles that are part
+     * of THIS specific team.
+     * */
+    var locallySelectedMains by remember {
+        mutableStateOf(team.getMainProfiles())
+    }
+    var locallySelectedGuests by remember {
+        mutableStateOf(team.getGuestProfiles())
+    }
 
     RectangleContainer(
         modifier = if (backgroundBrush != null) Modifier
@@ -264,10 +276,18 @@ fun TeamElement(
              * */
             AddMemberButton(
                 team,
-                mainProfileListFromDatabase.minus(selectedMainProfiles),
-                guestProfileListFromDatabase.minus(selectedGuestProfiles),
-                changeMain = { selectedMainProfiles = selectedMainProfiles.plus(it) },
-                changeGuest = { selectedGuestProfiles = selectedGuestProfiles.plus(it) }
+                mainProfileList = vm.filterUnselectedMainMembers(mainProfileListFromDatabase.toSet()),
+                guestProfileList = vm.filterUnselectedGuestMembers(guestProfileListFromDatabase.toSet()),
+                addMain = {
+                    vm.addMain(it)
+                    team.addMainProfile(it)
+                    locallySelectedMains = team.getMainProfiles()
+                },
+                addGuest = {
+                    vm.addGuest(it)
+                    team.addGuestProfile(it)
+                    locallySelectedGuests = team.getGuestProfiles()
+                },
             )
 
             //HorizontalDivider(thickness = 2.dp)
@@ -275,18 +295,14 @@ fun TeamElement(
 
             // Creating the member bubbles
             // first MainProfiles
-            key(selectedMainProfiles) {
-                team.getMainProfiles().forEach { profile ->
-                    TeamMainMemberBubble(teamMember = profile, team, { selectedMainProfiles = it })
-                    Spacer(modifier = Modifier.height(spacerHeight))
-                }
+            locallySelectedMains.forEach { profile ->
+                TeamMainMemberBubble(teamMember = profile, team, vm::removeMain)
+                Spacer(modifier = Modifier.height(spacerHeight))
             }
             // then GuestProfiles
-            key(selectedGuestProfiles) {
-                team.getGuestProfiles().forEach { profile ->
-                    TeamGuestMemberBubble(teamMember = profile, team) { selectedGuestProfiles = it }
-                    Spacer(modifier = Modifier.height(spacerHeight))
-                }
+            locallySelectedGuests.forEach { profile ->
+                TeamGuestMemberBubble(teamMember = profile, team, vm::removeGuest)
+                Spacer(modifier = Modifier.height(spacerHeight))
             }
 
             // Delete team button
@@ -382,10 +398,10 @@ fun MyTeamTextField() {
 @Composable
 fun AddMemberButton(
     team: TeamUI,
-    mainProfileList: List<MainProfile>,
-    guestProfileList: List<GuestProfile>,
-    changeMain: (Set<MainProfile>) -> Unit,
-    changeGuest: (Set<GuestProfile>) -> Unit,
+    mainProfileList: List<MainProfile>, // filtered entries
+    guestProfileList: List<GuestProfile>, // filtered entries
+    addMain: (MainProfile) -> Unit,
+    addGuest: (GuestProfile) -> Unit,
 ) {
     val showDialog = remember { mutableStateOf(false) }
     val profileUtils = ProfileUtils(mainProfileList, guestProfileList)
@@ -395,8 +411,8 @@ fun AddMemberButton(
             onDismiss = { showDialog.value = false },
             filteredProfileList = profileUtils.filteredProfiles(""),
             team = team,
-            changeMain = changeMain,
-            changeGuest = changeGuest,
+            addMain = addMain,
+            addGuest = addGuest,
         )
     }
     Row(
@@ -418,7 +434,7 @@ fun AddMemberButton(
 fun TeamMainMemberBubble(
     teamMember: MainProfile,
     team: TeamUI,
-    changeMain: (Set<MainProfile>) -> Unit
+    removeMain: (MainProfile) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -438,16 +454,17 @@ fun TeamMainMemberBubble(
         Spacer(Modifier.weight(0.1f))
         DeleteTeamMemberButton(onDelete = {
             team.removeMainProfile(teamMember)
-            changeMain(team.getMainProfiles())
+            removeMain(teamMember)
         })
         Spacer(modifier = Modifier.weight(0.02f))
     }
 }
+
 @Composable
 fun TeamGuestMemberBubble(
     teamMember: GuestProfile,
     team: TeamUI,
-    changeGuest: (Set<GuestProfile>) -> Unit
+    removeGuest: (GuestProfile) -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -467,7 +484,7 @@ fun TeamGuestMemberBubble(
         Spacer(Modifier.weight(0.1f))
         DeleteTeamMemberButton(onDelete = {
             team.removeGuestProfile(teamMember)
-            changeGuest(team.getGuestProfiles())
+            removeGuest(teamMember)
         })
         Spacer(modifier = Modifier.weight(0.02f))
     }
@@ -499,9 +516,10 @@ fun ShowAddMember(
     onDismiss: () -> Unit,
     filteredProfileList: FilteredProfiles,
     team: TeamUI,
-    changeMain: (Set<MainProfile>) -> Unit,
-    changeGuest: (Set<GuestProfile>) -> Unit,
+    addMain: (MainProfile) -> Unit,
+    addGuest: (GuestProfile) -> Unit,
 ) {
+
     if (openDialog.value) {
         AlertDialog(
             onDismissRequest = {
@@ -515,8 +533,7 @@ fun ShowAddMember(
                     items(filteredProfileList.mainProfiles) { item ->
                         Button(onClick = {
                             Log.d("DEV", "${team.getMainProfiles()}")
-                            team.addMainProfile(item)
-                            changeMain(team.getMainProfiles())
+                            addMain(item)
                             Log.d("DEV", "${team.getMainProfiles()}")
                         }) {
                             Text(text = item.username)
@@ -524,8 +541,7 @@ fun ShowAddMember(
                     }
                     items(filteredProfileList.guestProfile) { item ->
                         Button(onClick = {
-                            team.addGuestProfile(item)
-                            changeGuest(team.getGuestProfiles())
+                            addGuest(item)
                         }) {
                             Text(text = item.username)
                         }

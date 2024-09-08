@@ -45,4 +45,49 @@ class MatchCreationViewModel(repository: GamesListRepository): ViewModel() {
         _teamsSet.value = _teamsSet.value.filter { it != team }.toSet()
         Log.d("DEV-MATCH-CREATION", "Content of teams set after deletion: ${_teamsSet.value}")
     }
+
+    private val _selectedMainProfiles: MutableLiveData<Set<MainProfile>> = MutableLiveData(mutableSetOf())
+    val selectedMainProfiles: LiveData<Set<MainProfile>> = _selectedMainProfiles
+    private val _selectedGuestProfiles: MutableLiveData<Set<GuestProfile>> = MutableLiveData(mutableSetOf())
+    val selectedGuestProfiles: LiveData<Set<GuestProfile>> = _selectedGuestProfiles
+
+    /**
+     * Returns a collection containing all the members that are not currently
+     * selected.
+     * */
+    fun filterUnselectedMainMembers(mainProfiles: Set<MainProfile>): List<MainProfile> {
+        return _selectedMainProfiles.value?.let {
+            mainProfiles.filter {
+                !this._selectedMainProfiles.value!!.contains(it)
+            }
+        } ?: mainProfiles.toList()
+    }
+
+    /**
+     * Returns a collection containing all the members that are not currently
+     * selected.
+     * */
+    fun filterUnselectedGuestMembers(guestProfiles: Set<GuestProfile>): List<GuestProfile> {
+        return _selectedGuestProfiles.value?.let {
+            guestProfiles.filter {
+                !this._selectedGuestProfiles.value!!.contains(it)
+            }
+        } ?: guestProfiles.toList()
+    }
+
+    fun addMain(profile: MainProfile) {
+        this._selectedMainProfiles.postValue(_selectedMainProfiles.value?.plus(profile))
+    }
+
+    fun removeMain(profile: MainProfile) {
+        this._selectedMainProfiles.postValue(_selectedMainProfiles.value?.minus(profile))
+    }
+
+    fun addGuest(profile: GuestProfile) {
+        this._selectedGuestProfiles.postValue(_selectedGuestProfiles.value?.plus(profile))
+    }
+
+    fun removeGuest(profile: GuestProfile) {
+        this._selectedGuestProfiles.postValue(_selectedGuestProfiles.value?.minus(profile))
+    }
 }
