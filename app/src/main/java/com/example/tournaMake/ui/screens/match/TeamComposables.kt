@@ -517,7 +517,7 @@ fun DeleteTeamMemberButton(
             .size(25.dp)
             .clip(CircleShape),
         colors = IconButtonDefaults.iconButtonColors(
-            containerColor = MaterialTheme.colorScheme.onSecondary
+            containerColor = MaterialTheme.colorScheme.tertiary
         )
     ) {
         Icon(Icons.Filled.Clear, null)
@@ -560,14 +560,14 @@ fun ShowAddMember(
                         Button(onClick = {
                             addGuest(item)
                         }) {
-                            Text(text = item.username, color = MaterialTheme.colorScheme.onSurface)
+                            Text(text = item.username)
                         }
                     }
                 }
             },
             confirmButton = {
                 Button(onClick = { onDismiss() }) {
-                    Text("Close", color = MaterialTheme.colorScheme.onSurface)
+                    Text("Close")
                 }
             }
         )
