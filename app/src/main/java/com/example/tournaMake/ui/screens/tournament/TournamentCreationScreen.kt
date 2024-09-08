@@ -153,9 +153,6 @@ fun TournamentCreationScreen(
                 * */
                 key(teamsSet) {
                     TeamContainer(
-                        teamsSetStateFlow = matchCreationViewModel.teamsSet,
-                        mainProfileListFromDatabase = tournamentCreationViewModel.mainProfileListLiveData,
-                        guestProfileListFromDatabase = tournamentCreationViewModel.guestProfileListLiveData,
                         removeTeam = matchCreationViewModel::removeTeam
                     )
                 }

@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LiveData
+import com.example.tournaMake.data.models.GuestProfileListViewModel
 import com.example.tournaMake.data.models.MatchCreationViewModel
 import com.example.tournaMake.sampledata.GuestProfile
 import com.example.tournaMake.sampledata.MainProfile
@@ -178,23 +179,21 @@ val testTeam2 = TeamUIImpl(
  * */
 @Composable
 fun TeamContainer(
-    teamsSetStateFlow: StateFlow<Set<TeamUI>>,
-    modifier: Modifier = Modifier,
-    mainProfileListFromDatabase: LiveData<List<MainProfile>>,
-    guestProfileListFromDatabase: LiveData<List<GuestProfile>>,
     removeTeam: (TeamUI) -> Unit
 ) {
-    val mainProfiles = mainProfileListFromDatabase.observeAsState()
-    val guestProfiles = guestProfileListFromDatabase.observeAsState()
-    val teamsSet by teamsSetStateFlow.collectAsState()
+    val matchCreationViewModel = koinViewModel<MatchCreationViewModel>()
+    val guestListViewModel = koinViewModel<GuestProfileListViewModel>()
+    val mainProfiles = matchCreationViewModel.mainProfiles.observeAsState()
+    val guestProfiles = guestListViewModel.guestProfileListLiveData.observeAsState()
+    val teamsSet by matchCreationViewModel.teamsSet.collectAsState()
 
     val screenHeight = LocalConfiguration.current.screenHeightDp
     RectangleContainer(
         modifier = if (teamsSet.isNotEmpty())
-            modifier
+            Modifier
                 .height((0.4 * screenHeight).dp)
         else
-            modifier
+            Modifier
                 .height(0.dp)
                 .background(MaterialTheme.colorScheme.tertiaryContainer),
     ) {
@@ -333,6 +332,7 @@ fun TeamElement(
 
 @Composable
 fun TeamOutlinedTextField(team: TeamUI) {
+    Log.d("DEV-TEAM-NAME", "In team outlined text field, name = ${team.getTeamName()}")
     var currentText by remember { mutableStateOf(team.getTeamName()) }
     var bigDisplayedText by remember { mutableStateOf(currentText) }
     var shouldDisplayTextField by remember { mutableStateOf(bigDisplayedText.isEmpty()) }
@@ -411,25 +411,29 @@ fun AddMemberButton(
     val vm = koinViewModel<MatchCreationViewModel>()
     val globallySelectedMains by vm.selectedMainProfiles.observeAsState()
     val globallySelectedGuests by vm.selectedGuestProfiles.observeAsState()
+    //Log.d("DEV-TEAMS-GLOBAL", "GloballySelectedMains: ${globallySelectedMains?.map { it.email }}")
+    //Log.d("DEV-TEAMS-GLOBAL", "GloballySelectedGuests: ${globallySelectedGuests?.map { it.username }}")
     /**
      * The view model stores correctly the values of the globally selected profiles.
      * I hope this forces the Alert Dialog to keep track of them too.
      * */
     val unselectedMains = globallySelectedMains?.let { vm.filterUnselectedMainMembers(dbMains) } ?: dbMains
     val unselectedGuests = globallySelectedGuests?.let { vm.filterUnselectedGuestMembers(dbGuests) } ?: dbGuests
-    Log.d("DEV-TEAMS", "Unselected Mains: $unselectedMains")
-    Log.d("DEV-TEAMS", "Unselected Guests: $unselectedGuests")
+    //Log.d("DEV-TEAMS", "Unselected Mains: ${unselectedMains.map { it.email }}")
+    //Log.d("DEV-TEAMS", "Unselected Guests: ${unselectedGuests.map { it.username }}")
     val showDialog = remember { mutableStateOf(false) }
     val profileUtils = ProfileUtils(unselectedMains, unselectedGuests)
-    if (showDialog.value) {
-        ShowAddMember(
-            openDialog = showDialog,
-            onDismiss = { showDialog.value = false },
-            filteredProfileList = profileUtils.filteredProfiles(""),
-            team = team,
-            addMain = addMain,
-            addGuest = addGuest,
-        )
+    key(team.getMainProfiles(), team.getGuestProfiles()) {
+        if (showDialog.value) {
+            ShowAddMember(
+                openDialog = showDialog,
+                onDismiss = { showDialog.value = false },
+                filteredProfileList = profileUtils.filteredProfiles(""),
+                team = team,
+                addMain = addMain,
+                addGuest = addGuest,
+            )
+        }
     }
     Row(
         modifier = Modifier

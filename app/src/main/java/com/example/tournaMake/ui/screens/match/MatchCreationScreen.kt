@@ -70,14 +70,11 @@ fun MatchCreationScreen(
     val matchCreationViewModel = koinViewModel<MatchCreationViewModel>()
     fetchDataForMatchCreation(matchCreationViewModel, owner)
     val matchViewModel = koinViewModel<MatchViewModel>()
-    val guestProfileViewModel = koinViewModel<GuestProfileListViewModel>()
     val gamesListLiveData = matchCreationViewModel.games
-    val teamsSetStateFlow = matchCreationViewModel.teamsSet
-    val mainProfilesLiveData = matchCreationViewModel.mainProfiles
-    val guestProfilesLiveData = guestProfileViewModel.guestProfileListLiveData
     val imageLogoId =
         if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
     val context = LocalContext.current
+
     BasicScreenWithAppBars(
         state = state,
         backFunction = { navController.navigateUp() },
@@ -96,12 +93,11 @@ fun MatchCreationScreen(
                     mutableStateOf(null)
                 }
                 SelectionMenu(gamesListLiveData) { selectedGame = it }
+
                 TeamContainer(
-                    teamsSetStateFlow = teamsSetStateFlow,
-                    mainProfileListFromDatabase = mainProfilesLiveData,
-                    guestProfileListFromDatabase = guestProfilesLiveData,
                     removeTeam = matchCreationViewModel::removeTeam
                 )
+
                 Spacer(Modifier.height(20.dp))
                 Row(
                     modifier = Modifier
@@ -127,7 +123,7 @@ fun MatchCreationScreen(
                         onClick = {
                             if (selectedGame == null) {
                                 Toast.makeText(context, "Must choose a game first!", Toast.LENGTH_SHORT).show()
-                            } else if (teamsSetStateFlow.value.size < 2){
+                            } else if (matchCreationViewModel.teamsSet.value.size < 2){
                                 Toast.makeText(context, "At least 2 teams must be present!", Toast.LENGTH_SHORT).show()
                             } else {
                                 createMatch(
