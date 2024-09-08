@@ -121,3 +121,31 @@ fun endTournament(
         }
     }
 }
+
+fun addTournamentToFavorites(
+    tournamentID: String,
+    owner: LifecycleOwner
+) {
+    val appDatabase by inject<AppDatabase>(AppDatabase::class.java)
+    owner.lifecycleScope.launch (Dispatchers.IO) {
+        try {
+            appDatabase.tournamentDao().setTournamentFavorite(tournamentID, 1)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+}
+
+fun removeTournamentFromFavorites(
+    tournamentID: String,
+    owner: LifecycleOwner
+) {
+    val appDatabase by inject<AppDatabase>(AppDatabase::class.java)
+    owner.lifecycleScope.launch (Dispatchers.IO) {
+        try {
+            appDatabase.tournamentDao().setTournamentFavorite(tournamentID, 0)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+}

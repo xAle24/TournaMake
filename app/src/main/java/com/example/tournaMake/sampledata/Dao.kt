@@ -294,6 +294,9 @@ interface TournamentDao {
     )
     """)
     fun incrementWonTournamentsNumberOfMembersInTeam(teamID: String)
+
+    @Query("UPDATE TOURNAMENT SET favorites = :favorites WHERE tournamentID = :tournamentID")
+    fun setTournamentFavorite(tournamentID: String, favorites: Int)
 }
 
 @Dao

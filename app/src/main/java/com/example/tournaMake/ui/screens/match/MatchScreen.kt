@@ -52,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -488,12 +489,14 @@ fun MiniProfileImage(
             if (profileImage == null) {
                 Image(
                     painterResource(id = R.drawable.no_profile_picture_icon),
-                    contentDescription = null
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds
                 )
             } else {
                 AsyncImage(
                     model = createImageRequest(LocalContext.current, profileImage),
-                    contentDescription = null
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds
                 )
             }
         }

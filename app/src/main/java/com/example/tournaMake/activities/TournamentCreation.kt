@@ -147,7 +147,7 @@ fun navigateToTournament(
                 val matchID = UUID.randomUUID().toString()
                 val matchCurr = MatchTM(
                     matchTmID = matchID,
-                    date = 0,
+                    date = System.currentTimeMillis(),
                     duration = 0,
                     favorites = 0,
                     gameID = selectedGame.gameID,
