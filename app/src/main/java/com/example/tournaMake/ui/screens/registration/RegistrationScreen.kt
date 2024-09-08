@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -33,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -82,40 +84,67 @@ fun RegistrationScreen(
                     .fillMaxHeight(0.2f)
             )
             OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(80.dp),
                 value = username,
                 onValueChange = { username = it },
-                label = { Text("Username") },
+                label = { Text("Username", style = MaterialTheme.typography.headlineMedium) },
                 colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White,
-                    focusedIndicatorColor = Color.White,
-                    unfocusedIndicatorColor = Color.White
-                )
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                textStyle = MaterialTheme.typography.headlineSmall
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(80.dp),
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text("Password", style = MaterialTheme.typography.headlineMedium) },
                 visualTransformation = PasswordVisualTransformation(),
                 colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White,
-                    focusedIndicatorColor = Color.White,
-                    unfocusedIndicatorColor = Color.White
-                )
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary,
+                ),
+                textStyle = MaterialTheme.typography.headlineSmall
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(80.dp),
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
+                label = { Text("Email", style = MaterialTheme.typography.headlineMedium) },
                 colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.White,
-                    focusedContainerColor = Color.White,
-                    focusedIndicatorColor = Color.White,
-                    unfocusedIndicatorColor = Color.White
-                )
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                textStyle = MaterialTheme.typography.headlineSmall
             )
             Spacer(modifier = Modifier.height(20.dp))
             Row(
@@ -124,9 +153,12 @@ fun RegistrationScreen(
             ) {
                 Checkbox(
                     checked = rememberMe,
-                    onCheckedChange = { rememberMe = it }
+                    onCheckedChange = { rememberMe = it },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.colorScheme.secondary
+                    )
                 )
-                Text("Remember me")
+                Text("Remember me", color = MaterialTheme.colorScheme.onPrimary, fontSize = 20.sp)
             }
             Spacer(modifier = Modifier.height(20.dp))
             Button(onClick = {

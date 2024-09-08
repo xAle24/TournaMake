@@ -76,7 +76,7 @@ fun MainScreen(
                 ),
                 border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
             ) {
-                Text("Login", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                Text("Login", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, style = MaterialTheme.typography.headlineMedium)
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button(
@@ -91,7 +91,7 @@ fun MainScreen(
                 ),
                 border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
             ) {
-                Text("Register", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                Text("Register", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, style = MaterialTheme.typography.headlineMedium)
             }
         }
     }

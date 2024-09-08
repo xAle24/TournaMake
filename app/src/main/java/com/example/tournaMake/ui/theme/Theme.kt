@@ -33,6 +33,7 @@ private val LightColorScheme = lightColorScheme(
     secondary = Color(251, 200, 21),
     tertiary = Color(252, 219, 179),
     surface = Color(242, 215, 92),
+    surfaceVariant = Color(212, 121, 42),
     onPrimary = Color(64, 30, 6),
     onSecondary = Color.Black,
     onTertiary = Color.Black,
