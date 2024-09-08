@@ -174,7 +174,8 @@ fun BottomTeamScreenButton(
             text,
             style = MaterialTheme.typography.headlineSmall,
             modifier = Modifier
-                .padding(10.dp)
+                .padding(10.dp),
+            color = MaterialTheme.colorScheme.onPrimary
         )
     }
 }
@@ -227,15 +228,23 @@ fun SelectionMenu(
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 modifier = Modifier.menuAnchor(),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.onSecondary,
-                    unfocusedContainerColor = Color.White.copy(alpha = 0.7f)
+                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                    focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 label = {
                     Text(
                         text = "Select Game",
                         style = MaterialTheme.typography.headlineSmall
                     )
-                }
+                },
+                textStyle = MaterialTheme.typography.headlineLarge
             )
 
             ExposedDropdownMenu(
