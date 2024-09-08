@@ -31,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -152,7 +153,7 @@ fun CreateMatchButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent
         ),
-        border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+        border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
@@ -189,7 +190,7 @@ fun FilterButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent
         ),
-        border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+        border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column {
             Image(
@@ -216,11 +217,15 @@ fun MatchCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
-            .clickable { navigateToSpecifiedMatch(matchTmID = match.matchTmID,
-                                                isOver = match.isOver == 1,
-                                                vm = vm,
-                                                owner = owner,
-                                                navController = navController) },
+            .clickable {
+                navigateToSpecifiedMatch(
+                    matchTmID = match.matchTmID,
+                    isOver = match.isOver == 1,
+                    vm = vm,
+                    owner = owner,
+                    navController = navController
+                )
+            },
         colors = CardColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -229,7 +234,9 @@ fun MatchCard(
         )
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 15.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -314,8 +321,6 @@ fun FilterDialog(
     selectedOption: MutableState<String>,
     onPredicateSelected: (predicate: (MatchGameData) -> Boolean) -> Unit
 ) {
-
-
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Select Filter") },
@@ -327,9 +332,12 @@ fun FilterDialog(
                     ) {
                         RadioButton(
                             selected = (selectedOption.value == option),
-                            onClick = { selectedOption.value = option }
+                            onClick = { selectedOption.value = option },
+                            colors = RadioButtonDefaults.colors(
+                                unselectedColor = MaterialTheme.colorScheme.onSurface
+                            )
                         )
-                        Text(option)
+                        Text(option, color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
             }

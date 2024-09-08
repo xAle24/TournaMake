@@ -25,6 +25,7 @@ private val DarkColorScheme = darkColorScheme(
     onPrimary = Color.White,
     onSecondary = Color.White,
     onTertiary = Color.Black,
+    onSurface = Color.Black,
     outline = Color(33, 197, 220),
 )
 
@@ -33,10 +34,11 @@ private val LightColorScheme = lightColorScheme(
     secondary = Color(251, 200, 21),
     tertiary = Color(252, 219, 179),
     surface = Color(242, 215, 92),
-    surfaceVariant = Color(212, 121, 42),
+    surfaceVariant = Color(176, 122, 76),
     onPrimary = Color(64, 30, 6),
     onSecondary = Color.Black,
     onTertiary = Color.Black,
+    onSurface = Color.Black,
     outline = Color(252, 216, 161),
 )
 

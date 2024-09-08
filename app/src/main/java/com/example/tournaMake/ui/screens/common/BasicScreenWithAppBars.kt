@@ -40,7 +40,7 @@ fun BasicScreenWithAppBars(
     content: @Composable () -> Unit,
 ) {
     val backButtonIcon =
-        if (state.theme == ThemeEnum.Dark) R.drawable.dark_tournamake_triangle_no_outline else R.drawable.light_tournamake_triangle_no_outline
+        if (state.theme == ThemeEnum.Dark) R.drawable.dark_back_button else R.drawable.light_back_button
     val topAppBarBackground =
         if (state.theme == ThemeEnum.Dark) R.drawable.dark_topbarbackground else R.drawable.light_topbarbackground
     val bottomBarBackground =
@@ -131,7 +131,6 @@ fun TournaMakeTopAppBar(
                         painter = painterResource(id = backButtonIcon),
                         contentDescription = "Back",
                         modifier = Modifier
-                            .rotate(+90f)
                             .size(50.dp)
                     )
                 }
@@ -141,7 +140,8 @@ fun TournaMakeTopAppBar(
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .padding(bottom = 10.dp),
-                    style = MaterialTheme.typography.headlineMedium
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSecondary
                 )
             }
         }

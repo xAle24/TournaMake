@@ -156,31 +156,36 @@ fun MenuScreen(
                 "Tournament",
                 { navController.navigate(NavigationRoute.TournamentsListScreen.route) },
                 R.drawable.triangleicon,
-                state
+                state,
+                defaultSize = false
             )
             MenuButton(
                 "Matches",
                 { navController.navigate(NavigationRoute.MatchesListScreen.route) },
                 R.drawable.d20_dark,
-                state
+                state,
+                defaultSize = false
             )
             MenuButton(
                 "Game list",
                 { navController.navigate(NavigationRoute.GamesListScreen.route) },
                 R.drawable.listicon,
-                state
+                state,
+                defaultSize = false
             )
             MenuButton(
                 "Profile",
                 { navController.navigate(NavigationRoute.ProfilesListScreen.route) },
                 R.drawable.profileicon,
-                state
+                state,
+                defaultSize = false
             )
             MenuButton(
                 "Settings",
                 { navController.navigate(NavigationRoute.SettingsScreen.route) },
                 R.drawable.settingsicon,
-                state
+                state,
+                defaultSize = false
             )
 
             Image(
@@ -217,7 +222,8 @@ fun MenuButton(
     modifier: Modifier = Modifier
         .fillMaxWidth(0.8f)
         .height(60.dp),
-    withThickBorder: Boolean = true
+    withThickBorder: Boolean = true,
+    defaultSize: Boolean = true,
 ) {
     val colorConstants = getThemeColors(themeState = state)
     ButtonThickBorderContainer(
@@ -242,7 +248,11 @@ fun MenuButton(
                         .height(40.dp)
                 )
                 Spacer(modifier = Modifier.width(15.dp))
-                Text(text)
+                if (defaultSize) {
+                    Text(text)
+                } else {
+                    Text(text, style = MaterialTheme.typography.headlineSmall)
+                }
             }
         },
         withThickBorder = withThickBorder,

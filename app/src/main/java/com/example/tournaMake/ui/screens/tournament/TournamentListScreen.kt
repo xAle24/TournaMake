@@ -30,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -165,7 +166,7 @@ fun CreateTournamentButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent
         ),
-        border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+        border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
@@ -201,7 +202,7 @@ fun TournamentFilterButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent
         ),
-        border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+        border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column {
             Image(
@@ -235,7 +236,7 @@ fun TournamentCard(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary
         ),
-        border = BorderStroke(3.dp, MaterialTheme.colorScheme.tertiary)
+        border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
     ) {
         Column {
             Row(
@@ -288,9 +289,12 @@ fun TournamentFilterDialog(
                     ) {
                         RadioButton(
                             selected = (selectedOption.value == option),
-                            onClick = { selectedOption.value = option }
+                            onClick = { selectedOption.value = option },
+                            colors = RadioButtonDefaults.colors(
+                                unselectedColor = MaterialTheme.colorScheme.onSurface
+                            )
                         )
-                        Text(option)
+                        Text(option, color = MaterialTheme.colorScheme.onSurface)
                     }
                 }
             }
