@@ -1,5 +1,6 @@
 package com.example.tournaMake.ui.screens.menu
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,6 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -42,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -66,6 +69,8 @@ fun GamesListScreen(
     navController: NavController,
     owner: LifecycleOwner
 ) {
+    val ctx = LocalContext.current
+
     val themeViewModel = koinViewModel<ThemeViewModel>()
     val state by themeViewModel.state.collectAsStateWithLifecycle()
     val colorConstants = getThemeColors(themeState = state)
@@ -97,7 +102,7 @@ fun GamesListScreen(
                 ),
                 border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
             ) {
-                Text("Add a game")
+                Text("Add a game", style = MaterialTheme.typography.headlineMedium)
             }
             Spacer(modifier = Modifier.height(16.dp))
             LazyColumn(
@@ -115,58 +120,124 @@ fun GamesListScreen(
                 var name by remember { mutableStateOf("") }
                 var description by remember { mutableStateOf("") }
                 var duration by remember { mutableStateOf("") }
-                var minPlayer by remember { mutableStateOf("") }
+                var minPlayers by remember { mutableStateOf("") }
                 var maxPlayers by remember { mutableStateOf("") }
 
                 AlertDialog(
                     onDismissRequest = { showDialog = false },
-                    title = { Text("Add a game") },
+                    title = { Text("Add a game", color = MaterialTheme.colorScheme.onSurface, style = MaterialTheme.typography.headlineMedium) },
                     text = {
                         Column {
                             OutlinedTextField(
                                 value = name,
                                 onValueChange = { name = it },
-                                label = { Text("Name") }
+                                label = { Text("Name") },
+                                colors = TextFieldDefaults.colors(
+                                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                    focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                                    focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
+                                ),
                             )
                             OutlinedTextField(
                                 value = description,
                                 onValueChange = { description = it },
-                                label = { Text("Description") }
+                                label = { Text("Description") },colors = TextFieldDefaults.colors(
+                                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                    focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                                    focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
+                                ),
+
                             )
                             OutlinedTextField(
                                 value = duration,
                                 onValueChange = { duration = it },
                                 label = { Text("Duration") },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                colors = TextFieldDefaults.colors(
+                                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                    focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                                    focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
+                                ),
                             )
                             OutlinedTextField(
-                                value = minPlayer,
-                                onValueChange = { minPlayer = it },
+                                value = minPlayers,
+                                onValueChange = { minPlayers = it },
                                 label = { Text("Minimum Players") },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),colors = TextFieldDefaults.colors(
+                                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                    focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                                    focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
+                                ),
+
                             )
                             OutlinedTextField(
                                 value = maxPlayers,
                                 onValueChange = { maxPlayers = it },
                                 label = { Text("Maximum Players") },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                colors = TextFieldDefaults.colors(
+                                    focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                                    unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                                    focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                                    cursorColor = MaterialTheme.colorScheme.onPrimary,
+                                    focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
+                                ),
                             )
                         }
                     },
                     confirmButton = {
-                        Button(onClick = {
-                            val game = Game(
-                                gameID = gameID,
-                                name = name,
-                                description = description,
-                                duration = duration.toInt(),
-                                minPlayers = minPlayer.toInt(),
-                                maxPlayers = maxPlayers.toInt(),
-                                favorites = 0
-                            )
-                            addGame(game, owner)
-                            showDialog = false
-                        }) {
+                        Button(
+                            onClick = {
+                                if (
+                                    name.isNotEmpty() &&
+                                    duration.isNotEmpty() &&
+                                    minPlayers.isNotEmpty() &&
+                                    maxPlayers.isNotEmpty()
+                                ) {
+                                    val game = Game(
+                                        gameID = gameID,
+                                        name = name,
+                                        description = description,
+                                        duration = duration.toInt(),
+                                        minPlayers = minPlayers.toInt(),
+                                        maxPlayers = maxPlayers.toInt(),
+                                        favorites = 0
+                                    )
+                                    addGame(game, owner)
+                                    showDialog = false
+                                } else {
+                                    Toast.makeText(ctx, "All fields must be filled in", Toast.LENGTH_SHORT).show()
+                                }
+                            })
+                        {
                             Text("Confirm")
                         }
                     },
@@ -180,6 +251,7 @@ fun GamesListScreen(
         }
     }
 }
+
 @Composable
 fun GameCard(
     game: Game,
