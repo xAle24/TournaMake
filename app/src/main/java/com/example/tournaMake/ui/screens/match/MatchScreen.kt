@@ -355,7 +355,7 @@ fun WinnerSelectionAlertDialog(
                             isChecked = true
                         }
                     }, colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.colorScheme.onSurface,
+                        checkedColor = MaterialTheme.colorScheme.surfaceVariant,
                         uncheckedColor = MaterialTheme.colorScheme.onSurface
                     ))
                     Text(localTeamDataPacket.teamUI.getTeamName(), color = MaterialTheme.colorScheme.onSurface)
