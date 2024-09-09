@@ -126,6 +126,13 @@ fun ProfileScreen(
     ) { uri ->
         uri?.let {
             owner.lifecycleScope.launch(Dispatchers.IO) {
+                /**
+                 * This function is called in order to save the profile image
+                 * in a custom directory. This is needed to avoid overwriting
+                 * the other profile pictures, since they all use a standard
+                 * name (because I don't like it that the phone can choose
+                 * what name to give the pictures automatically).
+                 * */
                 storePhotoInInternalStorage(
                     uri = uri,
                     email = loggedEmail.value.loggedProfileEmail,
@@ -143,6 +150,13 @@ fun ProfileScreen(
     val cameraLauncher = rememberCameraLauncher { uri ->
         uri.let {
             owner.lifecycleScope.launch(Dispatchers.IO) {
+                /**
+                 * This function is called in order to save the profile image
+                 * in a custom directory. This is needed to avoid overwriting
+                 * the other profile pictures, since they all use a standard
+                 * name (because I don't like it that the phone can choose
+                 * what name to give the pictures automatically).
+                 * */
                 storePhotoInInternalStorage(
                     uri = uri,
                     email = loggedEmail.value.loggedProfileEmail,
