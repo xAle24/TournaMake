@@ -143,51 +143,6 @@ fun MatchScreen(
     val topAppBarBackground =
         if (state.theme == ThemeEnum.Dark) R.drawable.dark_topbarbackground else R.drawable.light_topbarbackground
 
-    if (shouldShowAlertDialog && dataPackets != null && match != null) {
-        WinnerSelectionAlertDialog(allTeams = dataPackets!!,
-            onDismissRequest = { shouldShowAlertDialog = false },
-            /*
-            * When the match ends, the user should be prompted to insert all the winning
-            * teams (we can show a modal dialog with some checkboxes)
-            * Create the map necessary to the callback, but remember to modify its pairs
-            * values to reflect the actual match result for each team.
-            *
-            * If the user selects some teams as winners, then all the other teams are losers.
-            * If no winner is selected, all the teams will end up with a draw.
-            * This is necessary for updating the headings in the match details screen afterwards -
-            * it'd be nice to know if a team has got a draw or some other result.
-            * */
-            processWinners = {
-                winnerDataPackets = it
-                var map = buildMap(data = dataPackets!!)
-                if (winnerDataPackets.isEmpty()) {
-                    // There are no winners, so everybody should score a draw
-                    map =
-                        map.map { entry -> entry.key to Pair(entry.value.first, MatchResult.Draw) }
-                            .toMap()
-                } else {
-                    val teamIDs = winnerDataPackets.map { packet -> packet.teamID }
-                    // I didn't manage to use the functional style to map entries to
-                    // a new immutable map, so I used this support map.
-                    val mutableMap = mutableMapOf<String, Pair<Int, MatchResult>>()
-                    map.forEach { entry ->
-                        if (teamIDs.contains(entry.key)) {
-                            mutableMap[entry.key] = Pair(entry.value.first, MatchResult.Winner)
-                        } else {
-                            mutableMap[entry.key] = Pair(entry.value.first, entry.value.second)
-                        }
-                    }
-                    map = mutableMap
-                }
-                endMatch(
-                    navController = navController,
-                    teamScores = map,
-                    match = match!!,
-                    owner = owner
-                )
-            })
-    }
-
     BasicScreenWithTheme(state = state) {
         if (shouldShowAlertDialog && dataPackets != null && match != null) {
             WinnerSelectionAlertDialog(allTeams = dataPackets!!,
@@ -306,6 +261,7 @@ fun MatchScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
                     .verticalScroll(rememberScrollState())
                     .padding(paddingValues)
             ) {

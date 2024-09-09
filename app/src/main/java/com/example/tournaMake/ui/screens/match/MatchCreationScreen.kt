@@ -86,6 +86,7 @@ fun MatchCreationScreen(
             Spacer(Modifier.height(30.dp))
             RectangleContainer(
                 modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
                     .align(Alignment.CenterHorizontally)
                     .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f))
             ) {

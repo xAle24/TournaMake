@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -192,9 +193,11 @@ fun TeamContainer(
     RectangleContainer(
         modifier = if (teamsSet != null && teamsSet!!.isNotEmpty())
             Modifier
+                .clip(RoundedCornerShape(20.dp))
                 .height((0.4 * screenHeight).dp)
         else
             Modifier
+                .clip(RoundedCornerShape(20.dp))
                 .height(0.dp)
                 .background(MaterialTheme.colorScheme.tertiaryContainer),
     ) {
@@ -202,6 +205,7 @@ fun TeamContainer(
             key(teamsSet) {
                 LazyColumn(
                     modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
                         .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -250,12 +254,15 @@ fun TeamElement(
 
     RectangleContainer(
         modifier = if (backgroundBrush != null) Modifier
+            .clip(RoundedCornerShape(20.dp))
             .background(backgroundBrush)
             .fillMaxWidth(0.9f)
         else if (backgroundColor != null) Modifier
+            .clip(RoundedCornerShape(20.dp))
             .background(backgroundColor)
             .fillMaxWidth(0.9f)
         else Modifier
+            .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.tertiary)
             .fillMaxWidth(0.9f)
     ) {
@@ -354,7 +361,8 @@ fun TeamOutlinedTextField(
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.clickable {
                     shouldDisplayTextField = !shouldDisplayTextField
-                }
+                },
+                color = MaterialTheme.colorScheme.onPrimary
             )
             Spacer(modifier = Modifier.height(20.dp))
         }
@@ -378,9 +386,16 @@ fun TeamOutlinedTextField(
                             text = "Insert Team Name"
                         )
                     },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = MaterialTheme.colorScheme.onPrimary,
-                        focusedBorderColor = MaterialTheme.colorScheme.onPrimary
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+                        cursorColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedLeadingIconColor = MaterialTheme.colorScheme.onPrimary
                     )
                 )
                 IconButton(
