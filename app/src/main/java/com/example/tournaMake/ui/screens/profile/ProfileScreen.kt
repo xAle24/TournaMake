@@ -99,7 +99,6 @@ fun ProfileScreen(
     val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
     val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
     val profileViewModel = koinViewModel<ProfileViewModel>()
-    val profileLiveData = profileViewModel.profileLiveData
     val achievementsProfileViewModel = koinViewModel<AchievementsProfileViewModel>()
     val achievementPlayerLiveData = achievementsProfileViewModel.achievementProfileListLiveData
     val achievementsObserver = Observer<List<AchievementResult>> { }
@@ -200,7 +199,7 @@ fun ProfileScreen(
     * This extension function was imported with:
     * implementation ("androidx.compose.runtime:runtime-livedata:1.6.8")
     * */
-    val profile = profileLiveData.observeAsState()
+    val profile = profileViewModel.profileLiveData.observeAsState()
     val playedTournamentsNumber = profileViewModel.playedTournaments.observeAsState()
     val achievements = achievementPlayerLiveData.observeAsState()
 
