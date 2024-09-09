@@ -190,7 +190,6 @@ fun TeamContainer(
     val guestProfiles = guestListViewModel.guestProfileListLiveData.observeAsState()
     val teamsSet by matchCreationViewModel.teamsSet.observeAsState()
 
-    val screenHeight = LocalConfiguration.current.screenHeightDp
     RectangleContainer(
         modifier = if (teamsSet != null && teamsSet!!.isNotEmpty())
             Modifier
@@ -203,24 +202,22 @@ fun TeamContainer(
                 .background(MaterialTheme.colorScheme.tertiaryContainer),
     ) {
         if (teamsSet != null && teamsSet!!.isNotEmpty()) {
-            key(teamsSet) {
-                LazyColumn(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    items(teamsSet!!.toList()) { team ->
-                        TeamElement(
-                            team = team,
-                            backgroundColor = null,
-                            backgroundBrush = null,
-                            mainProfileListFromDatabase = mainProfiles.value ?: emptyList(),
-                            guestProfileListFromDatabase = guestProfiles.value ?: emptyList(),
-                            removeTeam = removeTeam,
-                        )
-                        Spacer(modifier = Modifier.height(spacerHeight))
-                    }
+            LazyColumn(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(20.dp))
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(teamsSet!!.toList()) { team ->
+                    TeamElement(
+                        team = team,
+                        backgroundColor = null,
+                        backgroundBrush = null,
+                        mainProfileListFromDatabase = mainProfiles.value ?: emptyList(),
+                        guestProfileListFromDatabase = guestProfiles.value ?: emptyList(),
+                        removeTeam = removeTeam,
+                    )
+                    Spacer(modifier = Modifier.height(spacerHeight))
                 }
             }
         }
@@ -242,6 +239,7 @@ fun TeamElement(
 ) {
     val vm = koinViewModel<MatchCreationViewModel>()
     val teamName by remember { derivedStateOf { team.getTeamName() } }
+
     /**
      * Locally selected profiles contain all profiles that are part
      * of THIS specific team.
@@ -315,7 +313,7 @@ fun TeamElement(
             locallySelectedGuests.forEach { profile ->
                 TeamGuestMemberBubble(teamMember = profile, removeGuest = {
                     vm.removeGuest(it)
-                    team.addGuestProfile(it)
+                    team.removeGuestProfile(it)
                     locallySelectedGuests = team.getGuestProfiles()
                 })
                 Spacer(modifier = Modifier.height(spacerHeight))
@@ -390,7 +388,9 @@ fun TeamOutlinedTextField(
                     colors = TextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.onPrimary,
                         unfocusedTextColor = MaterialTheme.colorScheme.onPrimary,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
+                            alpha = 0.8f
+                        ),
                         focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                         focusedLabelColor = MaterialTheme.colorScheme.onPrimary,
                         unfocusedLabelColor = MaterialTheme.colorScheme.onPrimary,
@@ -434,8 +434,10 @@ fun AddMemberButton(
      * The view model stores correctly the values of the globally selected profiles.
      * I hope this forces the Alert Dialog to keep track of them too.
      * */
-    val unselectedMains = globallySelectedMains?.let { vm.filterUnselectedMainMembers(dbMains) } ?: dbMains
-    val unselectedGuests = globallySelectedGuests?.let { vm.filterUnselectedGuestMembers(dbGuests) } ?: dbGuests
+    val unselectedMains =
+        globallySelectedMains?.let { vm.filterUnselectedMainMembers(dbMains) } ?: dbMains
+    val unselectedGuests =
+        globallySelectedGuests?.let { vm.filterUnselectedGuestMembers(dbGuests) } ?: dbGuests
     //Log.d("DEV-TEAMS", "Unselected Mains: ${unselectedMains.map { it.email }}")
     //Log.d("DEV-TEAMS", "Unselected Guests: ${unselectedGuests.map { it.username }}")
     val showDialog = remember { mutableStateOf(false) }
