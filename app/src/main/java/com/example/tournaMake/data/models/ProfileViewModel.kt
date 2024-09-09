@@ -1,5 +1,6 @@
 package com.example.tournaMake.data.models
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -32,5 +33,9 @@ class ProfileViewModel(private val appDatabase: AppDatabase) : ViewModel() {
 
     fun changePlayedTournaments(playedTournaments: Int) {
         _playedTournaments.postValue(playedTournaments)
+    }
+
+    fun uploadPhotoToDatabase(email: String, uri: Uri) {
+        appDatabase.mainProfileDao().uploadProfilePhoto(uri.toString(), email)
     }
 }

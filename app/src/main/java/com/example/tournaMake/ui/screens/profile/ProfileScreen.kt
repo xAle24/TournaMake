@@ -53,7 +53,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -77,10 +76,13 @@ import com.example.tournaMake.filemanager.ProfileImageHelper
 import com.example.tournaMake.filemanager.ProfileImageHelperImpl
 import com.example.tournaMake.filemanager.doesDirectoryContainFile
 import com.example.tournaMake.filemanager.loadImageUriFromDirectory
-import com.example.tournaMake.sampledata.AchievementResult
+import com.example.tournaMake.filemanager.saveImageToDirectory
+import com.example.tournaMake.filemanager.storePhotoInInternalStorage
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.theme.getThemeColors
 import com.example.tournaMake.utils.rememberCameraLauncher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 /**
@@ -93,19 +95,12 @@ fun ProfileScreen(
     owner: LifecycleOwner
 ) {
     val context = LocalContext.current
-    val profilePictureHelper: ProfileImageHelper = ProfileImageHelperImpl()
     val themeViewModel = koinViewModel<ThemeViewModel>()
     val state by themeViewModel.state.collectAsStateWithLifecycle()
     val authenticationViewModel = koinViewModel<AuthenticationViewModel>()
     val loggedEmail = authenticationViewModel.loggedEmail.collectAsStateWithLifecycle()
     val profileViewModel = koinViewModel<ProfileViewModel>()
     val achievementsProfileViewModel = koinViewModel<AchievementsProfileViewModel>()
-    val achievementPlayerLiveData = achievementsProfileViewModel.achievementProfileListLiveData
-    val achievementsObserver = Observer<List<AchievementResult>> { }
-    achievementsProfileViewModel.achievementProfileListLiveData.observe(
-        owner,
-        achievementsObserver
-    )
     // Adding management of profile photo
     /* Code taken from:
     * https://www.youtube.com/watch?v=uHX5NB6wHao
@@ -129,58 +124,36 @@ fun ProfileScreen(
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        if (uri != null && loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
-            val uriForInternallySavedFile =
-                profilePictureHelper.storeProfilePictureImmediately(
-                    profileImageUri = uri,
+        uri?.let {
+            owner.lifecycleScope.launch(Dispatchers.IO) {
+                storePhotoInInternalStorage(
+                    uri = uri,
                     email = loggedEmail.value.loggedProfileEmail,
-                    contentResolver = contentResolver,
                     context = context,
-                    databaseUpdaterCallback = ::uploadPhotoToDatabase
+                    contentResolver = contentResolver
                 )
-            selectedImageURI = uriForInternallySavedFile
-        } else if (uri != null && loggedEmail.value.loggedProfileEmail.isEmpty()) {
-            profilePictureHelper.waitForEmailThenStoreProfilePicture(
-                loggedEmailStateFlow = authenticationViewModel.loggedEmail,
-                profileImageUri = uri,
-                context = context,
-                databaseUpdaterCallback = ::uploadPhotoToDatabase,
-                lifecycleCoroutineScope = owner.lifecycleScope,
-                lifecycleOwner = owner,
-                stateChangerCallback = { resultUri ->
-                    selectedImageURI = resultUri
-                },
-                contentResolver = contentResolver
-            )
+                // Updating the database
+                profileViewModel.uploadPhotoToDatabase(loggedEmail.value.loggedProfileEmail, uri)
+            }
         }
+        selectedImageURI = uri
     }
 
     // To update profile picture by means of camera
     val cameraLauncher = rememberCameraLauncher { uri ->
-        if (loggedEmail.value.loggedProfileEmail.isNotEmpty()) {
-            val uriForInternallySavedFile =
-                profilePictureHelper.storeProfilePictureImmediately(
-                    profileImageUri = uri,
+        uri.let {
+            owner.lifecycleScope.launch(Dispatchers.IO) {
+                storePhotoInInternalStorage(
+                    uri = uri,
                     email = loggedEmail.value.loggedProfileEmail,
-                    contentResolver = contentResolver,
                     context = context,
-                    databaseUpdaterCallback = ::uploadPhotoToDatabase
+                    contentResolver = contentResolver
                 )
-            selectedImageURI = uriForInternallySavedFile
-        } else if (loggedEmail.value.loggedProfileEmail.isEmpty()) {
-            profilePictureHelper.waitForEmailThenStoreProfilePicture(
-                loggedEmailStateFlow = authenticationViewModel.loggedEmail,
-                profileImageUri = uri,
-                context = context,
-                databaseUpdaterCallback = ::uploadPhotoToDatabase,
-                lifecycleCoroutineScope = owner.lifecycleScope,
-                lifecycleOwner = owner,
-                stateChangerCallback = { resultUri ->
-                    selectedImageURI = resultUri
-                },
-                contentResolver = contentResolver
-            )
+                // Updating the database
+                profileViewModel.uploadPhotoToDatabase(loggedEmail.value.loggedProfileEmail, uri)
+            }
         }
+        selectedImageURI = uri
     }
 
     fetchAndUpdateProfile(
@@ -201,7 +174,7 @@ fun ProfileScreen(
     * */
     val profile = profileViewModel.profileLiveData.observeAsState()
     val playedTournamentsNumber = profileViewModel.playedTournaments.observeAsState()
-    val achievements = achievementPlayerLiveData.observeAsState()
+    val achievements = achievementsProfileViewModel.achievementProfileListLiveData.observeAsState()
 
     BasicScreenWithAppBars(
         state = state,
@@ -214,7 +187,7 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            
+
             // Tabs for "Profile Info" and "Player Games"
             var selectedTabIndex by remember { mutableIntStateOf(0) }
             TabRow(
@@ -322,7 +295,7 @@ fun ProfileScreen(
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
-                                            text = "Status: " + if(achievement.status == 1) "Completed" else "Not completed",
+                                            text = "Status: " + if (achievement.status == 1) "Completed" else "Not completed",
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(

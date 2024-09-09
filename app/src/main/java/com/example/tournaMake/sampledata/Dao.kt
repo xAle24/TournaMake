@@ -367,6 +367,9 @@ interface MainProfileDao {
     """)
     fun getAllTournamentsPlayed(email: String): Int
 
+    @Query("UPDATE MAIN_PROFILE SET profileImage = :uri WHERE email = :email")
+    fun uploadProfilePhoto(uri: String, email: String)
+
     @Insert
     fun insert(mainProfiles: MainProfile)
 

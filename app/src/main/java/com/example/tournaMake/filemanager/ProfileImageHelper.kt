@@ -150,3 +150,24 @@ class ProfileImageHelperImpl: ProfileImageHelper {
         )
     }
 }
+fun storePhotoInInternalStorage(
+    uri: Uri,
+    email: String?,
+    context: Context,
+    contentResolver: ContentResolver
+) {
+    if (!doesDirectoryExist(AppDirectoryNames.profileImageDirectoryName, context, email)) {
+        createDirectory(AppDirectoryNames.profileImageDirectoryName, context, email)
+        Log.d("DEV", "storePhotoInInternalStorage - Created directory!")
+    }
+    val inputStream = contentResolver.openInputStream(uri)
+    val bitmap = BitmapFactory.decodeStream(inputStream)
+    inputStream?.close()
+    saveImageToDirectory(
+        bitmap = bitmap,
+        context = context,
+        dirName = AppDirectoryNames.profileImageDirectoryName, // defined in filemanager/FileUtils.kt
+        imageName = PROFILE_PICTURE_NAME, // defined in filemanager/FileUtils.kt
+        email = email
+    )
+}
