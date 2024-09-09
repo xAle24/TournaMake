@@ -71,7 +71,7 @@ fun MatchDetailsScreen(
     val themeViewModel = koinViewModel<ThemeViewModel>()
     val state by themeViewModel.state.collectAsStateWithLifecycle()
     val vm = koinViewModel<MatchDetailsViewModel>()
-    fetchMatchData(vm,  owner)
+    fetchMatchData(vm, owner)
     val gameImage: Uri? = null
 
     val playedGameLiveData = vm.playedGame.observeAsState()
@@ -152,8 +152,15 @@ fun MatchDetailsHeading(
                         .height(80.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Match", style = MaterialTheme.typography.headlineSmall)
-                    Text(gameName)
+                    Text(
+                        "Match",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Text(
+                        gameName,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 }
                 IconButton(
                     onClick = {
@@ -179,6 +186,7 @@ fun MatchDetailsHeading(
                     Icon(
                         imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                         contentDescription = "Favourite Match indicator",
+                        tint = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
@@ -242,7 +250,6 @@ fun TeamElementInMatchDetailsScreen(
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier
                         .fillMaxWidth(),
-                    //.background(Color.White),
                     textAlign = TextAlign.Center
                 )
                 Text(
@@ -265,7 +272,6 @@ fun MiniProfileImageMatchDetails(
     ) {
         OutlinedCard(
             modifier = Modifier
-                //.background(Color.White)
                 .width(80.dp)
                 .height(80.dp)
                 .padding(4.dp),
@@ -287,7 +293,7 @@ fun MiniProfileImageMatchDetails(
                 )
             }
         }
-        Text(profileName)
+        Text(profileName, color = MaterialTheme.colorScheme.onPrimary)
     }
     Spacer(modifier = Modifier.width(8.dp))
 }
