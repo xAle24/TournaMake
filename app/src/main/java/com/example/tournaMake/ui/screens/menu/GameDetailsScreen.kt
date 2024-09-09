@@ -3,8 +3,10 @@ package com.example.tournaMake.ui.screens.menu
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -13,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,20 +57,30 @@ fun GameDetailsScreen(
             //TODO: add games images
             Text(
                 text = gameDetails?.name ?: "Loading..",
-                style = MaterialTheme.typography.headlineLarge
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onPrimary
             )
             Text(
-                text = "Minimum participants:" + (gameDetails?.minPlayers ?: "Loading.."),
-                style = MaterialTheme.typography.headlineSmall
+                text = "Minimum participants: " + (gameDetails?.minPlayers ?: "Loading.."),
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onPrimary
             )
             Text(
-                text = "Maximum participants:" + (gameDetails?.maxPlayers ?: "Loading.."),
-                style = MaterialTheme.typography.headlineSmall
+                text = "Maximum participants: " + (gameDetails?.maxPlayers ?: "Loading.."),
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onPrimary
             )
             Text(
                 text = "Description: \n" + (gameDetails?.description ?: "Loading.."),
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onPrimary
             )
+            Spacer(modifier = Modifier.height(10.dp))
+            HorizontalDivider(
+                color = MaterialTheme.colorScheme.onPrimary,
+                thickness = 3.dp
+            )
+            Spacer(modifier = Modifier.height(10.dp))
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 128.dp),
                 content = {
@@ -93,7 +106,9 @@ fun GameDetailsScreen(
                                 )
                             ) {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().padding(3.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(3.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
