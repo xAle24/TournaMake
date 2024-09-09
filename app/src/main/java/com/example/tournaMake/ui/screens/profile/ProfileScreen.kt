@@ -52,6 +52,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.graphics.shapes.CornerRounding
+import androidx.graphics.shapes.RoundedPolygon
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -215,13 +217,13 @@ fun ProfileScreen(
                     Modifier
                         .clickable { selectedTabIndex = 0 }
                         .padding(5.dp),
-                    color = getThemeColors(themeState = state).getNormalTextColor()
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text("Achievements",
                     Modifier
                         .clickable { selectedTabIndex = 1 }
                         .padding(5.dp),
-                    color = getThemeColors(themeState = state).getNormalTextColor()
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
@@ -235,6 +237,7 @@ fun ProfileScreen(
                             .fillMaxWidth(0.9f)
                             .fillMaxHeight(),
                     ) {
+                        Spacer(modifier = Modifier.height(10.dp))
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -264,10 +267,15 @@ fun ProfileScreen(
                                 modifier = Modifier
                                     .padding(start = 10.dp)
                             ) {
-                                Text(profile.value?.username ?: "Loading...", fontSize = 50.sp)
+                                Text(
+                                    profile.value?.username ?: "Loading...",
+                                    fontSize = 50.sp,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
                                 Text(
                                     "Latitude: ${profile.value?.locationLatitude ?: "Unknown"}\nLongitude: ${profile.value?.locationLongitude ?: "Unknown"}",
-                                    style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp)
+                                    fontSize = 20.sp,
+                                    color = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
                         }
@@ -340,6 +348,7 @@ fun ProfileImage(
                     .padding(4.dp)
                     .width(150.dp)
                     .height(150.dp)
+                    .border(BorderStroke(3.dp, color = MaterialTheme.colorScheme.secondary))
                     .clickable {
                         photoPickerLauncher.launch(
                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -354,6 +363,7 @@ fun ProfileImage(
                     .padding(4.dp)
                     .width(150.dp)
                     .height(150.dp)
+                    .border(BorderStroke(3.dp, color = MaterialTheme.colorScheme.secondary))
                     .clickable {
                         photoPickerLauncher.launch(
                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -500,7 +510,8 @@ fun ProfileCardButton(
                 text = text,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
