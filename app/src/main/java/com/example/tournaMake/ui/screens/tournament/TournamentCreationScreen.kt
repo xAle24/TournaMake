@@ -99,24 +99,19 @@ fun TournamentCreationScreen(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
+            /*Image(
                 painter = painterResource(id = imageLogoId),
                 contentDescription = "top app bar background",
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .fillMaxHeight(0.15f)
-            )
-            Spacer(modifier = Modifier.height(30.dp))
+            )*/
             Column(
                 modifier = Modifier
-                    .fillMaxSize(0.9f)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(color = MaterialTheme.colorScheme.secondary.copy(0.8f)),
-                    //.verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
+                    .fillMaxWidth(0.9f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {// selection menus column
                 Spacer(modifier = Modifier.height(30.dp))
                 TextField(
                     value = selectedTournamentName,
@@ -147,71 +142,102 @@ fun TournamentCreationScreen(
                 SelectionMenuTournamentType(tournamentTypeList) { selectedTournamentType = it }
 
                 Spacer(modifier = Modifier.height(10.dp))
-
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .fillMaxHeight(0.65f)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(color = MaterialTheme.colorScheme.secondary.copy(0.8f)),
+                //.verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(modifier = Modifier.height(6.dp))
                 /*
                 * Here begins the huge part of the team container
                 * */
                 Column(
-                    modifier = Modifier.fillMaxHeight(0.6f)
+                    modifier = Modifier.fillMaxHeight(),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     TeamContainer(
                         removeTeam = matchCreationViewModel::removeTeam
                     )
                 }
-
-                Button(
-                    onClick = {
-                        matchCreationViewModel.addTeam(TeamUIImpl(emptySet(), emptySet(), ""))
-                    },
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(30.dp))
-                        .height(60.dp)
-                        .background(colorConstants.getButtonBackground())
-                        .fillMaxWidth(0.9f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent
-                    ),
-                    border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
-                ) {
-                    Text("Add team")
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = {
-                        if (selectedGame == null) {
-                            Toast.makeText(context, "Select a game before continuing", Toast.LENGTH_SHORT).show()
-                        } else if (selectedTournamentType == null) {
-                            Toast.makeText(context, "Select a tournament type before continuing", Toast.LENGTH_SHORT).show()
-                        } else if (selectedTournamentName == "") {
-                            Toast.makeText(context, "Select a name before continuing", Toast.LENGTH_SHORT).show()
-                        } else if (selectedTournamentType!!.name == "Double Bracket") {
-                            Toast.makeText(context, "This mode will be added in the next update", Toast.LENGTH_SHORT).show()
-                        } else if (teamsSet == null || teamsSet!!.size < 2) {
-                            Toast.makeText(context, "At least 2 teams must be present", Toast.LENGTH_SHORT).show()
-                        } else {
-                            navigateToTournament(
-                                teamsSet!!,
-                                selectedGame,
-                                selectedTournamentType,
-                                selectedTournamentName,
-                                navController = navController,
-                                owner = owner
-                            )
-                        }
-                    },
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(30.dp))
-                        .height(60.dp)
-                        .fillMaxWidth(0.9f)
-                        .background(colorConstants.getButtonBackground()),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent
-                    ),
-                    border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
-                ) {
-                    Text("Start tournament")
-                }
-                Spacer(modifier = Modifier.height(40.dp))
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Button(
+                onClick = {
+                    matchCreationViewModel.addTeam(TeamUIImpl(emptySet(), emptySet(), ""))
+                },
+                modifier = Modifier
+                    .clip(RoundedCornerShape(30.dp))
+                    .height(60.dp)
+                    .background(colorConstants.getButtonBackground())
+                    .fillMaxWidth(0.9f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent
+                ),
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
+            ) {
+                Text("Add team")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    if (selectedGame == null) {
+                        Toast.makeText(
+                            context,
+                            "Select a game before continuing",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else if (selectedTournamentType == null) {
+                        Toast.makeText(
+                            context,
+                            "Select a tournament type before continuing",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else if (selectedTournamentName == "") {
+                        Toast.makeText(
+                            context,
+                            "Select a name before continuing",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else if (selectedTournamentType!!.name == "Double Bracket") {
+                        Toast.makeText(
+                            context,
+                            "This mode will be added in the next update",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else if (teamsSet == null || teamsSet!!.size < 2) {
+                        Toast.makeText(
+                            context,
+                            "At least 2 teams must be present",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        navigateToTournament(
+                            teamsSet!!,
+                            selectedGame,
+                            selectedTournamentType,
+                            selectedTournamentName,
+                            navController = navController,
+                            owner = owner
+                        )
+                    }
+                },
+                modifier = Modifier
+                    .clip(RoundedCornerShape(30.dp))
+                    .height(60.dp)
+                    .fillMaxWidth(0.9f)
+                    .background(colorConstants.getButtonBackground()),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent
+                ),
+                border = BorderStroke(3.dp, MaterialTheme.colorScheme.outline)
+            ) {
+                Text("Start tournament")
             }
         }
     }
