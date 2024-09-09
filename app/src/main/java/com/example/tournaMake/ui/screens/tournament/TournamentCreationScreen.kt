@@ -112,8 +112,8 @@ fun TournamentCreationScreen(
                 modifier = Modifier
                     .fillMaxSize(0.9f)
                     .clip(RoundedCornerShape(20.dp))
-                    .background(color = MaterialTheme.colorScheme.secondary.copy(0.8f))
-                    .verticalScroll(rememberScrollState()),
+                    .background(color = MaterialTheme.colorScheme.secondary.copy(0.8f)),
+                    //.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -138,22 +138,27 @@ fun TournamentCreationScreen(
                     textStyle = MaterialTheme.typography.headlineLarge,
                     modifier = Modifier.fillMaxWidth(0.9f)
                 )
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 SelectionMenuGame(gamesList) { selectedGame = it }
 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 SelectionMenuTournamentType(tournamentTypeList) { selectedTournamentType = it }
 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 /*
                 * Here begins the huge part of the team container
                 * */
-                TeamContainer(
-                    removeTeam = matchCreationViewModel::removeTeam
-                )
+                Column(
+                    modifier = Modifier.fillMaxHeight(0.6f)
+                ) {
+                    TeamContainer(
+                        removeTeam = matchCreationViewModel::removeTeam
+                    )
+                }
+
                 Button(
                     onClick = {
                         matchCreationViewModel.addTeam(TeamUIImpl(emptySet(), emptySet(), ""))

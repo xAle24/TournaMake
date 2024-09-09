@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -194,7 +195,7 @@ fun TeamContainer(
         modifier = if (teamsSet != null && teamsSet!!.isNotEmpty())
             Modifier
                 .clip(RoundedCornerShape(20.dp))
-                .height((0.4 * screenHeight).dp)
+                .fillMaxHeight(0.8f)
         else
             Modifier
                 .clip(RoundedCornerShape(20.dp))

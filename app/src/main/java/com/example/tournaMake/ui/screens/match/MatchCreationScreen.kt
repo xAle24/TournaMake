@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -48,7 +46,6 @@ import androidx.navigation.NavController
 import com.example.tournaMake.R
 import com.example.tournaMake.activities.createMatch
 import com.example.tournaMake.activities.fetchDataForMatchCreation
-import com.example.tournaMake.data.models.GuestProfileListViewModel
 import com.example.tournaMake.data.models.MatchCreationViewModel
 import com.example.tournaMake.data.models.MatchViewModel
 import com.example.tournaMake.data.models.ThemeEnum
@@ -75,6 +72,10 @@ fun MatchCreationScreen(
         if (state.theme == ThemeEnum.Dark) R.drawable.light_writings else R.drawable.dark_writings
     val context = LocalContext.current
 
+    var selectedGame: Game? by remember {
+        mutableStateOf(null)
+    }
+
     BasicScreenWithAppBars(
         state = state,
         backFunction = { navController.navigateUp() },
@@ -90,9 +91,7 @@ fun MatchCreationScreen(
                     .align(Alignment.CenterHorizontally)
                     .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f))
             ) {
-                var selectedGame: Game? by remember {
-                    mutableStateOf(null)
-                }
+
                 SelectionMenu(gamesListLiveData) { selectedGame = it }
 
                 TeamContainer(
@@ -113,8 +112,16 @@ fun MatchCreationScreen(
                          * This is the function that calls the addTeam() callback,
                          * creating a new empty team.
                          * */
-                        onClick = { matchCreationViewModel.addTeam(TeamUIImpl(emptySet(), emptySet(), "")) },
-                        text = "Add Team"
+                        onClick = {
+                            matchCreationViewModel.addTeam(
+                                TeamUIImpl(
+                                    emptySet(),
+                                    emptySet(),
+                                    ""
+                                )
+                            )
+                        },
+                        text = "Add Team",
                     )
                     Spacer(modifier = Modifier.width(10.dp))
                     BottomTeamScreenButton(
@@ -123,9 +130,14 @@ fun MatchCreationScreen(
                         text = "Create Match",
                         onClick = {
                             if (selectedGame == null) {
-                                Toast.makeText(context, "Must choose a game first!", Toast.LENGTH_SHORT).show()
-                            } else if (matchCreationViewModel.teamsSet.value != null && matchCreationViewModel.teamsSet.value!!.size < 2){
-                                Toast.makeText(context, "At least 2 teams must be present!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Must choose a game first!", Toast.LENGTH_SHORT)
+                                    .show()
+                            } else if (matchCreationViewModel.teamsSet.value != null && matchCreationViewModel.teamsSet.value!!.size < 2) {
+                                Toast.makeText(
+                                    context,
+                                    "At least 2 teams must be present!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             } else if (matchCreationViewModel.teamsSet.value != null) {
                                 createMatch(
                                     selectedGame!!.gameID,
@@ -135,7 +147,11 @@ fun MatchCreationScreen(
                                     navController
                                 )
                             } else {
-                                Toast.makeText(context, "Unexpected error: teamsSet is null!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Unexpected error: teamsSet is null!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     )
@@ -155,7 +171,7 @@ fun BottomTeamScreenButton(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .fillMaxHeight()
+            .height(50.dp)
             .clickable { onClick() }
             .clip(RoundedCornerShape(6.dp))
             .background(getThemeColors(themeState = state).getButtonBackground())
