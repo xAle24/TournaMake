@@ -161,7 +161,7 @@ fun TournamentScreen(
                             )
                             if (!navController.popBackStack(
                                     route = NavigationRoute.TournamentsListScreen.route,
-                                    inclusive = false, // maybe this will force recomposition?
+                                    inclusive = false,
                                     saveState = false
                                 )
                             ) {

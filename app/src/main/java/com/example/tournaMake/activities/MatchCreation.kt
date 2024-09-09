@@ -71,7 +71,7 @@ fun createMatch(
         vmScreen.changeRepository(matchUUID)
         // Navigation to MatchScreen
         withContext(Dispatchers.Main) {
-            navController.navigate(NavigationRoute.MatchScreen.route)
+            navController.navigate(route = NavigationRoute.MatchScreen.route)
         }
     }
 }

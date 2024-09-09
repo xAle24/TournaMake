@@ -1,6 +1,7 @@
 package com.example.tournaMake.ui.screens.match
 
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -105,14 +106,13 @@ fun MatchScreen(
     val navBackStackEntry = navController.previousBackStackEntry
     val context = LocalContext.current
     BackHandler {
-        when(navBackStackEntry?.arguments?.getString("source")) {
-            "tournament" -> {
+        Log.d("DEV-MATCH-SCREEN", "Back stack entry destination: ${navBackStackEntry?.destination?.route}")
+        when(navBackStackEntry?.destination?.route) {
+            NavigationRoute.TournamentScreen.route -> {
                 // If the user came from the tournament, pop back to refresh tournament screen
                 navController.popBackStack(NavigationRoute.TournamentScreen.route, false)
-                // You can also pass back arguments via savedStateHandle to refresh UI
-                //navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
             }
-            "creation" -> {
+            NavigationRoute.MatchCreationScreen.route -> {
                 // If the user came from match creation, pop directly to the matches list
                 navController.popBackStack(NavigationRoute.MatchesListScreen.route, false)
             }
@@ -207,17 +207,16 @@ fun MatchScreen(
                 TournaMakeTopAppBar(
                     backButtonIcon = backButtonIcon, topAppBarBackground = topAppBarBackground
                 ) {
+                    Log.d("DEV-MATCH-SCREEN", "Back stack entry destination: ${navBackStackEntry?.destination?.route}")
                     // Back button
                     // If we got to this screen from the match creation, we need to go back twice
                     // to skip that screen and go back to the match list
-                    when(navBackStackEntry?.arguments?.getString("source")) {
-                        "tournament" -> {
+                    when(navBackStackEntry?.destination?.route) {
+                        NavigationRoute.TournamentScreen.route -> {
                             // If the user came from the tournament, pop back to refresh tournament screen
                             navController.popBackStack(NavigationRoute.TournamentScreen.route, false)
-                            // You can also pass back arguments via savedStateHandle to refresh UI
-                            navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
                         }
-                        "creation" -> {
+                        NavigationRoute.MatchCreationScreen.route -> {
                             // If the user came from match creation, pop directly to the matches list
                             navController.popBackStack(NavigationRoute.MatchesListScreen.route, false)
                         }

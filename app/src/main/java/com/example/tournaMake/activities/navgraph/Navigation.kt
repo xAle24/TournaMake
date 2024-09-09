@@ -29,8 +29,20 @@ import com.example.tournaMake.ui.screens.tournament.TournamentCreationScreen
 import com.example.tournaMake.ui.screens.tournament.TournamentListScreen
 import com.example.tournaMake.ui.screens.tournament.TournamentScreen
 
+/**
+ * To see an example of custom navigation, see class
+ * [MatchScreen].
+ * Suppose you navigate from A to B to C, then from C
+ * you need to know where to go back based on the previous destination.
+ * The code to do this is, provided that you're passing a NavController:
+ *
+ * val backStackEntry = navController.previousBackStackEntry
+ * when (backStackEntry?.destination?.route) {
+ *      NavigatioRoute.YourRoute.route -> ...
+ * }
+ * */
 sealed class NavigationRoute(
-    val route: String
+    val route: String,
 ) {
     data object MainScreen : NavigationRoute("MainScreen")
     data object LoginScreen : NavigationRoute("LoginScreen")
