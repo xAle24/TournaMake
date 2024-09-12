@@ -56,6 +56,7 @@ import com.example.tournaMake.data.models.ThemeViewModel
 import com.example.tournaMake.data.models.TournamentCreationViewModel
 import com.example.tournaMake.sampledata.Game
 import com.example.tournaMake.sampledata.TournamentType
+import com.example.tournaMake.tournamentmanager.isPowerOf2
 import com.example.tournaMake.ui.screens.common.BasicScreenWithAppBars
 import com.example.tournaMake.ui.screens.match.TeamContainer
 import com.example.tournaMake.ui.screens.match.TeamUIImpl
@@ -214,6 +215,12 @@ fun TournamentCreationScreen(
                         Toast.makeText(
                             context,
                             "At least 2 teams must be present",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else if (!isPowerOf2(teamsSet!!.size)) {
+                        Toast.makeText(
+                            context,
+                            "The number of teams must be a power of 2",
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
